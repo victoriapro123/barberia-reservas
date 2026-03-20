@@ -31,3 +31,7 @@ Este proyecto puede desplegarse como sitio estatico sin proceso de build.
 ## Nota tecnica
 
 Las claves de Firebase y EmailJS estan embebidas en el cliente y quedaran visibles en el navegador. Eso puede ser aceptable para claves publicas de Firebase, pero conviene revisar permisos de Firestore y configuracion de EmailJS antes de publicar en produccion.
+
+## Verificacion
+
+Repositorio conectado a GitHub y preparado para despliegues automaticos en Vercel desde la rama `main`.
