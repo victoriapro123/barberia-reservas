@@ -127,6 +127,8 @@ service cloud.firestore {
         "estado",
         "gestionadoEn",
         "gestionadoPor",
+        "finalizadoEn",
+        "finalizadoPor",
         "notaInterna",
         "notaActualizadaEn",
         "notaActualizadaPor"
@@ -171,6 +173,19 @@ service cloud.firestore {
       );
     }
 
+    function hasValidOptionalCompletionFields(data) {
+      return (
+        !data.keys().hasAny(["finalizadoPor"])
+        || data.finalizadoPor == request.auth.token.email
+        || data.finalizadoPor == null
+      )
+      && (
+        !data.keys().hasAny(["finalizadoEn"])
+        || data.finalizadoEn == request.time
+        || data.finalizadoEn == null
+      );
+    }
+
     function keepsImmutableFields() {
       return request.resource.data.barbero == resource.data.barbero
         && request.resource.data.fecha == resource.data.fecha
@@ -194,6 +209,11 @@ service cloud.firestore {
         && request.resource.data.estado in ["confirmada", "cancelada"]
         && request.resource.data.gestionadoPor == request.auth.token.email
         && request.resource.data.gestionadoEn == request.time
+      ) || (
+        resource.data.estado == "confirmada"
+        && request.resource.data.estado == "completada"
+        && request.resource.data.finalizadoPor == request.auth.token.email
+        && request.resource.data.finalizadoEn == request.time
       );
     }
 
@@ -217,9 +237,10 @@ service cloud.firestore {
         && hasRequiredBaseKeys(request.resource.data)
         && hasOnlyAllowedUpdatedKeys()
         && keepsImmutableFields()
-        && request.resource.data.estado in ["pendiente", "confirmada", "cancelada"]
+        && request.resource.data.estado in ["pendiente", "confirmada", "cancelada", "completada"]
         && hasValidStateTransition()
         && hasValidOptionalManagementFields(request.resource.data)
+        && hasValidOptionalCompletionFields(request.resource.data)
         && hasValidOptionalNoteFields(request.resource.data);
 
       allow delete: if false;

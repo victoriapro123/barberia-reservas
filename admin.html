@@ -166,6 +166,12 @@
       border: 1px solid rgba(199, 168, 107, 0.28);
     }
 
+    .btn-info {
+      background: rgba(120, 171, 233, 0.14);
+      color: #a9cbff;
+      border: 1px solid rgba(120, 171, 233, 0.28);
+    }
+
     .toolbar {
       display: grid;
       gap: 16px;
@@ -261,6 +267,12 @@
       background: rgba(217, 119, 119, 0.14);
       color: #ffb5b5;
       border: 1px solid rgba(217, 119, 119, 0.28);
+    }
+
+    .badge.completada {
+      background: rgba(120, 171, 233, 0.14);
+      color: #a9cbff;
+      border: 1px solid rgba(120, 171, 233, 0.28);
     }
 
     .details {
@@ -372,10 +384,12 @@
           <div class="filters">
             <input type="search" id="searchInput" placeholder="Buscar por nombre, correo, telefono, servicio, fecha u hora" />
             <select id="filterEstado">
+              <option value="activas">Activas</option>
               <option value="todas">Todas</option>
               <option value="pendiente">Pendientes</option>
               <option value="confirmada">Confirmadas</option>
               <option value="cancelada">Canceladas</option>
+              <option value="completada">Cliente listo</option>
             </select>
             <select id="filterDia">
               <option value="todos">Todas las fechas</option>
@@ -422,11 +436,12 @@
 
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
     const COLECCION_AGENDA_PUBLICA = "agenda_publica";
-    const ESTADOS_EDITABLES = ["pendiente", "confirmada", "cancelada"];
+    const ESTADOS_EDITABLES = ["pendiente", "confirmada", "cancelada", "completada"];
     const ESTADO_LABELS = {
       pendiente: "Pendiente",
       confirmada: "Confirmada",
-      cancelada: "Cancelada"
+      cancelada: "Cancelada",
+      completada: "Cliente listo"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -532,7 +547,11 @@
       const search = searchInput.value.trim().toLowerCase();
 
       return allRequests.filter((item) => {
-        if (estado !== "todas" && item.estado !== estado) {
+        if (estado === "activas" && item.estado === "completada") {
+          return false;
+        }
+
+        if (estado !== "todas" && estado !== "activas" && item.estado !== estado) {
           return false;
         }
 
@@ -660,7 +679,24 @@
 
           actions.appendChild(confirmButton);
           actions.appendChild(cancelButton);
-        } else {
+        } else if (item.estado === "confirmada") {
+          const doneButton = document.createElement("button");
+          doneButton.className = "btn-info";
+          doneButton.textContent = "Cliente listo";
+          doneButton.addEventListener("click", () => {
+            cambiarEstado(item.id, "completada");
+          });
+
+          const restoreButton = document.createElement("button");
+          restoreButton.className = "btn-warning";
+          restoreButton.textContent = "Volver a pendiente";
+          restoreButton.addEventListener("click", () => {
+            cambiarEstado(item.id, "pendiente");
+          });
+
+          actions.appendChild(doneButton);
+          actions.appendChild(restoreButton);
+        } else if (item.estado === "cancelada") {
           const restoreButton = document.createElement("button");
           restoreButton.className = "btn-warning";
           restoreButton.textContent = "Volver a pendiente";
@@ -668,6 +704,11 @@
             cambiarEstado(item.id, "pendiente");
           });
           actions.appendChild(restoreButton);
+        } else {
+          const archivedText = document.createElement("div");
+          archivedText.className = "helper";
+          archivedText.textContent = "Solicitud archivada como cliente listo.";
+          actions.appendChild(archivedText);
         }
 
         card.appendChild(actions);
@@ -736,7 +777,7 @@
 
       const slotRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(item.fechaISO, item.hora));
 
-      if (nuevoEstado === "cancelada") {
+      if (nuevoEstado === "cancelada" || nuevoEstado === "completada") {
         await deleteDoc(slotRef);
         return;
       }
@@ -815,10 +856,22 @@
           updatePayload.gestionadoPor = currentUser.email;
         }
 
+        if (nuevoEstado === "completada") {
+          updatePayload.finalizadoEn = serverTimestamp();
+          updatePayload.finalizadoPor = currentUser.email;
+        }
+
+        if (nuevoEstado === "pendiente") {
+          updatePayload.finalizadoEn = null;
+          updatePayload.finalizadoPor = null;
+        }
+
         await updateDoc(doc(db, COLECCION_SOLICITUDES, id), updatePayload);
         await sincronizarDisponibilidadPublica(item, nuevoEstado);
 
-        if (nuevoEstado !== "pendiente") {
+        if (nuevoEstado === "completada") {
+          setStatus(adminStatus, "Solicitud marcada como cliente listo y ocultada de la vista activa.", "success");
+        } else if (nuevoEstado !== "pendiente") {
           try {
             await enviarCorreoGestion(item, nuevoEstado);
             setStatus(adminStatus, `Solicitud marcada como ${ESTADO_LABELS[nuevoEstado]} y correo enviado al cliente.`, "success");
