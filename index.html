@@ -281,7 +281,7 @@
     <div class="hero-contenido">
       <h1 class="hero-titulo">Barber Elite</h1>
       <p class="hero-subtitulo">
-        Solicita tu hora de forma rapida, facil y segura.
+        Solicita tu hora de forma rapida, simple y segura.
       </p>
       <a href="#reservas" class="hero-btn">Solicitar ahora</a>
     </div>
@@ -304,6 +304,7 @@
 
       <div class="card">
         <h2>Selecciona un dia</h2>
+
         <div class="dias" id="diasContainer"></div>
 
         <div class="acciones-dia">
@@ -324,7 +325,8 @@
         <h2>Privacidad y seguridad</h2>
         <div class="aviso-seguridad">
           Esta web publica no expone datos personales ni consulta reservas de otros clientes.
-          Las solicitudes de hora quedan pendientes de confirmacion y las cancelaciones se gestionan por contacto directo con la barberia en
+          Las solicitudes de hora quedan pendientes de confirmacion y las cancelaciones se gestionan
+          por contacto directo con la barberia en
           <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
         </div>
       </div>
@@ -354,11 +356,11 @@
     const EMAILJS_PUBLIC_KEY = "1TuUUn0r14nKuFI0s";
     const EMAILJS_SERVICE_ID = "victoriap.rodriguezs";
     const EMAILJS_TEMPLATE_RESERVA = "template_37io5r9";
-    const COLECCION_SOLICITUDES = "solicitudes_reserva";
     const RESERVA_COOLDOWN_MS = 60 * 1000;
     const ULTIMA_RESERVA_KEY = "barber-elite-ultima-reserva";
-    const diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
-    const horasBase = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+    const COLECCION_SOLICITUDES = "solicitudes_reserva";
+    const DIAS_SEMANA = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+    const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -367,6 +369,9 @@
 
     let diaSeleccionado = null;
     let reservaEnProceso = false;
+
+    const barberoNombre = "Barber Elite";
+    const correoBarbero = "victoriap.rodriguezs@gmail.com";
 
     const diasContainer = document.getElementById("diasContainer");
     const btnVerHoras = document.getElementById("btnVerHoras");
@@ -394,7 +399,7 @@
       const servicio = normalizarTexto(document.getElementById("servicioCliente").value);
 
       if (!nombre || !correo || !telefono || !servicio) {
-        alert("Completa todos los datos antes de solicitar una hora.");
+        alert("Completa todos los datos antes de solicitar la hora.");
         return null;
       }
 
@@ -455,7 +460,7 @@
     function renderDias() {
       diasContainer.innerHTML = "";
 
-      diasSemana.forEach((dia) => {
+      DIAS_SEMANA.forEach((dia) => {
         const btn = document.createElement("button");
         btn.className = "dia-btn";
         btn.textContent = dia;
@@ -478,18 +483,18 @@
       });
     }
 
-    async function enviarCorreoReserva(solicitud) {
+    async function enviarCorreoReserva(datosReserva) {
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_RESERVA,
         {
-          to_email: "victoriap.rodriguezs@gmail.com",
-          cliente_nombre: solicitud.nombre,
-          cliente_correo: solicitud.correo,
-          cliente_telefono: solicitud.telefono,
-          servicio: solicitud.servicio,
-          fecha: solicitud.fecha,
-          hora: solicitud.hora,
+          to_email: correoBarbero,
+          cliente_nombre: datosReserva.nombre,
+          cliente_correo: datosReserva.correo,
+          cliente_telefono: datosReserva.telefono,
+          servicio: datosReserva.servicio,
+          fecha: datosReserva.fecha,
+          hora: datosReserva.hora,
           estado: "Pendiente"
         }
       );
@@ -508,7 +513,7 @@
       reservaEnProceso = true;
 
       const solicitud = {
-        barbero: "Barber Elite",
+        barbero: barberoNombre,
         fecha: dia,
         hora,
         nombre: datosCliente.nombre,
@@ -528,11 +533,11 @@
         alert("Solicitud enviada con exito.");
 
         enviarCorreoReserva(solicitud).catch((error) => {
-          console.error("Error al enviar correo de reserva:", error);
+          console.error("Error al enviar correo de solicitud:", error);
         });
       } catch (error) {
-        console.error("Error al registrar la solicitud:", error);
-        alert("Hubo un error al enviar la solicitud.");
+        console.error("Error al enviar la solicitud:", error);
+        alert("Hubo un error al registrar la solicitud.");
       } finally {
         reservaEnProceso = false;
       }
@@ -548,7 +553,7 @@
       horasGrid.innerHTML = "";
       mensajeHoras.textContent = `Horarios disponibles para solicitar el dia ${diaSeleccionado}.`;
 
-      horasBase.forEach((hora) => {
+      HORAS_BASE.forEach((hora) => {
         const card = document.createElement("div");
         card.className = "hora-card";
 
