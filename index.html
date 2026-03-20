@@ -164,6 +164,10 @@
       margin-bottom: 18px;
     }
 
+    .paso-oculto {
+      display: none;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -442,6 +446,27 @@
       font-size: 0.95rem;
     }
 
+    .slot-resumen {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(199, 168, 107, 0.12);
+      border: 1px solid rgba(199, 168, 107, 0.2);
+      color: #efe5d0;
+      line-height: 1.5;
+    }
+
+    .slot-resumen strong {
+      color: #ffffff;
+    }
+
+    .acciones-formulario {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
     .aviso-seguridad {
       line-height: 1.65;
       color: #ddd6cb;
@@ -534,22 +559,6 @@
       </div>
 
       <div class="card">
-        <h2>Datos del cliente</h2>
-        <p class="card-copy">Completa tus datos antes de enviar la solicitud.</p>
-        <div class="form-grid">
-          <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
-          <input type="email" id="correoCliente" placeholder="Tu correo" maxlength="120" autocomplete="email" />
-          <input type="tel" id="telefonoCliente" placeholder="Tu telefono" maxlength="20" autocomplete="tel" />
-          <select id="servicioCliente">
-            <option value="">Selecciona un servicio</option>
-            <option value="corte de pelo">corte de pelo</option>
-            <option value="corte de pelo + barba">corte de pelo + barba</option>
-            <option value="barba">barba</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="card">
         <h2>Selecciona una fecha</h2>
         <p class="card-copy">Puedes solicitar desde hoy hasta los proximos 90 dias. Los domingos no estan disponibles.</p>
 
@@ -586,6 +595,29 @@
         </div>
 
         <div class="mensaje" id="mensajeHoras"></div>
+      </div>
+
+      <div class="card paso-oculto" id="datosClienteCard">
+        <h2>Completa tus datos</h2>
+        <p class="card-copy">Primero eliges la fecha y la hora. Despues envias tu solicitud con tus datos.</p>
+        <div class="slot-resumen" id="slotResumen">
+          Aun no has elegido un horario.
+        </div>
+        <div class="form-grid">
+          <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
+          <input type="email" id="correoCliente" placeholder="Tu correo" maxlength="120" autocomplete="email" />
+          <input type="tel" id="telefonoCliente" placeholder="Tu telefono" maxlength="20" autocomplete="tel" />
+          <select id="servicioCliente">
+            <option value="">Selecciona un servicio</option>
+            <option value="corte de pelo">corte de pelo</option>
+            <option value="corte de pelo + barba">corte de pelo + barba</option>
+            <option value="barba">barba</option>
+          </select>
+        </div>
+        <div class="acciones-formulario">
+          <button class="btn-principal" id="btnEnviarSolicitud" type="button">Enviar solicitud</button>
+        </div>
+        <div class="mensaje" id="mensajeFormulario"></div>
       </div>
 
       <div class="card">
@@ -650,6 +682,7 @@
     const db = getFirestore(app);
 
     let fechaSeleccionada = null;
+    let horarioSeleccionado = null;
     let reservaEnProceso = false;
     let cargandoHoras = false;
     let calendarMonth = getMonthStart(getToday());
@@ -668,6 +701,10 @@
     const horasGrid = document.getElementById("horasGrid");
     const contenedorHoras = document.getElementById("contenedorHoras");
     const mensajeHoras = document.getElementById("mensajeHoras");
+    const datosClienteCard = document.getElementById("datosClienteCard");
+    const slotResumen = document.getElementById("slotResumen");
+    const btnEnviarSolicitud = document.getElementById("btnEnviarSolicitud");
+    const mensajeFormulario = document.getElementById("mensajeFormulario");
     const seccionReservas = document.getElementById("reservas");
 
     function normalizarTexto(valor) {
@@ -757,6 +794,7 @@
 
     function setSelectedDate(date) {
       fechaSeleccionada = getSelectedDateData(date);
+      horarioSeleccionado = null;
       horariosOcupados = new Map();
       calendarSelectionText.textContent = `Fecha seleccionada: ${fechaSeleccionada.label}`;
       textoDiaSeleccionado.textContent = `Fecha elegida: ${fechaSeleccionada.label}`;
@@ -764,7 +802,18 @@
       contenedorHoras.classList.add("oculto");
       horasGrid.innerHTML = "";
       mensajeHoras.textContent = 'Presiona "Ver horarios" para elegir una hora.';
+      mensajeFormulario.textContent = "";
+      slotResumen.innerHTML = "Aun no has elegido un horario.";
+      datosClienteCard.classList.add("paso-oculto");
       renderCalendar();
+    }
+
+    function abrirPasoDatos(fechaData, hora) {
+      horarioSeleccionado = { fecha: fechaData.label, fechaISO: fechaData.iso, hora };
+      slotResumen.innerHTML = `<strong>Hora elegida:</strong> ${fechaData.label} a las ${hora}`;
+      mensajeFormulario.textContent = "Completa tus datos para enviar la solicitud.";
+      datosClienteCard.classList.remove("paso-oculto");
+      datosClienteCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function createCalendarDayNode(date) {
@@ -914,8 +963,13 @@
       );
     }
 
-    async function solicitarHora(fechaData, hora) {
+    async function solicitarHora() {
       if (reservaEnProceso) {
+        return;
+      }
+
+      if (!horarioSeleccionado) {
+        alert("Primero elige una fecha y una hora.");
         return;
       }
 
@@ -928,9 +982,9 @@
 
       const solicitud = {
         barbero: barberoNombre,
-        fecha: fechaData.label,
-        fechaISO: fechaData.iso,
-        hora,
+        fecha: horarioSeleccionado.fecha,
+        fechaISO: horarioSeleccionado.fechaISO,
+        hora: horarioSeleccionado.hora,
         nombre: datosCliente.nombre,
         correo: datosCliente.correo,
         telefono: datosCliente.telefono,
@@ -939,13 +993,13 @@
         creadoEn: serverTimestamp()
       };
 
-      const disponibilidadRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(fechaData.iso, hora));
+      const disponibilidadRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(horarioSeleccionado.fechaISO, horarioSeleccionado.hora));
       const solicitudRef = doc(collection(db, COLECCION_SOLICITUDES));
       const disponibilidadPayload = {
         barbero: barberoNombre,
-        fecha: fechaData.label,
-        fechaISO: fechaData.iso,
-        hora,
+        fecha: horarioSeleccionado.fecha,
+        fechaISO: horarioSeleccionado.fechaISO,
+        hora: horarioSeleccionado.hora,
         estado: "pendiente",
         creadoEn: serverTimestamp()
       };
@@ -964,8 +1018,12 @@
 
         registrarReservaLocal();
         limpiarFormulario();
+        horarioSeleccionado = null;
+        datosClienteCard.classList.add("paso-oculto");
+        slotResumen.innerHTML = "Aun no has elegido un horario.";
+        mensajeFormulario.textContent = "";
         await renderHoras();
-        mensajeHoras.textContent = `Solicitud enviada para ${fechaData.label} a las ${hora}. La barberia debe confirmarla.`;
+        mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barberia debe confirmarla.`;
         alert("Solicitud enviada con exito.");
 
         enviarCorreoReserva(solicitud).catch((error) => {
@@ -975,6 +1033,10 @@
         console.error("Error al enviar la solicitud:", error);
         if (error.message === "slot_taken") {
           await renderHoras();
+          datosClienteCard.classList.add("paso-oculto");
+          horarioSeleccionado = null;
+          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          mensajeFormulario.textContent = "";
           alert("Esa hora ya no esta disponible. Elige otra.");
         } else {
           alert("Hubo un error al registrar la solicitud.");
@@ -1043,13 +1105,13 @@
 
         const btnReservar = document.createElement("button");
         btnReservar.className = "btn-reservar";
-        btnReservar.textContent = estadoOcupacion ? "No disponible" : "Solicitar hora";
+        btnReservar.textContent = estadoOcupacion ? "No disponible" : "Elegir hora";
         btnReservar.disabled = Boolean(estadoOcupacion);
         if (estadoOcupacion) {
           btnReservar.classList.add("btn-bloqueado");
         } else {
           btnReservar.addEventListener("click", () => {
-            solicitarHora(fechaSeleccionada, hora);
+            abrirPasoDatos(fechaSeleccionada, hora);
           });
         }
 
@@ -1086,6 +1148,10 @@
       }
 
       renderHoras();
+    });
+
+    btnEnviarSolicitud.addEventListener("click", () => {
+      solicitarHora();
     });
 
     btnAbrirReserva.addEventListener("click", () => {
