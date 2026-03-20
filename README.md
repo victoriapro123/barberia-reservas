@@ -45,6 +45,18 @@ Para aplicar las reglas:
 2. Inicia sesion: `firebase login`
 3. Desde esta carpeta ejecuta: `firebase deploy --only firestore:rules`
 
+## Variables de entorno
+
+Para que la funcion serverless de Vercel envie correos, configura estas variables en el proyecto:
+
+- `EMAILJS_SERVICE_ID`
+- `EMAILJS_TEMPLATE_ID`
+- `EMAILJS_PUBLIC_KEY`
+- `EMAILJS_PRIVATE_KEY`
+- `BARBER_EMAIL`
+
+Puedes usar [.env.example](./.env.example) como referencia. En Vercel se cargan desde `Settings -> Environment Variables`.
+
 ## Verificacion
 
 Repositorio conectado a GitHub y preparado para despliegues automaticos en Vercel desde la rama `main`.

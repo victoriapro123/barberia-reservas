@@ -2,3 +2,5 @@
 Thumbs.db
 Desktop.ini
 firebase-debug.log
+.env
+.env.local

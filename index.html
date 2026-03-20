@@ -333,8 +333,6 @@
     </div>
   </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -353,9 +351,6 @@
       appId: "1:571109191013:web:11cf4ad1b425e38d14858c"
     };
 
-    const EMAILJS_PUBLIC_KEY = "1TuUUn0r14nKuFI0s";
-    const EMAILJS_SERVICE_ID = "victoriap.rodriguezs";
-    const EMAILJS_TEMPLATE_RESERVA = "template_37io5r9";
     const RESERVA_COOLDOWN_MS = 60 * 1000;
     const ULTIMA_RESERVA_KEY = "barber-elite-ultima-reserva";
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
@@ -365,14 +360,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    emailjs.init(EMAILJS_PUBLIC_KEY);
-
     let diaSeleccionado = null;
     let reservaEnProceso = false;
 
     const barberoNombre = "Barber Elite";
-    const correoBarbero = "victoriap.rodriguezs@gmail.com";
-
     const diasContainer = document.getElementById("diasContainer");
     const btnVerHoras = document.getElementById("btnVerHoras");
     const textoDiaSeleccionado = document.getElementById("textoDiaSeleccionado");
@@ -484,20 +475,17 @@
     }
 
     async function enviarCorreoReserva(datosReserva) {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_RESERVA,
-        {
-          to_email: correoBarbero,
-          cliente_nombre: datosReserva.nombre,
-          cliente_correo: datosReserva.correo,
-          cliente_telefono: datosReserva.telefono,
-          servicio: datosReserva.servicio,
-          fecha: datosReserva.fecha,
-          hora: datosReserva.hora,
-          estado: "Pendiente"
-        }
-      );
+      const response = await fetch("/api/send-booking-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(datosReserva)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Email endpoint error: ${response.status}`);
+      }
     }
 
     async function solicitarHora(dia, hora) {
