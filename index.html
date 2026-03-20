@@ -98,11 +98,13 @@
       justify-content: center;
       min-height: 54px;
       padding: 0 28px;
+      border: none;
       border-radius: 14px;
       background: linear-gradient(135deg, #d5b987, #b89451);
       color: #0d0d0d;
       text-decoration: none;
       font-weight: 700;
+      cursor: pointer;
       box-shadow: 0 16px 30px rgba(172, 133, 64, 0.22);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -114,6 +116,10 @@
 
     .seccion-reservas {
       padding: 44px 20px 64px;
+    }
+
+    .seccion-reservas.oculto-inicial {
+      display: none;
     }
 
     .container {
@@ -516,11 +522,11 @@
       <p class="hero-subtitulo">
         Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la confirmacion de la barberia.
       </p>
-      <a href="#reservas" class="hero-btn">Elegir fecha</a>
+      <button type="button" id="btnAbrirReserva" class="hero-btn">Elegir fecha</button>
     </div>
   </section>
 
-  <section class="seccion-reservas" id="reservas">
+  <section class="seccion-reservas oculto-inicial" id="reservas">
     <div class="container">
       <div class="titulo">Agenda tu visita</div>
       <div class="subtitulo">
@@ -653,6 +659,7 @@
     const btnPrevMonth = document.getElementById("btnPrevMonth");
     const btnNextMonth = document.getElementById("btnNextMonth");
     const btnVerHoras = document.getElementById("btnVerHoras");
+    const btnAbrirReserva = document.getElementById("btnAbrirReserva");
     const calendarMonthTitle = document.getElementById("calendarMonthTitle");
     const calendarWeekdays = document.getElementById("calendarWeekdays");
     const calendarDays = document.getElementById("calendarDays");
@@ -661,6 +668,7 @@
     const horasGrid = document.getElementById("horasGrid");
     const contenedorHoras = document.getElementById("contenedorHoras");
     const mensajeHoras = document.getElementById("mensajeHoras");
+    const seccionReservas = document.getElementById("reservas");
 
     function normalizarTexto(valor) {
       return valor.replace(/\s+/g, " ").trim();
@@ -1080,12 +1088,21 @@
       renderHoras();
     });
 
+    btnAbrirReserva.addEventListener("click", () => {
+      seccionReservas.classList.remove("oculto-inicial");
+      seccionReservas.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
     function iniciar() {
       createWeekdayHeaders();
       renderCalendar();
       textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
       calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
       mensajeHoras.textContent = "Las solicitudes se registran sin exponer datos de otros clientes.";
+
+      if (window.location.hash === "#reservas") {
+        seccionReservas.classList.remove("oculto-inicial");
+      }
     }
 
     iniciar();
