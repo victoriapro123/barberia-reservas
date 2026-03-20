@@ -39,7 +39,7 @@ service cloud.firestore {
         && value.matches("^[+\\d\\s()\\-]{8,20}$");
     }
 
-    function hasBaseKeys(data) {
+    function hasRequiredBaseKeys(data) {
       return data.keys().hasAll([
           "barbero",
           "fecha",
@@ -50,8 +50,11 @@ service cloud.firestore {
           "servicio",
           "estado",
           "creadoEn"
-        ])
-        && data.keys().hasOnly([
+        ]);
+    }
+
+    function hasOnlyCreateKeys(data) {
+      return data.keys().hasOnly([
           "barbero",
           "fecha",
           "fechaISO",
@@ -82,18 +85,9 @@ service cloud.firestore {
       );
     }
 
-    function hasOnlyAllowedAdminKeys(data) {
-      return data.keys().hasOnly([
-        "barbero",
-        "fecha",
-        "fechaISO",
-        "hora",
-        "nombre",
-        "correo",
-        "telefono",
-        "servicio",
+    function hasOnlyAllowedUpdatedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         "estado",
-        "creadoEn",
         "gestionadoEn",
         "gestionadoPor",
         "notaInterna",
@@ -168,7 +162,8 @@ service cloud.firestore {
 
     match /solicitudes_reserva/{requestId} {
       allow create: if
-        hasBaseKeys(request.resource.data)
+        hasRequiredBaseKeys(request.resource.data)
+        && hasOnlyCreateKeys(request.resource.data)
         && request.resource.data.barbero == "Barber Elite"
         && request.resource.data.estado == "pendiente"
         && hasRequiredCalendarFieldsForCreate(request.resource.data)
@@ -182,8 +177,8 @@ service cloud.firestore {
       allow read: if isAdmin();
 
       allow update: if isAdmin()
-        && hasBaseKeys(request.resource.data)
-        && hasOnlyAllowedAdminKeys(request.resource.data)
+        && hasRequiredBaseKeys(request.resource.data)
+        && hasOnlyAllowedUpdatedKeys()
         && keepsImmutableFields()
         && request.resource.data.estado in ["pendiente", "confirmada", "cancelada"]
         && hasValidStateTransition()
