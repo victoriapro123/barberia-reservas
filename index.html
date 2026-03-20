@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barber Elite</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: #0b0b0b;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)),
+        url("https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?auto=format&fit=crop&w=1400&q=80");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .hero-contenido {
+      max-width: 800px;
+    }
+
+    .hero-titulo {
+      font-size: 4rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .hero-subtitulo {
+      font-size: 1.2rem;
+      color: #e5e5e5;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .hero-btn {
+      display: inline-block;
+      background: #c7a86b;
+      color: black;
+      text-decoration: none;
+      padding: 14px 26px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: 0.2s ease;
+    }
+
+    .hero-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.96;
+    }
+
+    .seccion-reservas {
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .titulo {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: #bdbdbd;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .card h2 {
+      margin-bottom: 16px;
+      color: white;
+      font-size: 1.25rem;
+    }
+
+    .dias {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .dia-btn {
+      background: #1b1b1b;
+      color: white;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-weight: 600;
+    }
+
+    .dia-btn:hover {
+      background: #252525;
+    }
+
+    .dia-btn.activo {
+      background: #c7a86b;
+      color: black;
+      border-color: #c7a86b;
+    }
+
+    .acciones-dia {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .btn-principal {
+      background: #c7a86b;
+      color: black;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s ease;
+    }
+
+    .btn-principal:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .btn-principal:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .dia-seleccionado-texto {
+      color: #cfcfcf;
+      font-size: 0.95rem;
+    }
+
+    .horas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .hora-card {
+      background: #111;
+      border: 1px solid #2d2d2d;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .hora-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .hora-texto {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: white;
+    }
+
+    .estado-disponible {
+      color: #9be79b;
+      font-size: 0.9rem;
+    }
+
+    .estado-reservada {
+      color: #ffb3b3;
+      font-size: 0.9rem;
+    }
+
+    .btn-reservar {
+      width: 100%;
+      background: #c7a86b;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-reservar:hover {
+      opacity: 0.95;
+    }
+
+    .reserva-info {
+      margin-top: 8px;
+      color: #d8d8d8;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .btn-cancelar {
+      margin-top: 8px;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+      display: inline-block;
+    }
+
+    .btn-cancelar:hover {
+      color: white;
+      background: transparent;
+      text-decoration: underline;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #0f0f0f;
+      color: white;
+      outline: none;
+    }
+
+    .form-grid input:focus {
+      border-color: #c7a86b;
+    }
+
+    .lista-reservas {
+      display: grid;
+      gap: 12px;
+    }
+
+    .item-reserva {
+      background: #111;
+      border: 1px solid #2c2c2c;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .item-reserva strong {
+      color: white;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .mensaje {
+      margin-top: 10px;
+      color: #bfbfbf;
+      font-size: 0.95rem;
+    }
+
+    .oculto {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .hero-titulo {
+        font-size: 2.7rem;
+      }
+
+      .hero-subtitulo {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-contenido">
+      <h1 class="hero-titulo">Barber Elite</h1>
+      <p class="hero-subtitulo">
+        Reserva tu hora de forma rápida, fácil y segura.
+      </p>
+      <a href="#reservas" class="hero-btn">Reservar ahora</a>
+    </div>
+  </section>
+
+  <section class="seccion-reservas" id="reservas">
+    <div class="container">
+      <div class="titulo">Barber Elite</div>
+      <div class="subtitulo">Reserva y administra tus horas</div>
+
+      <div class="card">
+        <h2>Datos del cliente</h2>
+        <div class="form-grid">
+          <input type="text" id="nombreCliente" placeholder="Tu nombre" />
+          <input type="email" id="correoCliente" placeholder="Tu correo" />
+          <input type="text" id="telefonoCliente" placeholder="Tu teléfono" />
+          <input type="text" id="servicioCliente" placeholder="Servicio" />
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Selecciona un día</h2>
+
+        <div class="dias" id="diasContainer"></div>
+
+        <div class="acciones-dia">
+          <button class="btn-principal" id="btnVerHoras" disabled>Ver horas</button>
+          <div class="dia-seleccionado-texto" id="textoDiaSeleccionado">
+            No has seleccionado ningún día.
+          </div>
+        </div>
+
+        <div id="contenedorHoras" class="oculto">
+          <div class="horas-grid" id="horasGrid"></div>
+        </div>
+
+        <div class="mensaje" id="mensajeHoras"></div>
+      </div>
+
+      <div class="card">
+        <h2>Reservas activas</h2>
+        <div class="lista-reservas" id="listaReservas"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      where,
+      updateDoc,
+      doc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBc_r_3V9wmqWZpLeoBWZhRHJhy0F_zCIo",
+      authDomain: "barberia-elite-d5912.firebaseapp.com",
+      projectId: "barberia-elite-d5912",
+      storageBucket: "barberia-elite-d5912.firebasestorage.app",
+      messagingSenderId: "571109191013",
+      appId: "1:571109191013:web:11cf4ad1b425e38d14858c"
+    };
+
+    const EMAILJS_PUBLIC_KEY = "1TuUUn0r14nKuFI0s";
+    const EMAILJS_SERVICE_ID = "victoriap.rodriguezs";
+    const EMAILJS_TEMPLATE_RESERVA = "template_37io5r9";
+    const EMAILJS_TEMPLATE_CANCELACION = "template_37io5r9";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+
+    const barberoNombre = "Barber Elite";
+    const correoBarbero = "victoriap.rodriguezs@gmail.com";
+
+    const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const horasBase = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+
+    let diaSeleccionado = null;
+    let horasVisibles = false;
+    let reservasDelDia = [];
+    let todasLasReservasActivas = [];
+
+    const diasContainer = document.getElementById("diasContainer");
+    const btnVerHoras = document.getElementById("btnVerHoras");
+    const textoDiaSeleccionado = document.getElementById("textoDiaSeleccionado");
+    const horasGrid = document.getElementById("horasGrid");
+    const contenedorHoras = document.getElementById("contenedorHoras");
+    const listaReservas = document.getElementById("listaReservas");
+    const mensajeHoras = document.getElementById("mensajeHoras");
+
+    function renderDias() {
+      diasContainer.innerHTML = "";
+
+      diasSemana.forEach((dia) => {
+        const btn = document.createElement("button");
+        btn.className = "dia-btn";
+        btn.textContent = dia;
+
+        if (diaSeleccionado === dia) {
+          btn.classList.add("activo");
+        }
+
+        btn.addEventListener("click", () => {
+          diaSeleccionado = dia;
+          horasVisibles = false;
+
+          textoDiaSeleccionado.textContent = `Día seleccionado: ${dia}`;
+          btnVerHoras.disabled = false;
+
+          contenedorHoras.classList.add("oculto");
+          horasGrid.innerHTML = "";
+          mensajeHoras.textContent = "Presiona “Ver horas” para mostrar la disponibilidad.";
+
+          renderDias();
+        });
+
+        diasContainer.appendChild(btn);
+      });
+    }
+
+    async function obtenerReservasDelDia(dia) {
+      const q = query(
+        collection(db, "reservas"),
+        where("fecha", "==", dia),
+        where("estado", "==", "reservada")
+      );
+
+      const snapshot = await getDocs(q);
+      reservasDelDia = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data()
+      }));
+    }
+
+    async function obtenerTodasLasReservasActivas() {
+      const q = query(
+        collection(db, "reservas"),
+        where("estado", "==", "reservada")
+      );
+
+      const snapshot = await getDocs(q);
+      todasLasReservasActivas = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data()
+      }));
+    }
+
+    function buscarReservaEnDia(hora) {
+      return reservasDelDia.find((r) => r.hora === hora);
+    }
+
+    async function enviarCorreoReserva(datosReserva) {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_RESERVA,
+        {
+          to_email: correoBarbero,
+          cliente_nombre: datosReserva.nombre,
+          cliente_correo: datosReserva.correo,
+          cliente_telefono: datosReserva.telefono,
+          servicio: datosReserva.servicio,
+          fecha: datosReserva.fecha,
+          hora: datosReserva.hora,
+          estado: "Reservada"
+        }
+      );
+    }
+
+    async function enviarCorreoCancelacion(datosReserva) {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_CANCELACION,
+        {
+          to_email: correoBarbero,
+          cliente_nombre: datosReserva.nombre,
+          cliente_correo: datosReserva.correo,
+          cliente_telefono: datosReserva.telefono,
+          servicio: datosReserva.servicio,
+          fecha: datosReserva.fecha,
+          hora: datosReserva.hora,
+          estado: "Cancelada"
+        }
+      );
+    }
+
+    async function reservarHora(dia, hora) {
+      const nombre = document.getElementById("nombreCliente").value.trim();
+      const correo = document.getElementById("correoCliente").value.trim();
+      const telefono = document.getElementById("telefonoCliente").value.trim();
+      const servicio = document.getElementById("servicioCliente").value.trim();
+
+      if (!nombre || !correo || !telefono || !servicio) {
+        alert("Completa todos los datos antes de reservar.");
+        return;
+      }
+
+      const existente = buscarReservaEnDia(hora);
+      if (existente) {
+        alert("Esa hora ya está reservada.");
+        return;
+      }
+
+      const reserva = {
+        barbero: barberoNombre,
+        fecha: dia,
+        hora,
+        nombre,
+        correo,
+        telefono,
+        servicio,
+        estado: "reservada",
+        creadoEn: serverTimestamp()
+      };
+
+      try {
+        await addDoc(collection(db, "reservas"), reserva);
+        await refrescarVistaCompleta();
+        alert("Hora reservada con éxito.");
+
+        enviarCorreoReserva(reserva).catch((error) => {
+          console.error("Error al enviar correo de reserva:", error);
+        });
+      } catch (error) {
+        console.error("Error al reservar:", error);
+        alert("Hubo un error al reservar la hora.");
+      }
+    }
+
+    async function cancelarHora(idReserva) {
+      try {
+        const reserva =
+          reservasDelDia.find((r) => r.id === idReserva) ||
+          todasLasReservasActivas.find((r) => r.id === idReserva);
+
+        if (!reserva) {
+          alert("No se encontró la reserva.");
+          return;
+        }
+
+        await updateDoc(doc(db, "reservas", idReserva), {
+          estado: "cancelada"
+        });
+
+        await refrescarVistaCompleta();
+        alert("Hora cancelada correctamente.");
+
+        enviarCorreoCancelacion(reserva).catch((error) => {
+          console.error("Error al enviar correo de cancelación:", error);
+        });
+      } catch (error) {
+        console.error("Error al cancelar:", error);
+        alert("Hubo un error al cancelar la hora.");
+      }
+    }
+
+    function renderHoras() {
+      if (!diaSeleccionado) {
+        alert("Primero selecciona un día.");
+        return;
+      }
+
+      horasVisibles = true;
+      contenedorHoras.classList.remove("oculto");
+      horasGrid.innerHTML = "";
+      mensajeHoras.textContent = `Horas para ${diaSeleccionado}.`;
+
+      horasBase.forEach((hora) => {
+        const reserva = buscarReservaEnDia(hora);
+
+        const card = document.createElement("div");
+        card.className = "hora-card";
+
+        if (!reserva) {
+          card.innerHTML = `
+            <div class="hora-top">
+              <div class="hora-texto">${hora}</div>
+              <div class="estado-disponible">Disponible</div>
+            </div>
+          `;
+
+          const btnReservar = document.createElement("button");
+          btnReservar.className = "btn-reservar";
+          btnReservar.textContent = "Reservar hora";
+          btnReservar.addEventListener("click", () => {
+            reservarHora(diaSeleccionado, hora);
+          });
+
+          card.appendChild(btnReservar);
+        } else {
+          card.innerHTML = `
+            <div class="hora-top">
+              <div class="hora-texto">${hora}</div>
+              <div class="estado-reservada">Reservada</div>
+            </div>
+            <div class="reserva-info">
+              <strong>${reserva.nombre}</strong><br>
+              Correo: ${reserva.correo}<br>
+              Teléfono: ${reserva.telefono}<br>
+              Servicio: ${reserva.servicio}<br>
+              Barbero: ${reserva.barbero}
+            </div>
+          `;
+
+          const btnCancelar = document.createElement("button");
+          btnCancelar.className = "btn-cancelar";
+          btnCancelar.textContent = "Cancelar hora";
+          btnCancelar.addEventListener("click", () => {
+            cancelarHora(reserva.id);
+          });
+
+          card.appendChild(btnCancelar);
+        }
+
+        horasGrid.appendChild(card);
+      });
+    }
+
+    function ordenarReservas(lista) {
+      const ordenDias = {
+        "Lunes": 1,
+        "Martes": 2,
+        "Miércoles": 3,
+        "Jueves": 4,
+        "Viernes": 5,
+        "Sábado": 6
+      };
+
+      return [...lista].sort((a, b) => {
+        const diaA = ordenDias[a.fecha] || 99;
+        const diaB = ordenDias[b.fecha] || 99;
+
+        if (diaA !== diaB) return diaA - diaB;
+        return a.hora.localeCompare(b.hora);
+      });
+    }
+
+    function renderListaReservas() {
+      const activasOrdenadas = ordenarReservas(todasLasReservasActivas);
+
+      if (!activasOrdenadas.length) {
+        listaReservas.innerHTML = `<div class="mensaje">No hay reservas activas.</div>`;
+        return;
+      }
+
+      listaReservas.innerHTML = "";
+
+      activasOrdenadas.forEach((r) => {
+        const div = document.createElement("div");
+        div.className = "item-reserva";
+        div.innerHTML = `
+          <strong>${r.nombre}</strong><br>
+          Correo: ${r.correo}<br>
+          Teléfono: ${r.telefono}<br>
+          Servicio: ${r.servicio}<br>
+          Barbero: ${r.barbero}<br>
+          Día: ${r.fecha}<br>
+          Hora: ${r.hora}<br>
+          <button class="btn-cancelar" onclick="window.cancelarReservaGlobal('${r.id}')">Cancelar hora</button>
+        `;
+        listaReservas.appendChild(div);
+      });
+    }
+
+    async function refrescarVistaCompleta() {
+      await obtenerTodasLasReservasActivas();
+
+      if (diaSeleccionado) {
+        await obtenerReservasDelDia(diaSeleccionado);
+      } else {
+        reservasDelDia = [];
+      }
+
+      renderListaReservas();
+
+      if (horasVisibles && diaSeleccionado) {
+        renderHoras();
+      }
+    }
+
+    btnVerHoras.addEventListener("click", async () => {
+      if (!diaSeleccionado) {
+        alert("Primero selecciona un día.");
+        return;
+      }
+
+      btnVerHoras.disabled = true;
+      btnVerHoras.textContent = "Cargando...";
+
+      try {
+        await obtenerReservasDelDia(diaSeleccionado);
+        renderHoras();
+      } catch (error) {
+        console.error("Error al cargar horas:", error);
+        alert("No se pudieron cargar las horas.");
+      } finally {
+        btnVerHoras.disabled = false;
+        btnVerHoras.textContent = "Ver horas";
+      }
+    });
+
+    window.cancelarReservaGlobal = cancelarHora;
+
+    async function iniciar() {
+      renderDias();
+      textoDiaSeleccionado.textContent = "No has seleccionado ningún día.";
+      mensajeHoras.textContent = "";
+      await obtenerTodasLasReservasActivas();
+      renderListaReservas();
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>
