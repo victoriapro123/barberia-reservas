@@ -231,23 +231,6 @@
       line-height: 1.45;
     }
 
-    .btn-cancelar {
-      margin-top: 8px;
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 12px;
-      cursor: pointer;
-      padding: 0;
-      display: inline-block;
-    }
-
-    .btn-cancelar:hover {
-      color: white;
-      background: transparent;
-      text-decoration: underline;
-    }
-
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -268,28 +251,19 @@
       border-color: #c7a86b;
     }
 
-    .lista-reservas {
-      display: grid;
-      gap: 12px;
-    }
-
-    .item-reserva {
-      background: #111;
-      border: 1px solid #2c2c2c;
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .item-reserva strong {
-      color: white;
-      display: inline-block;
-      margin-bottom: 6px;
-    }
-
     .mensaje {
       margin-top: 10px;
       color: #bfbfbf;
       font-size: 0.95rem;
+    }
+
+    .aviso-seguridad {
+      line-height: 1.6;
+      color: #d6d6d6;
+    }
+
+    .aviso-seguridad a {
+      color: #c7a86b;
     }
 
     .oculto {
@@ -327,10 +301,10 @@
       <div class="card">
         <h2>Datos del cliente</h2>
         <div class="form-grid">
-          <input type="text" id="nombreCliente" placeholder="Tu nombre" />
-          <input type="email" id="correoCliente" placeholder="Tu correo" />
-          <input type="text" id="telefonoCliente" placeholder="Tu teléfono" />
-          <input type="text" id="servicioCliente" placeholder="Servicio" />
+          <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
+          <input type="email" id="correoCliente" placeholder="Tu correo" maxlength="120" autocomplete="email" />
+          <input type="tel" id="telefonoCliente" placeholder="Tu teléfono" maxlength="20" autocomplete="tel" />
+          <input type="text" id="servicioCliente" placeholder="Servicio" maxlength="80" />
         </div>
       </div>
 
@@ -354,8 +328,12 @@
       </div>
 
       <div class="card">
-        <h2>Reservas activas</h2>
-        <div class="lista-reservas" id="listaReservas"></div>
+        <h2>Privacidad y seguridad</h2>
+        <div class="aviso-seguridad">
+          La disponibilidad publica no muestra nombres, correos ni telefonos de otros clientes.
+          Las cancelaciones se gestionan por contacto directo con la barberia en
+          <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
+        </div>
       </div>
     </div>
   </section>
@@ -371,8 +349,6 @@
       getDocs,
       query,
       where,
-      updateDoc,
-      doc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -388,8 +364,6 @@
     const EMAILJS_PUBLIC_KEY = "1TuUUn0r14nKuFI0s";
     const EMAILJS_SERVICE_ID = "victoriap.rodriguezs";
     const EMAILJS_TEMPLATE_RESERVA = "template_37io5r9";
-    const EMAILJS_TEMPLATE_CANCELACION = "template_37io5r9";
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -400,19 +374,97 @@
 
     const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const horasBase = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+    const RESERVA_COOLDOWN_MS = 60 * 1000;
+    const ULTIMA_RESERVA_KEY = "barber-elite-ultima-reserva";
 
     let diaSeleccionado = null;
     let horasVisibles = false;
     let reservasDelDia = [];
-    let todasLasReservasActivas = [];
+    let reservaEnProceso = false;
 
     const diasContainer = document.getElementById("diasContainer");
     const btnVerHoras = document.getElementById("btnVerHoras");
     const textoDiaSeleccionado = document.getElementById("textoDiaSeleccionado");
     const horasGrid = document.getElementById("horasGrid");
     const contenedorHoras = document.getElementById("contenedorHoras");
-    const listaReservas = document.getElementById("listaReservas");
     const mensajeHoras = document.getElementById("mensajeHoras");
+
+    function normalizarTexto(valor) {
+      return valor.replace(/\s+/g, " ").trim();
+    }
+
+    function validarCorreo(correo) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+    }
+
+    function validarTelefono(telefono) {
+      return /^[+\d\s()-]{8,20}$/.test(telefono);
+    }
+
+    function obtenerDatosCliente() {
+      const nombre = normalizarTexto(document.getElementById("nombreCliente").value);
+      const correo = normalizarTexto(document.getElementById("correoCliente").value).toLowerCase();
+      const telefono = normalizarTexto(document.getElementById("telefonoCliente").value);
+      const servicio = normalizarTexto(document.getElementById("servicioCliente").value);
+
+      if (!nombre || !correo || !telefono || !servicio) {
+        alert("Completa todos los datos antes de reservar.");
+        return null;
+      }
+
+      if (nombre.length < 3 || nombre.length > 60) {
+        alert("Escribe un nombre valido.");
+        return null;
+      }
+
+      if (!validarCorreo(correo)) {
+        alert("Escribe un correo valido.");
+        return null;
+      }
+
+      if (!validarTelefono(telefono)) {
+        alert("Escribe un telefono valido.");
+        return null;
+      }
+
+      if (servicio.length < 3 || servicio.length > 80) {
+        alert("Escribe un servicio valido.");
+        return null;
+      }
+
+      return { nombre, correo, telefono, servicio };
+    }
+
+    function limpiarFormulario() {
+      document.getElementById("nombreCliente").value = "";
+      document.getElementById("correoCliente").value = "";
+      document.getElementById("telefonoCliente").value = "";
+      document.getElementById("servicioCliente").value = "";
+    }
+
+    function puedeReservarAhora() {
+      const ultimaReserva = Number(localStorage.getItem(ULTIMA_RESERVA_KEY) || "0");
+      const restante = RESERVA_COOLDOWN_MS - (Date.now() - ultimaReserva);
+
+      if (restante > 0) {
+        const segundos = Math.ceil(restante / 1000);
+        alert(`Espera ${segundos} segundos antes de intentar otra reserva.`);
+        return false;
+      }
+
+      return true;
+    }
+
+    function registrarReservaLocal() {
+      localStorage.setItem(ULTIMA_RESERVA_KEY, String(Date.now()));
+    }
+
+    function crearTextoReserva(card, texto) {
+      const info = document.createElement("div");
+      info.className = "reserva-info";
+      info.textContent = texto;
+      card.appendChild(info);
+    }
 
     function renderDias() {
       diasContainer.innerHTML = "";
@@ -458,19 +510,6 @@
       }));
     }
 
-    async function obtenerTodasLasReservasActivas() {
-      const q = query(
-        collection(db, "reservas"),
-        where("estado", "==", "reservada")
-      );
-
-      const snapshot = await getDocs(q);
-      todasLasReservasActivas = snapshot.docs.map((d) => ({
-        id: d.id,
-        ...d.data()
-      }));
-    }
-
     function buscarReservaEnDia(hora) {
       return reservasDelDia.find((r) => r.hora === hora);
     }
@@ -492,56 +531,47 @@
       );
     }
 
-    async function enviarCorreoCancelacion(datosReserva) {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_CANCELACION,
-        {
-          to_email: correoBarbero,
-          cliente_nombre: datosReserva.nombre,
-          cliente_correo: datosReserva.correo,
-          cliente_telefono: datosReserva.telefono,
-          servicio: datosReserva.servicio,
-          fecha: datosReserva.fecha,
-          hora: datosReserva.hora,
-          estado: "Cancelada"
-        }
-      );
-    }
-
     async function reservarHora(dia, hora) {
-      const nombre = document.getElementById("nombreCliente").value.trim();
-      const correo = document.getElementById("correoCliente").value.trim();
-      const telefono = document.getElementById("telefonoCliente").value.trim();
-      const servicio = document.getElementById("servicioCliente").value.trim();
-
-      if (!nombre || !correo || !telefono || !servicio) {
-        alert("Completa todos los datos antes de reservar.");
+      if (reservaEnProceso) {
         return;
       }
 
-      const existente = buscarReservaEnDia(hora);
-      if (existente) {
-        alert("Esa hora ya está reservada.");
+      const datosCliente = obtenerDatosCliente();
+      if (!datosCliente || !puedeReservarAhora()) {
         return;
       }
+
+      reservaEnProceso = true;
 
       const reserva = {
         barbero: barberoNombre,
         fecha: dia,
         hora,
-        nombre,
-        correo,
-        telefono,
-        servicio,
+        nombre: datosCliente.nombre,
+        correo: datosCliente.correo,
+        telefono: datosCliente.telefono,
+        servicio: datosCliente.servicio,
         estado: "reservada",
         creadoEn: serverTimestamp()
       };
 
       try {
+        await obtenerReservasDelDia(dia);
+
+        const existente = buscarReservaEnDia(hora);
+        if (existente) {
+          renderHoras();
+          alert("Esa hora ya esta reservada.");
+          return;
+        }
+
         await addDoc(collection(db, "reservas"), reserva);
-        await refrescarVistaCompleta();
-        alert("Hora reservada con éxito.");
+        registrarReservaLocal();
+        limpiarFormulario();
+        await obtenerReservasDelDia(dia);
+        renderHoras();
+        mensajeHoras.textContent = `Reserva confirmada para ${dia} a las ${hora}.`;
+        alert("Hora reservada con exito.");
 
         enviarCorreoReserva(reserva).catch((error) => {
           console.error("Error al enviar correo de reserva:", error);
@@ -549,33 +579,8 @@
       } catch (error) {
         console.error("Error al reservar:", error);
         alert("Hubo un error al reservar la hora.");
-      }
-    }
-
-    async function cancelarHora(idReserva) {
-      try {
-        const reserva =
-          reservasDelDia.find((r) => r.id === idReserva) ||
-          todasLasReservasActivas.find((r) => r.id === idReserva);
-
-        if (!reserva) {
-          alert("No se encontró la reserva.");
-          return;
-        }
-
-        await updateDoc(doc(db, "reservas", idReserva), {
-          estado: "cancelada"
-        });
-
-        await refrescarVistaCompleta();
-        alert("Hora cancelada correctamente.");
-
-        enviarCorreoCancelacion(reserva).catch((error) => {
-          console.error("Error al enviar correo de cancelación:", error);
-        });
-      } catch (error) {
-        console.error("Error al cancelar:", error);
-        alert("Hubo un error al cancelar la hora.");
+      } finally {
+        reservaEnProceso = false;
       }
     }
 
@@ -592,18 +597,22 @@
 
       horasBase.forEach((hora) => {
         const reserva = buscarReservaEnDia(hora);
-
         const card = document.createElement("div");
         card.className = "hora-card";
+        const top = document.createElement("div");
+        top.className = "hora-top";
+        const textoHora = document.createElement("div");
+        textoHora.className = "hora-texto";
+        textoHora.textContent = hora;
+        const estado = document.createElement("div");
+
+        top.appendChild(textoHora);
 
         if (!reserva) {
-          card.innerHTML = `
-            <div class="hora-top">
-              <div class="hora-texto">${hora}</div>
-              <div class="estado-disponible">Disponible</div>
-            </div>
-          `;
-
+          estado.className = "estado-disponible";
+          estado.textContent = "Disponible";
+          top.appendChild(estado);
+          card.appendChild(top);
           const btnReservar = document.createElement("button");
           btnReservar.className = "btn-reservar";
           btnReservar.textContent = "Reservar hora";
@@ -613,94 +622,15 @@
 
           card.appendChild(btnReservar);
         } else {
-          card.innerHTML = `
-            <div class="hora-top">
-              <div class="hora-texto">${hora}</div>
-              <div class="estado-reservada">Reservada</div>
-            </div>
-            <div class="reserva-info">
-              <strong>${reserva.nombre}</strong><br>
-              Correo: ${reserva.correo}<br>
-              Teléfono: ${reserva.telefono}<br>
-              Servicio: ${reserva.servicio}<br>
-              Barbero: ${reserva.barbero}
-            </div>
-          `;
-
-          const btnCancelar = document.createElement("button");
-          btnCancelar.className = "btn-cancelar";
-          btnCancelar.textContent = "Cancelar hora";
-          btnCancelar.addEventListener("click", () => {
-            cancelarHora(reserva.id);
-          });
-
-          card.appendChild(btnCancelar);
+          estado.className = "estado-reservada";
+          estado.textContent = "Reservada";
+          top.appendChild(estado);
+          card.appendChild(top);
+          crearTextoReserva(card, "Este horario ya no esta disponible. Por seguridad, los datos personales no se muestran en la web publica.");
         }
 
         horasGrid.appendChild(card);
       });
-    }
-
-    function ordenarReservas(lista) {
-      const ordenDias = {
-        "Lunes": 1,
-        "Martes": 2,
-        "Miércoles": 3,
-        "Jueves": 4,
-        "Viernes": 5,
-        "Sábado": 6
-      };
-
-      return [...lista].sort((a, b) => {
-        const diaA = ordenDias[a.fecha] || 99;
-        const diaB = ordenDias[b.fecha] || 99;
-
-        if (diaA !== diaB) return diaA - diaB;
-        return a.hora.localeCompare(b.hora);
-      });
-    }
-
-    function renderListaReservas() {
-      const activasOrdenadas = ordenarReservas(todasLasReservasActivas);
-
-      if (!activasOrdenadas.length) {
-        listaReservas.innerHTML = `<div class="mensaje">No hay reservas activas.</div>`;
-        return;
-      }
-
-      listaReservas.innerHTML = "";
-
-      activasOrdenadas.forEach((r) => {
-        const div = document.createElement("div");
-        div.className = "item-reserva";
-        div.innerHTML = `
-          <strong>${r.nombre}</strong><br>
-          Correo: ${r.correo}<br>
-          Teléfono: ${r.telefono}<br>
-          Servicio: ${r.servicio}<br>
-          Barbero: ${r.barbero}<br>
-          Día: ${r.fecha}<br>
-          Hora: ${r.hora}<br>
-          <button class="btn-cancelar" onclick="window.cancelarReservaGlobal('${r.id}')">Cancelar hora</button>
-        `;
-        listaReservas.appendChild(div);
-      });
-    }
-
-    async function refrescarVistaCompleta() {
-      await obtenerTodasLasReservasActivas();
-
-      if (diaSeleccionado) {
-        await obtenerReservasDelDia(diaSeleccionado);
-      } else {
-        reservasDelDia = [];
-      }
-
-      renderListaReservas();
-
-      if (horasVisibles && diaSeleccionado) {
-        renderHoras();
-      }
     }
 
     btnVerHoras.addEventListener("click", async () => {
@@ -724,14 +654,10 @@
       }
     });
 
-    window.cancelarReservaGlobal = cancelarHora;
-
     async function iniciar() {
       renderDias();
       textoDiaSeleccionado.textContent = "No has seleccionado ningún día.";
-      mensajeHoras.textContent = "";
-      await obtenerTodasLasReservasActivas();
-      renderListaReservas();
+      mensajeHoras.textContent = "La disponibilidad publica protege los datos personales de cada cliente.";
     }
 
     iniciar();

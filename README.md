@@ -35,3 +35,7 @@ Las claves de Firebase y EmailJS estan embebidas en el cliente y quedaran visibl
 ## Verificacion
 
 Repositorio conectado a GitHub y preparado para despliegues automaticos en Vercel desde la rama `main`.
+
+## Seguridad
+
+Antes de usar la app con clientes reales, revisa las notas de [SECURITY.md](./SECURITY.md).
