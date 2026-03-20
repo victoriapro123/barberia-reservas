@@ -567,8 +567,39 @@
       });
     }
 
+    function getRequestSortValue(item) {
+      if (item.fechaISO && item.hora) {
+        return `${item.fechaISO}T${item.hora}`;
+      }
+
+      return "";
+    }
+
+    function sortRequestsByAppointment(items) {
+      return [...items].sort((a, b) => {
+        const aValue = getRequestSortValue(a);
+        const bValue = getRequestSortValue(b);
+
+        if (aValue && bValue) {
+          return aValue.localeCompare(bValue);
+        }
+
+        if (aValue) {
+          return -1;
+        }
+
+        if (bValue) {
+          return 1;
+        }
+
+        const aCreated = a.creadoEn?.toDate ? a.creadoEn.toDate().getTime() : 0;
+        const bCreated = b.creadoEn?.toDate ? b.creadoEn.toDate().getTime() : 0;
+        return bCreated - aCreated;
+      });
+    }
+
     function renderRequests() {
-      const filtered = getFilteredRequests();
+      const filtered = sortRequestsByAppointment(getFilteredRequests());
       requestsContainer.innerHTML = "";
 
       if (!filtered.length) {
