@@ -160,6 +160,12 @@
       border: 1px solid rgba(217, 119, 119, 0.28);
     }
 
+    .btn-warning {
+      background: rgba(199, 168, 107, 0.14);
+      color: #f0d39a;
+      border: 1px solid rgba(199, 168, 107, 0.28);
+    }
+
     .toolbar {
       display: grid;
       gap: 16px;
@@ -406,7 +412,7 @@
     };
 
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
-    const ESTADOS_EDITABLES = ["confirmada", "cancelada"];
+    const ESTADOS_EDITABLES = ["pendiente", "confirmada", "cancelada"];
     const ESTADO_LABELS = {
       pendiente: "Pendiente",
       confirmada: "Confirmada",
@@ -612,10 +618,10 @@
         notesPanel.appendChild(notesActions);
         card.appendChild(notesPanel);
 
-        if (item.estado === "pendiente") {
-          const actions = document.createElement("div");
-          actions.className = "request-actions";
+        const actions = document.createElement("div");
+        actions.className = "request-actions";
 
+        if (item.estado === "pendiente") {
           const confirmButton = document.createElement("button");
           confirmButton.className = "btn-success";
           confirmButton.textContent = "Confirmar";
@@ -632,8 +638,17 @@
 
           actions.appendChild(confirmButton);
           actions.appendChild(cancelButton);
-          card.appendChild(actions);
+        } else {
+          const restoreButton = document.createElement("button");
+          restoreButton.className = "btn-warning";
+          restoreButton.textContent = "Volver a pendiente";
+          restoreButton.addEventListener("click", () => {
+            cambiarEstado(item.id, "pendiente");
+          });
+          actions.appendChild(restoreButton);
         }
+
+        card.appendChild(actions);
 
         requestsContainer.appendChild(card);
       });
@@ -738,21 +753,30 @@
       setStatus(adminStatus, `Actualizando solicitud a ${ESTADO_LABELS[nuevoEstado]}...`);
 
       try {
-        await updateDoc(doc(db, COLECCION_SOLICITUDES, id), {
+        const updatePayload = {
           estado: nuevoEstado,
-          gestionadoEn: serverTimestamp(),
-          gestionadoPor: currentUser.email,
           notaInterna: (getDraftNote(item) || "").trim(),
           notaActualizadaEn: serverTimestamp(),
           notaActualizadaPor: currentUser.email
-        });
+        };
 
-        try {
-          await enviarCorreoGestion(item, nuevoEstado);
-          setStatus(adminStatus, `Solicitud marcada como ${ESTADO_LABELS[nuevoEstado]} y correo enviado al cliente.`, "success");
-        } catch (emailError) {
-          console.error("Error al enviar correo al cliente:", emailError);
-          setStatus(adminStatus, `Solicitud marcada como ${ESTADO_LABELS[nuevoEstado]}, pero fallo el correo al cliente.`, "error");
+        if (nuevoEstado !== "pendiente") {
+          updatePayload.gestionadoEn = serverTimestamp();
+          updatePayload.gestionadoPor = currentUser.email;
+        }
+
+        await updateDoc(doc(db, COLECCION_SOLICITUDES, id), updatePayload);
+
+        if (nuevoEstado !== "pendiente") {
+          try {
+            await enviarCorreoGestion(item, nuevoEstado);
+            setStatus(adminStatus, `Solicitud marcada como ${ESTADO_LABELS[nuevoEstado]} y correo enviado al cliente.`, "success");
+          } catch (emailError) {
+            console.error("Error al enviar correo al cliente:", emailError);
+            setStatus(adminStatus, `Solicitud marcada como ${ESTADO_LABELS[nuevoEstado]}, pero fallo el correo al cliente.`, "error");
+          }
+        } else {
+          setStatus(adminStatus, "Solicitud devuelta a pendiente.", "success");
         }
 
         await loadRequests();

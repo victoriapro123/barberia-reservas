@@ -126,6 +126,9 @@ service cloud.firestore {
       return (
         request.resource.data.estado == resource.data.estado
       ) || (
+        resource.data.estado in ["confirmada", "cancelada"]
+        && request.resource.data.estado == "pendiente"
+      ) || (
         resource.data.estado == "pendiente"
         && request.resource.data.estado in ["confirmada", "cancelada"]
         && request.resource.data.gestionadoPor == request.auth.token.email
