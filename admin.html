@@ -370,7 +370,7 @@
             </div>
           </div>
           <div class="filters">
-            <input type="search" id="searchInput" placeholder="Buscar por nombre, correo, telefono, servicio u hora" />
+            <input type="search" id="searchInput" placeholder="Buscar por nombre, correo, telefono, servicio, fecha u hora" />
             <select id="filterEstado">
               <option value="todas">Todas</option>
               <option value="pendiente">Pendientes</option>
@@ -378,7 +378,7 @@
               <option value="cancelada">Canceladas</option>
             </select>
             <select id="filterDia">
-              <option value="todos">Todos los dias</option>
+              <option value="todos">Todas las fechas</option>
             </select>
           </div>
         </div>
@@ -484,6 +484,7 @@
         item.telefono,
         item.servicio,
         item.fecha,
+        item.fechaISO,
         item.hora,
         item.estado,
         item.notaInterna
@@ -492,10 +493,17 @@
 
     function updateDayFilterOptions() {
       const currentValue = filterDia.value;
-      const days = [...new Set(allRequests.map((item) => item.fecha).filter(Boolean))];
-      days.sort((a, b) => a.localeCompare(b));
+      const dayEntries = new Map();
+      allRequests.forEach((item) => {
+        if (item.fecha) {
+          dayEntries.set(item.fecha, item.fechaISO || item.fecha);
+        }
+      });
+      const days = [...dayEntries.entries()]
+        .sort((a, b) => String(a[1]).localeCompare(String(b[1])))
+        .map(([label]) => label);
 
-      filterDia.innerHTML = '<option value="todos">Todos los dias</option>';
+      filterDia.innerHTML = '<option value="todos">Todas las fechas</option>';
 
       days.forEach((day) => {
         const option = document.createElement("option");
@@ -573,7 +581,7 @@
 
         const detailEntries = [
           ["Servicio", item.servicio],
-          ["Dia", item.fecha],
+          ["Fecha", item.fecha],
           ["Hora", item.hora],
           ["Correo", item.correo],
           ["Telefono", item.telefono],

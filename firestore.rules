@@ -6,8 +6,14 @@ service cloud.firestore {
         && request.auth.token.email == "victoriap.rodriguezs@gmail.com";
     }
 
-    function isAllowedDay(day) {
-      return day in ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+    function isValidDateLabel(value) {
+      return value is string
+        && value.matches("^(lunes|martes|miercoles|jueves|viernes|sabado) \\d{2}/\\d{2}$");
+    }
+
+    function isValidDateISO(value) {
+      return value is string
+        && value.matches("^\\d{4}-\\d{2}-\\d{2}$");
     }
 
     function isAllowedHour(hour) {
@@ -48,6 +54,7 @@ service cloud.firestore {
         && data.keys().hasOnly([
           "barbero",
           "fecha",
+          "fechaISO",
           "hora",
           "nombre",
           "correo",
@@ -58,10 +65,28 @@ service cloud.firestore {
         ]);
     }
 
+    function hasRequiredCalendarFieldsForCreate(data) {
+      return data.keys().hasAll(["fechaISO"])
+        && isValidDateLabel(data.fecha)
+        && isValidDateISO(data.fechaISO);
+    }
+
+    function keepsOptionalDateISOField() {
+      return (
+        !resource.data.keys().hasAny(["fechaISO"])
+        && !request.resource.data.keys().hasAny(["fechaISO"])
+      ) || (
+        resource.data.keys().hasAny(["fechaISO"])
+        && request.resource.data.keys().hasAny(["fechaISO"])
+        && request.resource.data.fechaISO == resource.data.fechaISO
+      );
+    }
+
     function hasOnlyAllowedAdminKeys(data) {
       return data.keys().hasOnly([
         "barbero",
         "fecha",
+        "fechaISO",
         "hora",
         "nombre",
         "correo",
@@ -118,6 +143,7 @@ service cloud.firestore {
     function keepsImmutableFields() {
       return request.resource.data.barbero == resource.data.barbero
         && request.resource.data.fecha == resource.data.fecha
+        && keepsOptionalDateISOField()
         && request.resource.data.hora == resource.data.hora
         && request.resource.data.nombre == resource.data.nombre
         && request.resource.data.correo == resource.data.correo
@@ -145,7 +171,7 @@ service cloud.firestore {
         hasBaseKeys(request.resource.data)
         && request.resource.data.barbero == "Barber Elite"
         && request.resource.data.estado == "pendiente"
-        && isAllowedDay(request.resource.data.fecha)
+        && hasRequiredCalendarFieldsForCreate(request.resource.data)
         && isAllowedHour(request.resource.data.hora)
         && isSizedString(request.resource.data.nombre, 3, 60)
         && isValidEmail(request.resource.data.correo)
