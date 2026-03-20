@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function allowedDays() {
+      return ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+    }
+
+    function allowedHours() {
+      return ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+    }
+
+    function hasAllowedKeys(data) {
+      return data.keys().hasAll([
+          "barbero",
+          "fecha",
+          "hora",
+          "nombre",
+          "correo",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn"
+        ]) &&
+        data.keys().hasOnly([
+          "barbero",
+          "fecha",
+          "hora",
+          "nombre",
+          "correo",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn"
+        ]);
+    }
+
+    function hasValidTypes(data) {
+      return data.barbero is string &&
+        data.fecha is string &&
+        data.hora is string &&
+        data.nombre is string &&
+        data.correo is string &&
+        data.telefono is string &&
+        data.servicio is string &&
+        data.estado is string &&
+        data.creadoEn is timestamp;
+    }
+
+    function hasValidValues(data) {
+      return data.barbero == "Barber Elite" &&
+        data.estado == "pendiente" &&
+        data.fecha in allowedDays() &&
+        data.hora in allowedHours() &&
+        data.nombre.size() >= 3 &&
+        data.nombre.size() <= 60 &&
+        data.correo.size() <= 120 &&
+        data.correo.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$') &&
+        data.telefono.matches('^[+\\d\\s()-]{8,20}$') &&
+        data.servicio.size() >= 3 &&
+        data.servicio.size() <= 80;
+    }
+
+    match /solicitudes_reserva/{requestId} {
+      allow create: if
+        hasAllowedKeys(request.resource.data) &&
+        hasValidTypes(request.resource.data) &&
+        hasValidValues(request.resource.data) &&
+        request.resource.data.creadoEn == request.time;
+
+      allow read, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

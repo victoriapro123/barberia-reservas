@@ -1,13 +1,16 @@
 # Barberia Reservas
 
-Sitio web estatico para gestionar reservas de una barberia. La app se sirve directamente desde `index.html` y usa Firebase Firestore y EmailJS desde el cliente.
+Sitio web estatico para gestionar solicitudes de reserva de una barberia. La app se sirve directamente desde `index.html`, usa Firestore para registrar solicitudes privadas y EmailJS para avisar a la barberia.
 
 ## Estructura
 
-- `index.html`: interfaz principal y logica de reservas
+- `index.html`: interfaz principal y logica de solicitudes
 - `styles.css`: estilos antiguos del proyecto
 - `script.js`: script antiguo del proyecto
 - `barbero.jpg`: imagen local del proyecto
+- `firestore.rules`: reglas de Firestore para aceptar solo solicitudes nuevas
+- `firebase.json`: configuracion de despliegue de reglas
+- `.firebaserc`: proyecto de Firebase por defecto
 
 ## Despliegue en Vercel
 
@@ -31,6 +34,16 @@ Este proyecto puede desplegarse como sitio estatico sin proceso de build.
 ## Nota tecnica
 
 Las claves de Firebase y EmailJS estan embebidas en el cliente y quedaran visibles en el navegador. Eso puede ser aceptable para claves publicas de Firebase, pero conviene revisar permisos de Firestore y configuracion de EmailJS antes de publicar en produccion.
+
+## Firebase
+
+Esta version usa la coleccion `solicitudes_reserva` y ya no hace lecturas publicas de Firestore desde el navegador.
+
+Para aplicar las reglas:
+
+1. Instala la CLI: `npm install -g firebase-tools`
+2. Inicia sesion: `firebase login`
+3. Desde esta carpeta ejecuta: `firebase deploy --only firestore:rules`
 
 ## Verificacion
 
