@@ -370,6 +370,11 @@
       font-weight: 700;
     }
 
+    .btn-reservar.btn-bloqueado {
+      background: #2b2b2b;
+      color: #b9b9b9;
+    }
+
     .dia-seleccionado-texto {
       color: var(--muted);
       font-size: 0.95rem;
@@ -390,6 +395,11 @@
       box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
     }
 
+    .hora-card.ocupada {
+      background: linear-gradient(180deg, rgba(217, 119, 119, 0.08), #0f0f0f);
+      border-color: rgba(217, 119, 119, 0.22);
+    }
+
     .hora-top {
       display: flex;
       justify-content: space-between;
@@ -405,6 +415,11 @@
 
     .estado-disponible {
       color: #8fd99b;
+      font-size: 0.92rem;
+    }
+
+    .estado-ocupada {
+      color: #f0b2b2;
       font-size: 0.92rem;
     }
 
@@ -584,8 +599,12 @@
     import {
       getFirestore,
       collection,
-      addDoc,
-      serverTimestamp
+      doc,
+      getDocs,
+      query,
+      runTransaction,
+      serverTimestamp,
+      where
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -600,6 +619,7 @@
     const RESERVA_COOLDOWN_MS = 60 * 1000;
     const ULTIMA_RESERVA_KEY = "barber-elite-ultima-reserva";
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
+    const COLECCION_AGENDA_PUBLICA = "agenda_publica";
     const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
     const SERVICIOS_DISPONIBLES = ["corte de pelo", "corte de pelo + barba", "barba"];
     const WEEKDAY_HEADERS = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
@@ -625,7 +645,9 @@
 
     let fechaSeleccionada = null;
     let reservaEnProceso = false;
+    let cargandoHoras = false;
     let calendarMonth = getMonthStart(getToday());
+    let horariosOcupados = new Map();
 
     const barberoNombre = "Barber Elite";
     const btnPrevMonth = document.getElementById("btnPrevMonth");
@@ -704,6 +726,10 @@
       };
     }
 
+    function getSlotId(fechaISO, hora) {
+      return `${fechaISO}_${hora.replace(":", "-")}`;
+    }
+
     function canMoveMonth(offset) {
       const nextMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + offset, 1);
       const firstAllowedMonth = getMonthStart(getToday());
@@ -723,6 +749,7 @@
 
     function setSelectedDate(date) {
       fechaSeleccionada = getSelectedDateData(date);
+      horariosOcupados = new Map();
       calendarSelectionText.textContent = `Fecha seleccionada: ${fechaSeleccionada.label}`;
       textoDiaSeleccionado.textContent = `Fecha elegida: ${fechaSeleccionada.label}`;
       btnVerHoras.disabled = false;
@@ -868,6 +895,17 @@
       }
     }
 
+    async function cargarHorariosOcupados(fechaISO) {
+      const disponibilidadQuery = query(
+        collection(db, COLECCION_AGENDA_PUBLICA),
+        where("fechaISO", "==", fechaISO)
+      );
+      const snapshot = await getDocs(disponibilidadQuery);
+      horariosOcupados = new Map(
+        snapshot.docs.map((item) => [item.id, item.data().estado || "pendiente"])
+      );
+    }
+
     async function solicitarHora(fechaData, hora) {
       if (reservaEnProceso) {
         return;
@@ -893,11 +931,32 @@
         creadoEn: serverTimestamp()
       };
 
+      const disponibilidadRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(fechaData.iso, hora));
+      const solicitudRef = doc(collection(db, COLECCION_SOLICITUDES));
+      const disponibilidadPayload = {
+        barbero: barberoNombre,
+        fecha: fechaData.label,
+        fechaISO: fechaData.iso,
+        hora,
+        estado: "pendiente",
+        creadoEn: serverTimestamp()
+      };
+
       try {
-        await addDoc(collection(db, COLECCION_SOLICITUDES), solicitud);
+        await runTransaction(db, async (transaction) => {
+          const disponibilidadSnapshot = await transaction.get(disponibilidadRef);
+
+          if (disponibilidadSnapshot.exists()) {
+            throw new Error("slot_taken");
+          }
+
+          transaction.set(solicitudRef, solicitud);
+          transaction.set(disponibilidadRef, disponibilidadPayload);
+        });
+
         registrarReservaLocal();
         limpiarFormulario();
-        renderHoras();
+        await renderHoras();
         mensajeHoras.textContent = `Solicitud enviada para ${fechaData.label} a las ${hora}. La barberia debe confirmarla.`;
         alert("Solicitud enviada con exito.");
 
@@ -906,15 +965,38 @@
         });
       } catch (error) {
         console.error("Error al enviar la solicitud:", error);
-        alert("Hubo un error al registrar la solicitud.");
+        if (error.message === "slot_taken") {
+          await renderHoras();
+          alert("Esa hora ya no esta disponible. Elige otra.");
+        } else {
+          alert("Hubo un error al registrar la solicitud.");
+        }
       } finally {
         reservaEnProceso = false;
       }
     }
 
-    function renderHoras() {
+    async function renderHoras() {
       if (!fechaSeleccionada) {
         alert("Primero selecciona una fecha.");
+        return;
+      }
+
+      if (cargandoHoras) {
+        return;
+      }
+
+      cargandoHoras = true;
+      btnVerHoras.disabled = true;
+      mensajeHoras.textContent = `Cargando horarios para ${fechaSeleccionada.label}...`;
+
+      try {
+        await cargarHorariosOcupados(fechaSeleccionada.iso);
+      } catch (error) {
+        console.error("Error al cargar horarios ocupados:", error);
+        mensajeHoras.textContent = "No se pudieron cargar los horarios. Intenta nuevamente.";
+        btnVerHoras.disabled = false;
+        cargandoHoras = false;
         return;
       }
 
@@ -923,8 +1005,12 @@
       mensajeHoras.textContent = `Horarios disponibles para ${fechaSeleccionada.label}.`;
 
       HORAS_BASE.forEach((hora) => {
+        const estadoOcupacion = horariosOcupados.get(getSlotId(fechaSeleccionada.iso, hora)) || null;
         const card = document.createElement("div");
         card.className = "hora-card";
+        if (estadoOcupacion) {
+          card.classList.add("ocupada");
+        }
 
         const top = document.createElement("div");
         top.className = "hora-top";
@@ -934,25 +1020,37 @@
         textoHora.textContent = hora;
 
         const estado = document.createElement("div");
-        estado.className = "estado-disponible";
-        estado.textContent = "Solicitud";
+        estado.className = estadoOcupacion ? "estado-ocupada" : "estado-disponible";
+        estado.textContent = estadoOcupacion === "confirmada" ? "Confirmada" : estadoOcupacion ? "Bloqueada" : "Disponible";
 
         top.appendChild(textoHora);
         top.appendChild(estado);
         card.appendChild(top);
 
-        crearTextoReserva(card, `La hora quedara pendiente hasta que la barberia confirme ${fechaSeleccionada.label}.`);
+        if (estadoOcupacion) {
+          crearTextoReserva(card, "Esta hora ya esta tomada o en revision. Elige otro horario.");
+        } else {
+          crearTextoReserva(card, `La hora quedara pendiente hasta que la barberia confirme ${fechaSeleccionada.label}.`);
+        }
 
         const btnReservar = document.createElement("button");
         btnReservar.className = "btn-reservar";
-        btnReservar.textContent = "Solicitar hora";
-        btnReservar.addEventListener("click", () => {
-          solicitarHora(fechaSeleccionada, hora);
-        });
+        btnReservar.textContent = estadoOcupacion ? "No disponible" : "Solicitar hora";
+        btnReservar.disabled = Boolean(estadoOcupacion);
+        if (estadoOcupacion) {
+          btnReservar.classList.add("btn-bloqueado");
+        } else {
+          btnReservar.addEventListener("click", () => {
+            solicitarHora(fechaSeleccionada, hora);
+          });
+        }
 
         card.appendChild(btnReservar);
         horasGrid.appendChild(card);
       });
+
+      btnVerHoras.disabled = false;
+      cargandoHoras = false;
     }
 
     btnPrevMonth.addEventListener("click", () => {

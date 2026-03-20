@@ -399,12 +399,14 @@
       signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
+      deleteDoc,
       getFirestore,
       collection,
       doc,
       getDocs,
       orderBy,
       query,
+      setDoc,
       serverTimestamp,
       updateDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -419,6 +421,7 @@
     };
 
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
+    const COLECCION_AGENDA_PUBLICA = "agenda_publica";
     const ESTADOS_EDITABLES = ["pendiente", "confirmada", "cancelada"];
     const ESTADO_LABELS = {
       pendiente: "Pendiente",
@@ -469,6 +472,10 @@
 
     function formatEstado(estado) {
       return estado || "pendiente";
+    }
+
+    function getSlotId(fechaISO, hora) {
+      return `${fechaISO}_${hora.replace(":", "-")}`;
     }
 
     function getDraftNote(item) {
@@ -722,6 +729,34 @@
       }
     }
 
+    async function sincronizarDisponibilidadPublica(item, nuevoEstado) {
+      if (!item.fechaISO) {
+        return;
+      }
+
+      const slotRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(item.fechaISO, item.hora));
+
+      if (nuevoEstado === "cancelada") {
+        await deleteDoc(slotRef);
+        return;
+      }
+
+      const payload = {
+        barbero: item.barbero,
+        fecha: item.fecha,
+        fechaISO: item.fechaISO,
+        hora: item.hora,
+        estado: nuevoEstado,
+        actualizadoEn: serverTimestamp()
+      };
+
+      if (item.estado === "cancelada") {
+        payload.creadoEn = serverTimestamp();
+      }
+
+      await setDoc(slotRef, payload, { merge: true });
+    }
+
     async function guardarNota(id) {
       if (!currentUser) {
         return;
@@ -781,6 +816,7 @@
         }
 
         await updateDoc(doc(db, COLECCION_SOLICITUDES, id), updatePayload);
+        await sincronizarDisponibilidadPublica(item, nuevoEstado);
 
         if (nuevoEstado !== "pendiente") {
           try {

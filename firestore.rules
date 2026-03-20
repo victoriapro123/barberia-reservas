@@ -24,6 +24,10 @@ service cloud.firestore {
       return serviceName in ["corte de pelo", "corte de pelo + barba", "barba"];
     }
 
+    function isAllowedPublicSlotState(state) {
+      return state in ["pendiente", "confirmada"];
+    }
+
     function isSizedString(value, min, max) {
       return value is string && value.size() >= min && value.size() <= max;
     }
@@ -72,6 +76,39 @@ service cloud.firestore {
       return data.keys().hasAll(["fechaISO"])
         && isValidDateLabel(data.fecha)
         && isValidDateISO(data.fechaISO);
+    }
+
+    function hasRequiredPublicSlotKeys(data) {
+      return data.keys().hasAll([
+          "barbero",
+          "fecha",
+          "fechaISO",
+          "hora",
+          "estado",
+          "creadoEn"
+        ]);
+    }
+
+    function hasOnlyPublicSlotKeys(data) {
+      return data.keys().hasOnly([
+          "barbero",
+          "fecha",
+          "fechaISO",
+          "hora",
+          "estado",
+          "creadoEn",
+          "actualizadoEn"
+        ]);
+    }
+
+    function isValidPublicSlot(data) {
+      return hasRequiredPublicSlotKeys(data)
+        && hasOnlyPublicSlotKeys(data)
+        && data.barbero == "Barber Elite"
+        && isValidDateLabel(data.fecha)
+        && isValidDateISO(data.fechaISO)
+        && isAllowedHour(data.hora)
+        && isAllowedPublicSlotState(data.estado);
     }
 
     function keepsOptionalDateISOField() {
@@ -186,6 +223,39 @@ service cloud.firestore {
         && hasValidOptionalNoteFields(request.resource.data);
 
       allow delete: if false;
+    }
+
+    match /agenda_publica/{slotId} {
+      allow read: if true;
+
+      allow create: if
+        isValidPublicSlot(request.resource.data)
+        && (
+          (
+            !isAdmin()
+            && request.resource.data.estado == "pendiente"
+            && request.resource.data.creadoEn == request.time
+            && !request.resource.data.keys().hasAny(["actualizadoEn"])
+          ) || (
+            isAdmin()
+            && request.resource.data.creadoEn == request.time
+            && (
+              !request.resource.data.keys().hasAny(["actualizadoEn"])
+              || request.resource.data.actualizadoEn == request.time
+            )
+          )
+        );
+
+      allow update: if isAdmin()
+        && isValidPublicSlot(request.resource.data)
+        && request.resource.data.barbero == resource.data.barbero
+        && request.resource.data.fecha == resource.data.fecha
+        && request.resource.data.fechaISO == resource.data.fechaISO
+        && request.resource.data.hora == resource.data.hora
+        && request.resource.data.creadoEn == resource.data.creadoEn
+        && request.resource.data.actualizadoEn == request.time;
+
+      allow delete: if isAdmin();
     }
 
     match /{document=**} {
