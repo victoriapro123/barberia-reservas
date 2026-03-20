@@ -14,6 +14,10 @@ service cloud.firestore {
       return hour in ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
     }
 
+    function isAllowedService(serviceName) {
+      return serviceName in ["corte de pelo", "corte de pelo + barba", "barba"];
+    }
+
     function isSizedString(value, min, max) {
       return value is string && value.size() >= min && value.size() <= max;
     }
@@ -146,7 +150,7 @@ service cloud.firestore {
         && isSizedString(request.resource.data.nombre, 3, 60)
         && isValidEmail(request.resource.data.correo)
         && isValidPhone(request.resource.data.telefono)
-        && isSizedString(request.resource.data.servicio, 3, 80)
+        && isAllowedService(request.resource.data.servicio)
         && request.resource.data.creadoEn == request.time;
 
       allow read: if isAdmin();

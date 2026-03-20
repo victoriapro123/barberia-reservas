@@ -232,7 +232,8 @@
       gap: 12px;
     }
 
-    .form-grid input {
+    .form-grid input,
+    .form-grid select {
       width: 100%;
       padding: 12px 14px;
       border-radius: 10px;
@@ -242,7 +243,8 @@
       outline: none;
     }
 
-    .form-grid input:focus {
+    .form-grid input:focus,
+    .form-grid select:focus {
       border-color: #c7a86b;
     }
 
@@ -298,7 +300,12 @@
           <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
           <input type="email" id="correoCliente" placeholder="Tu correo" maxlength="120" autocomplete="email" />
           <input type="tel" id="telefonoCliente" placeholder="Tu telefono" maxlength="20" autocomplete="tel" />
-          <input type="text" id="servicioCliente" placeholder="Servicio" maxlength="80" />
+          <select id="servicioCliente">
+            <option value="">Selecciona un servicio</option>
+            <option value="corte de pelo">corte de pelo</option>
+            <option value="corte de pelo + barba">corte de pelo + barba</option>
+            <option value="barba">barba</option>
+          </select>
         </div>
       </div>
 
@@ -356,6 +363,7 @@
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
     const DIAS_SEMANA = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
     const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+    const SERVICIOS_DISPONIBLES = ["corte de pelo", "corte de pelo + barba", "barba"];
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -409,8 +417,8 @@
         return null;
       }
 
-      if (servicio.length < 3 || servicio.length > 80) {
-        alert("Escribe un servicio valido.");
+      if (!SERVICIOS_DISPONIBLES.includes(servicio)) {
+        alert("Selecciona un servicio valido.");
         return null;
       }
 
