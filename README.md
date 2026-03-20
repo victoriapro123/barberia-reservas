@@ -56,6 +56,14 @@ Para usarla:
 3. Abre `/admin` en tu proyecto de Vercel.
 4. Inicia sesion y cambia el estado de las solicitudes a `confirmada` o `cancelada`.
 
+Incluye:
+
+- buscador por nombre, correo, telefono, servicio u hora
+- filtro por estado
+- filtro por dia
+- notas internas por solicitud
+- correo automatico al cliente cuando confirmas o cancelas
+
 Las reglas de Firestore solo permiten leer y actualizar solicitudes desde esa cuenta admin.
 
 ## Variables de entorno

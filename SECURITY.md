@@ -9,6 +9,7 @@ Esta version cambia el flujo publico a solicitudes de reserva y reduce el riesgo
 - La web registra solicitudes en `solicitudes_reserva` en lugar de leer `reservas` desde el navegador.
 - El envio de correo puede ejecutarse desde una funcion serverless de Vercel en lugar del navegador.
 - El panel [admin.html](./admin.html) requiere autenticacion y las reglas restringen lectura/actualizacion al correo admin.
+- `admin.html` usa `noindex` y queda pensado para acceso directo por URL, no como seccion publica.
 - Se agregaron validaciones basicas de nombre, correo, telefono y servicio.
 - Se agrego una espera minima entre intentos de reserva desde el mismo navegador.
 - Se prepararon reglas `create-only` en [firestore.rules](./firestore.rules).

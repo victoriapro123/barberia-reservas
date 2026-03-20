@@ -1,5 +1,8 @@
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
 
+const VALID_NOTIFICATION_TYPES = ["new_request", "customer_status"];
+const VALID_STATUS_VALUES = ["Pendiente", "Confirmada", "Cancelada"];
+
 function isSizedString(value, min, max) {
   return typeof value === "string" && value.trim().length >= min && value.trim().length <= max;
 }
@@ -12,9 +15,22 @@ function isValidPhone(value) {
   return typeof value === "string" && /^[+\d\s()-]{8,20}$/.test(value);
 }
 
+function normalizePayload(payload) {
+  return {
+    ...payload,
+    notificationType: payload?.notificationType || "new_request",
+    estado: payload?.estado || "Pendiente",
+    notaInterna: typeof payload?.notaInterna === "string" ? payload.notaInterna.trim() : ""
+  };
+}
+
 function validatePayload(payload) {
   if (!payload || typeof payload !== "object") {
     return "Solicitud invalida.";
+  }
+
+  if (!VALID_NOTIFICATION_TYPES.includes(payload.notificationType)) {
+    return "Tipo de notificacion invalido.";
   }
 
   if (payload.barbero !== "Barber Elite") {
@@ -41,7 +57,43 @@ function validatePayload(payload) {
     return "Fecha u hora invalida.";
   }
 
+  if (!VALID_STATUS_VALUES.includes(payload.estado)) {
+    return "Estado invalido.";
+  }
+
+  if (payload.notificationType === "customer_status" && !["Confirmada", "Cancelada"].includes(payload.estado)) {
+    return "Estado invalido para cliente.";
+  }
+
+  if (payload.notaInterna && !isSizedString(payload.notaInterna, 1, 500)) {
+    return "Nota interna invalida.";
+  }
+
   return null;
+}
+
+function getTemplateParams(payload, barberEmail) {
+  const toEmail = payload.notificationType === "new_request" ? barberEmail : payload.correo;
+  const mensaje =
+    payload.notificationType === "new_request"
+      ? "Nueva solicitud registrada desde la web."
+      : payload.estado === "Confirmada"
+        ? "Tu solicitud fue confirmada por la barberia."
+        : "Tu solicitud fue cancelada por la barberia.";
+
+  return {
+    to_email: toEmail,
+    cliente_nombre: payload.nombre,
+    cliente_correo: payload.correo,
+    cliente_telefono: payload.telefono,
+    servicio: payload.servicio,
+    fecha: payload.fecha,
+    hora: payload.hora,
+    estado: payload.estado,
+    mensaje,
+    nota_interna: payload.notaInterna || "",
+    notification_type: payload.notificationType
+  };
 }
 
 async function sendEmail(payload) {
@@ -65,16 +117,7 @@ async function sendEmail(payload) {
       template_id: templateId,
       user_id: publicKey,
       accessToken: privateKey,
-      template_params: {
-        to_email: barberEmail,
-        cliente_nombre: payload.nombre,
-        cliente_correo: payload.correo,
-        cliente_telefono: payload.telefono,
-        servicio: payload.servicio,
-        fecha: payload.fecha,
-        hora: payload.hora,
-        estado: "Pendiente"
-      }
+      template_params: getTemplateParams(payload, barberEmail)
     })
   });
 
@@ -91,7 +134,7 @@ export default async function handler(request, response) {
   }
 
   try {
-    const payload = request.body;
+    const payload = normalizePayload(request.body);
     const validationError = validatePayload(payload);
 
     if (validationError) {
