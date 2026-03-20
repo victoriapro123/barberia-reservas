@@ -1,6 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == "victoriap.rodriguezs@gmail.com";
+    }
+
     function isAllowedDay(day) {
       return day in ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
     }
@@ -24,30 +29,34 @@ service cloud.firestore {
         && value.matches("^[+\\d\\s()\\-]{8,20}$");
     }
 
+    function hasBaseKeys(data) {
+      return data.keys().hasAll([
+          "barbero",
+          "fecha",
+          "hora",
+          "nombre",
+          "correo",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn"
+        ])
+        && data.keys().hasOnly([
+          "barbero",
+          "fecha",
+          "hora",
+          "nombre",
+          "correo",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn"
+        ]);
+    }
+
     match /solicitudes_reserva/{requestId} {
       allow create: if
-        request.resource.data.keys().hasAll([
-          "barbero",
-          "fecha",
-          "hora",
-          "nombre",
-          "correo",
-          "telefono",
-          "servicio",
-          "estado",
-          "creadoEn"
-        ])
-        && request.resource.data.keys().hasOnly([
-          "barbero",
-          "fecha",
-          "hora",
-          "nombre",
-          "correo",
-          "telefono",
-          "servicio",
-          "estado",
-          "creadoEn"
-        ])
+        hasBaseKeys(request.resource.data)
         && request.resource.data.barbero == "Barber Elite"
         && request.resource.data.estado == "pendiente"
         && isAllowedDay(request.resource.data.fecha)
@@ -58,7 +67,48 @@ service cloud.firestore {
         && isSizedString(request.resource.data.servicio, 3, 80)
         && request.resource.data.creadoEn == request.time;
 
-      allow read, update, delete: if false;
+      allow read: if isAdmin();
+
+      allow update: if isAdmin()
+        && request.resource.data.keys().hasAll([
+          "barbero",
+          "fecha",
+          "hora",
+          "nombre",
+          "correo",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn",
+          "gestionadoEn",
+          "gestionadoPor"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "barbero",
+          "fecha",
+          "hora",
+          "nombre",
+          "correo",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn",
+          "gestionadoEn",
+          "gestionadoPor"
+        ])
+        && request.resource.data.barbero == resource.data.barbero
+        && request.resource.data.fecha == resource.data.fecha
+        && request.resource.data.hora == resource.data.hora
+        && request.resource.data.nombre == resource.data.nombre
+        && request.resource.data.correo == resource.data.correo
+        && request.resource.data.telefono == resource.data.telefono
+        && request.resource.data.servicio == resource.data.servicio
+        && request.resource.data.creadoEn == resource.data.creadoEn
+        && request.resource.data.estado in ["confirmada", "cancelada"]
+        && request.resource.data.gestionadoPor == request.auth.token.email
+        && request.resource.data.gestionadoEn == request.time;
+
+      allow delete: if false;
     }
 
     match /{document=**} {

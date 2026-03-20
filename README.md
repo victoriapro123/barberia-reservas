@@ -45,6 +45,19 @@ Para aplicar las reglas:
 2. Inicia sesion: `firebase login`
 3. Desde esta carpeta ejecuta: `firebase deploy --only firestore:rules`
 
+## Panel admin
+
+La gestion privada de solicitudes esta en `admin.html`.
+
+Para usarla:
+
+1. En Firebase Console activa `Authentication -> Sign-in method -> Email/Password`.
+2. Crea el usuario administrador con el correo `victoriap.rodriguezs@gmail.com`.
+3. Abre `/admin` en tu proyecto de Vercel.
+4. Inicia sesion y cambia el estado de las solicitudes a `confirmada` o `cancelada`.
+
+Las reglas de Firestore solo permiten leer y actualizar solicitudes desde esa cuenta admin.
+
 ## Variables de entorno
 
 Para que la funcion serverless de Vercel envie correos, configura estas variables en el proyecto:
