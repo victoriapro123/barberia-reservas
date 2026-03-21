@@ -130,6 +130,14 @@ function getTemplateParams(payload, barberEmail) {
   };
 }
 
+function isCustomerNotificationForBarber(payload, barberEmail) {
+  if (payload.notificationType === "new_request") {
+    return false;
+  }
+
+  return payload.correo.trim().toLowerCase() === barberEmail.trim().toLowerCase();
+}
+
 async function sendEmail(payload) {
   const serviceId = process.env.EMAILJS_SERVICE_ID;
   const templateId = process.env.EMAILJS_TEMPLATE_ID;
@@ -139,6 +147,11 @@ async function sendEmail(payload) {
 
   if (!serviceId || !templateId || !publicKey || !privateKey || !barberEmail) {
     throw new Error("Missing email environment variables.");
+  }
+
+  // Avoid duplicate emails when the customer uses the barber's own address.
+  if (isCustomerNotificationForBarber(payload, barberEmail)) {
+    return;
   }
 
   const response = await fetch(EMAILJS_URL, {
