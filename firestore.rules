@@ -8,7 +8,7 @@ service cloud.firestore {
 
     function isValidDateLabel(value) {
       return value is string
-        && value.matches("^(lunes|martes|miercoles|jueves|viernes|sabado) \\d{2}/\\d{2}$");
+        && value.matches("^(lunes|martes|miercoles|jueves|viernes) \\d{2}/\\d{2}$");
     }
 
     function isValidDateISO(value) {
@@ -65,6 +65,7 @@ service cloud.firestore {
           "hora",
           "nombre",
           "correo",
+          "clienteUid",
           "telefono",
           "servicio",
           "estado",
@@ -76,6 +77,14 @@ service cloud.firestore {
       return data.keys().hasAll(["fechaISO"])
         && isValidDateLabel(data.fecha)
         && isValidDateISO(data.fechaISO);
+    }
+
+    function hasValidAuthenticatedClientForCreate(data) {
+      return request.auth != null
+        && request.auth.token.email is string
+        && data.keys().hasAll(["clienteUid"])
+        && data.clienteUid == request.auth.uid
+        && data.correo == request.auth.token.email;
     }
 
     function hasRequiredPublicSlotKeys(data) {
@@ -119,6 +128,17 @@ service cloud.firestore {
         resource.data.keys().hasAny(["fechaISO"])
         && request.resource.data.keys().hasAny(["fechaISO"])
         && request.resource.data.fechaISO == resource.data.fechaISO
+      );
+    }
+
+    function keepsOptionalClientUidField() {
+      return (
+        !resource.data.keys().hasAny(["clienteUid"])
+        && !request.resource.data.keys().hasAny(["clienteUid"])
+      ) || (
+        resource.data.keys().hasAny(["clienteUid"])
+        && request.resource.data.keys().hasAny(["clienteUid"])
+        && request.resource.data.clienteUid == resource.data.clienteUid
       );
     }
 
@@ -193,6 +213,7 @@ service cloud.firestore {
         && request.resource.data.hora == resource.data.hora
         && request.resource.data.nombre == resource.data.nombre
         && request.resource.data.correo == resource.data.correo
+        && keepsOptionalClientUidField()
         && request.resource.data.telefono == resource.data.telefono
         && request.resource.data.servicio == resource.data.servicio
         && request.resource.data.creadoEn == resource.data.creadoEn;
@@ -226,6 +247,7 @@ service cloud.firestore {
       allow create: if
         hasRequiredBaseKeys(request.resource.data)
         && hasOnlyCreateKeys(request.resource.data)
+        && hasValidAuthenticatedClientForCreate(request.resource.data)
         && request.resource.data.barbero == "Barber Elite"
         && request.resource.data.estado == "pendiente"
         && hasRequiredCalendarFieldsForCreate(request.resource.data)
@@ -258,7 +280,8 @@ service cloud.firestore {
         isValidPublicSlot(request.resource.data)
         && (
           (
-            !isAdmin()
+            request.auth != null
+            && !isAdmin()
             && request.resource.data.estado == "pendiente"
             && request.resource.data.creadoEn == request.time
             && !request.resource.data.keys().hasAny(["actualizadoEn"])

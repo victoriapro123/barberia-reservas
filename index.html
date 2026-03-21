@@ -202,6 +202,73 @@
       color: #111111;
     }
 
+    .perfil-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .perfil-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .perfil-activo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 18px;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(199, 168, 107, 0.14), rgba(255, 255, 255, 0.03)),
+        #101010;
+      border: 1px solid rgba(199, 168, 107, 0.22);
+    }
+
+    .perfil-activo strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+
+    .perfil-activo p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .btn-secundario {
+      min-height: 46px;
+      padding: 0 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--panel-soft);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn-secundario:hover {
+      transform: translateY(-1px);
+      opacity: 0.96;
+    }
+
+    .auth-actions {
+      align-items: center;
+    }
+
+    .mensaje.error {
+      color: #f0b2b2;
+    }
+
+    .mensaje.success {
+      color: #8fd99b;
+    }
+
+    .mensaje.info {
+      color: #e7d6ae;
+    }
+
     .calendar-shell {
       display: grid;
       gap: 18px;
@@ -460,6 +527,12 @@
       color: #ffffff;
     }
 
+    .campo-bloqueado {
+      background: #ece4d6 !important;
+      color: #5a5348 !important;
+      cursor: not-allowed;
+    }
+
     .acciones-formulario {
       display: flex;
       gap: 12px;
@@ -545,7 +618,7 @@
       <div class="hero-etiqueta">Reservas online</div>
       <h1 class="hero-titulo">Barber Elite</h1>
       <p class="hero-subtitulo">
-        Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la confirmacion de la barberia.
+        Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la respuesta de la barberia.
       </p>
       <button type="button" id="btnAbrirReserva" class="hero-btn">Elegir fecha</button>
     </div>
@@ -555,12 +628,43 @@
     <div class="container">
       <div class="titulo">Agenda tu visita</div>
       <div class="subtitulo">
-        Selecciona el servicio, elige una fecha del calendario y solicita tu hora. La barberia revisa cada solicitud antes de confirmarla.
+        Crea tu perfil o inicia sesion, elige una fecha del calendario y solicita tu hora. La barberia revisa cada solicitud antes de gestionarla.
+      </div>
+
+      <div class="card" id="authCard">
+        <h2>Tu perfil de cliente</h2>
+        <p class="card-copy">Usa tu correo y tu clave para reservar. Si olvidas la clave, puedes enviarte un correo de recuperacion.</p>
+
+        <div class="perfil-grid">
+          <div class="perfil-panel" id="authLoggedOut">
+            <div class="form-grid">
+              <input type="email" id="authEmail" placeholder="Tu correo de acceso" maxlength="120" autocomplete="email" />
+              <input type="password" id="authPassword" placeholder="Tu clave" minlength="6" autocomplete="current-password" />
+            </div>
+            <div class="acciones-formulario auth-actions">
+              <button class="btn-principal" id="btnCrearPerfil" type="button">Crear perfil</button>
+              <button class="btn-secundario" id="btnIniciarSesion" type="button">Iniciar sesion</button>
+              <button class="btn-secundario" id="btnRecuperarClave" type="button">Recuperar clave</button>
+            </div>
+          </div>
+
+          <div class="perfil-panel paso-oculto" id="authLoggedIn">
+            <div class="perfil-activo">
+              <div>
+                <strong id="perfilCorreoActivo">Correo</strong>
+                <p>Tu perfil esta activo. Ese correo se usara para la reserva y para recuperar tu clave.</p>
+              </div>
+              <button class="btn-secundario" id="btnCerrarSesionCliente" type="button">Cerrar sesion</button>
+            </div>
+          </div>
+
+          <div class="mensaje info" id="authStatus">Inicia sesion o crea tu perfil para reservar de lunes a viernes.</div>
+        </div>
       </div>
 
       <div class="card">
         <h2>Selecciona una fecha</h2>
-        <p class="card-copy">Puedes solicitar desde hoy hasta los proximos 90 dias. Los domingos no estan disponibles.</p>
+        <p class="card-copy">Puedes solicitar desde hoy hasta los proximos 90 dias. La atencion se agenda solo de lunes a viernes.</p>
 
         <div class="calendar-shell">
           <div class="calendar-top">
@@ -599,13 +703,13 @@
 
       <div class="card paso-oculto" id="datosClienteCard">
         <h2>Completa tus datos</h2>
-        <p class="card-copy">Primero eliges la fecha y la hora. Despues envias tu solicitud con tus datos.</p>
+        <p class="card-copy">Primero eliges la fecha y la hora. Despues envias tu solicitud con los datos de tu reserva.</p>
         <div class="slot-resumen" id="slotResumen">
           Aun no has elegido un horario.
         </div>
         <div class="form-grid">
           <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
-          <input type="email" id="correoCliente" placeholder="Tu correo" maxlength="120" autocomplete="email" />
+          <input type="email" id="correoCliente" class="campo-bloqueado" placeholder="Tu correo del perfil" maxlength="120" autocomplete="email" readonly />
           <input type="tel" id="telefonoCliente" placeholder="Tu telefono" maxlength="20" autocomplete="tel" />
           <select id="servicioCliente">
             <option value="">Selecciona un servicio</option>
@@ -614,6 +718,7 @@
             <option value="barba">barba</option>
           </select>
         </div>
+        <div class="mensaje">El correo se toma desde tu perfil activo.</div>
         <div class="acciones-formulario">
           <button class="btn-principal" id="btnEnviarSolicitud" type="button">Enviar solicitud</button>
         </div>
@@ -624,7 +729,7 @@
         <h2>Privacidad y seguridad</h2>
         <div class="aviso-seguridad">
           Esta web publica no expone datos personales ni consulta reservas de otros clientes.
-          Las solicitudes de hora quedan pendientes de confirmacion y las cancelaciones se gestionan
+          Las solicitudes de hora quedan en revision y las cancelaciones se gestionan
           por contacto directo con la barberia en
           <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
         </div>
@@ -634,6 +739,14 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      createUserWithEmailAndPassword,
+      getAuth,
+      onAuthStateChanged,
+      sendPasswordResetEmail,
+      signInWithEmailAndPassword,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
       collection,
@@ -679,16 +792,30 @@
     const MAX_BOOKING_DAYS = 90;
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
     let fechaSeleccionada = null;
     let horarioSeleccionado = null;
     let reservaEnProceso = false;
     let cargandoHoras = false;
+    let authEnProceso = false;
+    let currentClientUser = null;
     let calendarMonth = getMonthStart(getToday());
     let horariosOcupados = new Map();
 
     const barberoNombre = "Barber Elite";
+    const authCard = document.getElementById("authCard");
+    const authEmail = document.getElementById("authEmail");
+    const authPassword = document.getElementById("authPassword");
+    const authLoggedOut = document.getElementById("authLoggedOut");
+    const authLoggedIn = document.getElementById("authLoggedIn");
+    const perfilCorreoActivo = document.getElementById("perfilCorreoActivo");
+    const authStatus = document.getElementById("authStatus");
+    const btnCrearPerfil = document.getElementById("btnCrearPerfil");
+    const btnIniciarSesion = document.getElementById("btnIniciarSesion");
+    const btnRecuperarClave = document.getElementById("btnRecuperarClave");
+    const btnCerrarSesionCliente = document.getElementById("btnCerrarSesionCliente");
     const btnPrevMonth = document.getElementById("btnPrevMonth");
     const btnNextMonth = document.getElementById("btnNextMonth");
     const btnVerHoras = document.getElementById("btnVerHoras");
@@ -702,6 +829,7 @@
     const contenedorHoras = document.getElementById("contenedorHoras");
     const mensajeHoras = document.getElementById("mensajeHoras");
     const datosClienteCard = document.getElementById("datosClienteCard");
+    const correoCliente = document.getElementById("correoCliente");
     const slotResumen = document.getElementById("slotResumen");
     const btnEnviarSolicitud = document.getElementById("btnEnviarSolicitud");
     const mensajeFormulario = document.getElementById("mensajeFormulario");
@@ -717,6 +845,51 @@
 
     function validarTelefono(telefono) {
       return /^[+\d\s()-]{8,20}$/.test(telefono);
+    }
+
+    function setAuthStatus(message, type = "info") {
+      authStatus.textContent = message;
+      authStatus.className = `mensaje ${type}`;
+    }
+
+    function setAuthButtonsDisabled(disabled) {
+      authEnProceso = disabled;
+      btnCrearPerfil.disabled = disabled;
+      btnIniciarSesion.disabled = disabled;
+      btnRecuperarClave.disabled = disabled;
+      btnCerrarSesionCliente.disabled = disabled;
+    }
+
+    function syncClientEmailField() {
+      correoCliente.value = currentClientUser?.email || "";
+    }
+
+    function updateAuthUI() {
+      const hasSession = Boolean(currentClientUser);
+      authLoggedOut.classList.toggle("paso-oculto", hasSession);
+      authLoggedIn.classList.toggle("paso-oculto", !hasSession);
+      perfilCorreoActivo.textContent = currentClientUser?.email || "Correo";
+      syncClientEmailField();
+
+      if (hasSession) {
+        authEmail.value = currentClientUser.email || authEmail.value;
+        authPassword.value = "";
+        setAuthStatus("Perfil activo. Ya puedes elegir una fecha, una hora y enviar tu solicitud.", "success");
+      } else {
+        setAuthStatus("Inicia sesion o crea tu perfil para reservar de lunes a viernes.", "info");
+        datosClienteCard.classList.add("paso-oculto");
+        mensajeFormulario.textContent = "Debes iniciar sesion para completar la reserva.";
+      }
+    }
+
+    function asegurarSesionCliente() {
+      if (currentClientUser) {
+        return true;
+      }
+
+      setAuthStatus("Inicia sesion o crea tu perfil para continuar con la reserva.", "error");
+      authCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return false;
     }
 
     function getToday() {
@@ -761,7 +934,7 @@
     function isSelectableDate(date) {
       const today = getToday();
       const maxDate = getMaxDate();
-      return date >= today && date <= maxDate && date.getDay() !== 0;
+      return date >= today && date <= maxDate && date.getDay() !== 0 && date.getDay() !== 6;
     }
 
     function getSelectedDateData(date) {
@@ -809,9 +982,14 @@
     }
 
     function abrirPasoDatos(fechaData, hora) {
+      if (!asegurarSesionCliente()) {
+        return;
+      }
+
       horarioSeleccionado = { fecha: fechaData.label, fechaISO: fechaData.iso, hora };
       slotResumen.innerHTML = `<strong>Hora elegida:</strong> ${fechaData.label} a las ${hora}`;
       mensajeFormulario.textContent = "Completa tus datos para enviar la solicitud.";
+      syncClientEmailField();
       datosClienteCard.classList.remove("paso-oculto");
       datosClienteCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -875,9 +1053,14 @@
 
     function obtenerDatosCliente() {
       const nombre = normalizarTexto(document.getElementById("nombreCliente").value);
-      const correo = normalizarTexto(document.getElementById("correoCliente").value).toLowerCase();
+      const correo = normalizarTexto(correoCliente.value).toLowerCase();
       const telefono = normalizarTexto(document.getElementById("telefonoCliente").value);
       const servicio = normalizarTexto(document.getElementById("servicioCliente").value);
+
+      if (!currentClientUser?.email) {
+        alert("Primero inicia sesion o crea tu perfil.");
+        return null;
+      }
 
       if (!nombre || !correo || !telefono || !servicio) {
         alert("Completa todos los datos antes de solicitar la hora.");
@@ -891,6 +1074,12 @@
 
       if (!validarCorreo(correo)) {
         alert("Escribe un correo valido.");
+        return null;
+      }
+
+      if (correo !== currentClientUser.email.toLowerCase()) {
+        alert("El correo de la reserva debe coincidir con tu perfil activo.");
+        syncClientEmailField();
         return null;
       }
 
@@ -909,9 +1098,9 @@
 
     function limpiarFormulario() {
       document.getElementById("nombreCliente").value = "";
-      document.getElementById("correoCliente").value = "";
       document.getElementById("telefonoCliente").value = "";
       document.getElementById("servicioCliente").value = "";
+      syncClientEmailField();
     }
 
     function puedeReservarAhora() {
@@ -968,6 +1157,10 @@
         return;
       }
 
+      if (!asegurarSesionCliente()) {
+        return;
+      }
+
       if (!horarioSeleccionado) {
         alert("Primero elige una fecha y una hora.");
         return;
@@ -987,6 +1180,7 @@
         hora: horarioSeleccionado.hora,
         nombre: datosCliente.nombre,
         correo: datosCliente.correo,
+        clienteUid: currentClientUser.uid,
         telefono: datosCliente.telefono,
         servicio: datosCliente.servicio,
         estado: "pendiente",
@@ -1023,7 +1217,7 @@
         slotResumen.innerHTML = "Aun no has elegido un horario.";
         mensajeFormulario.textContent = "";
         await renderHoras();
-        mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barberia debe confirmarla.`;
+        mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barberia revisara tu reserva.`;
         alert("Solicitud enviada con exito.");
 
         enviarCorreoReserva(solicitud).catch((error) => {
@@ -1100,7 +1294,7 @@
         if (estadoOcupacion) {
           crearTextoReserva(card, "Esta hora ya esta tomada o en revision. Elige otro horario.");
         } else {
-          crearTextoReserva(card, `La hora quedara pendiente hasta que la barberia confirme ${fechaSeleccionada.label}.`);
+          crearTextoReserva(card, `La hora quedara en revision para ${fechaSeleccionada.label} hasta que la barberia la gestione.`);
         }
 
         const btnReservar = document.createElement("button");
@@ -1121,6 +1315,110 @@
 
       btnVerHoras.disabled = false;
       cargandoHoras = false;
+    }
+
+    async function crearPerfilCliente() {
+      if (authEnProceso) {
+        return;
+      }
+
+      const email = normalizarTexto(authEmail.value).toLowerCase();
+      const password = authPassword.value;
+
+      if (!validarCorreo(email)) {
+        setAuthStatus("Escribe un correo valido para crear tu perfil.", "error");
+        return;
+      }
+
+      if (password.length < 6) {
+        setAuthStatus("La clave debe tener al menos 6 caracteres.", "error");
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      setAuthStatus("Creando tu perfil...", "info");
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error("Error al crear perfil:", error);
+        if (error.code === "auth/email-already-in-use") {
+          setAuthStatus("Ese correo ya existe. Prueba iniciar sesion.", "error");
+        } else {
+          setAuthStatus("No se pudo crear el perfil.", "error");
+        }
+      } finally {
+        setAuthButtonsDisabled(false);
+      }
+    }
+
+    async function iniciarSesionCliente() {
+      if (authEnProceso) {
+        return;
+      }
+
+      const email = normalizarTexto(authEmail.value).toLowerCase();
+      const password = authPassword.value;
+
+      if (!validarCorreo(email) || !password) {
+        setAuthStatus("Completa tu correo y tu clave para iniciar sesion.", "error");
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      setAuthStatus("Iniciando sesion...", "info");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error("Error al iniciar sesion de cliente:", error);
+        setAuthStatus("No se pudo iniciar sesion. Revisa tu correo o tu clave.", "error");
+      } finally {
+        setAuthButtonsDisabled(false);
+      }
+    }
+
+    async function recuperarClaveCliente() {
+      if (authEnProceso) {
+        return;
+      }
+
+      const email = normalizarTexto(authEmail.value).toLowerCase();
+
+      if (!validarCorreo(email)) {
+        setAuthStatus("Escribe tu correo para enviarte el enlace de recuperacion.", "error");
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      setAuthStatus("Enviando correo de recuperacion...", "info");
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        setAuthStatus("Te enviamos un correo para recuperar tu clave. Revisa tambien spam.", "success");
+      } catch (error) {
+        console.error("Error al enviar recuperacion de clave:", error);
+        setAuthStatus("No se pudo enviar el correo de recuperacion.", "error");
+      } finally {
+        setAuthButtonsDisabled(false);
+      }
+    }
+
+    async function cerrarSesionCliente() {
+      if (authEnProceso) {
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Error al cerrar sesion de cliente:", error);
+        setAuthStatus("No se pudo cerrar sesion.", "error");
+      } finally {
+        setAuthButtonsDisabled(false);
+      }
     }
 
     btnPrevMonth.addEventListener("click", () => {
@@ -1154,17 +1452,46 @@
       solicitarHora();
     });
 
+    btnCrearPerfil.addEventListener("click", () => {
+      crearPerfilCliente();
+    });
+
+    btnIniciarSesion.addEventListener("click", () => {
+      iniciarSesionCliente();
+    });
+
+    btnRecuperarClave.addEventListener("click", () => {
+      recuperarClaveCliente();
+    });
+
+    btnCerrarSesionCliente.addEventListener("click", () => {
+      cerrarSesionCliente();
+    });
+
+    authPassword.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        iniciarSesionCliente();
+      }
+    });
+
     btnAbrirReserva.addEventListener("click", () => {
       seccionReservas.classList.remove("oculto-inicial");
       seccionReservas.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
+    onAuthStateChanged(auth, (user) => {
+      currentClientUser = user;
+      updateAuthUI();
+    });
+
     function iniciar() {
       createWeekdayHeaders();
       renderCalendar();
+      syncClientEmailField();
       textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
       calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
       mensajeHoras.textContent = "Las solicitudes se registran sin exponer datos de otros clientes.";
+      mensajeFormulario.textContent = "Debes iniciar sesion para completar la reserva.";
 
       if (window.location.hash === "#reservas") {
         seccionReservas.classList.remove("oculto-inicial");
