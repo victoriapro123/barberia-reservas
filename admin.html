@@ -7,379 +7,103 @@
   <title>Barber Elite Admin</title>
   <style>
     :root {
-      --bg: #0b0b0b;
-      --panel: #141414;
-      --panel-2: #1b1b1b;
-      --panel-3: #101010;
-      --border: #2d2d2d;
-      --text: #f6f6f6;
-      --muted: #bdbdbd;
-      --accent: #c7a86b;
-      --danger: #d97777;
-      --success: #7fd28c;
-      --info: #a9cbff;
+      --bg:#0b0b0b; --panel:#141414; --panel-2:#1b1b1b; --panel-3:#101010;
+      --border:#2d2d2d; --text:#f6f6f6; --muted:#bdbdbd; --accent:#c7a86b;
+      --danger:#d97777; --success:#7fd28c; --info:#a9cbff;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-
+    * { box-sizing:border-box; margin:0; padding:0; font-family:Arial,sans-serif; }
     body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at top, rgba(199, 168, 107, 0.12), transparent 35%),
-        var(--bg);
-      color: var(--text);
-      padding: 24px;
+      min-height:100vh;
+      background:radial-gradient(circle at top, rgba(199,168,107,.12), transparent 35%), var(--bg);
+      color:var(--text); padding:24px;
     }
-
-    input,
-    textarea,
-    button {
-      font: inherit;
+    input, textarea, button, select { font:inherit; }
+    input, textarea, select {
+      width:100%; padding:12px 14px; border-radius:12px; border:1px solid #343434;
+      background:var(--panel-3); color:var(--text); outline:none;
     }
-
-    .shell {
-      max-width: 1400px;
-      margin: 0 auto;
+    input:focus, textarea:focus, select:focus { border-color:var(--accent); }
+    textarea { min-height:84px; resize:vertical; }
+    button { border:none; border-radius:12px; padding:12px 16px; cursor:pointer; transition:.2s ease; }
+    button:hover { opacity:.95; }
+    button:disabled { cursor:not-allowed; opacity:.5; }
+    .shell { max-width:1440px; margin:0 auto; }
+    .topbar, .panel-toolbar, .toolbar-actions, .view-switch, .week-nav, .history-nav, .history-mode, .notes-actions, .reservation-actions {
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
     }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .brand h1 {
-      font-size: 2rem;
-      margin-bottom: 6px;
-    }
-
-    .brand p,
-    .helper,
-    .empty,
-    .meta {
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
+    .topbar, .panel-toolbar { justify-content:space-between; gap:16px; }
+    .topbar { margin-bottom:24px; }
+    .brand h1 { font-size:2rem; margin-bottom:6px; }
+    .brand p, .helper, .empty, .meta { color:var(--muted); line-height:1.5; }
     .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+      background:var(--panel); border:1px solid var(--border); border-radius:18px;
+      padding:22px; box-shadow:0 14px 30px rgba(0,0,0,.22);
     }
-
-    .login-card {
-      max-width: 460px;
-      margin: 64px auto 0;
-    }
-
-    .login-card h2,
-    .section-title {
-      margin-bottom: 14px;
-    }
-
-    .form-grid {
-      display: grid;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid #343434;
-      background: var(--panel-3);
-      color: var(--text);
-      outline: none;
-    }
-
-    input:focus,
-    textarea:focus {
-      border-color: var(--accent);
-    }
-
-    textarea {
-      min-height: 84px;
-      resize: vertical;
-    }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    button:hover {
-      opacity: 0.95;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: black;
-      font-weight: bold;
-    }
-
-    .btn-secondary {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-danger {
-      background: rgba(217, 119, 119, 0.14);
-      color: #ffb5b5;
-      border: 1px solid rgba(217, 119, 119, 0.28);
-    }
-
-    .btn-info {
-      background: rgba(120, 171, 233, 0.14);
-      color: var(--info);
-      border: 1px solid rgba(120, 171, 233, 0.28);
-    }
-
-    .toolbar-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .week-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .week-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .week-title {
-      min-width: 240px;
-      text-align: center;
-      font-weight: bold;
-      color: var(--text);
-    }
-
-    .search-row {
-      margin-bottom: 18px;
-    }
-
-    .week-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
-    }
-
+    .login-card { max-width:460px; margin:64px auto 0; }
+    .login-card h2, .section-title { margin-bottom:14px; }
+    .form-grid { display:grid; gap:12px; margin-top:18px; }
+    .btn-primary { background:var(--accent); color:black; font-weight:bold; }
+    .btn-secondary { background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
+    .btn-danger { background:rgba(217,119,119,.14); color:#ffb5b5; border:1px solid rgba(217,119,119,.28); }
+    .btn-info { background:rgba(120,171,233,.14); color:var(--info); border:1px solid rgba(120,171,233,.28); }
+    .tab-button.active { background:rgba(199,168,107,.14); color:#f0d39a; border:1px solid rgba(199,168,107,.28); }
+    .toolbar-block { display:grid; gap:6px; }
+    .range-title { min-width:220px; text-align:center; font-weight:bold; color:var(--text); }
+    .search-row { margin-bottom:18px; }
+    .week-grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:14px; }
     .day-column {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      min-height: 420px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      background:var(--panel-2); border:1px solid var(--border); border-radius:16px;
+      padding:14px; min-height:420px; display:flex; flex-direction:column; gap:12px;
     }
-
-    .day-header {
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    .day-header { padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.06); }
+    .day-header h3 { font-size:1.05rem; margin-bottom:4px; }
+    .day-count { color:var(--muted); font-size:.9rem; }
+    .day-content, .history-list, .reservation-lines, .history-lines, .notes-panel, .history-summary { display:grid; gap:12px; }
+    .day-content { align-content:start; }
+    .empty-day, .empty-history {
+      background:var(--panel-3); border:1px dashed #303030; border-radius:14px; padding:16px;
+      color:var(--muted); text-align:center;
     }
-
-    .day-header h3 {
-      font-size: 1.05rem;
-      margin-bottom: 4px;
+    .reservation-card, .history-card {
+      background:var(--panel-3); border:1px solid #252525; border-radius:14px; padding:14px; display:grid; gap:12px;
     }
-
-    .day-count {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .day-content {
-      display: grid;
-      gap: 12px;
-      align-content: start;
-    }
-
-    .empty-day {
-      background: var(--panel-3);
-      border: 1px dashed #303030;
-      border-radius: 14px;
-      padding: 16px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .reservation-card {
-      background: var(--panel-3);
-      border: 1px solid #252525;
-      border-radius: 14px;
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .reservation-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .reservation-hour {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
-    .reservation-name {
-      font-size: 1rem;
-      font-weight: bold;
-    }
-
+    .reservation-top, .history-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .reservation-hour, .history-hour { font-size:1.1rem; font-weight:bold; color:var(--accent); margin-bottom:4px; }
+    .reservation-name, .history-name { font-size:1rem; font-weight:bold; }
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 0.82rem;
-      font-weight: bold;
-      white-space: nowrap;
+      display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 12px;
+      font-size:.82rem; font-weight:bold; white-space:nowrap;
     }
-
-    .badge.activa {
-      background: rgba(199, 168, 107, 0.14);
-      color: #f0d39a;
-      border: 1px solid rgba(199, 168, 107, 0.28);
-    }
-
-    .badge.cancelada {
-      background: rgba(217, 119, 119, 0.14);
-      color: #ffb5b5;
-      border: 1px solid rgba(217, 119, 119, 0.28);
-    }
-
-    .badge.completada {
-      background: rgba(120, 171, 233, 0.14);
-      color: var(--info);
-      border: 1px solid rgba(120, 171, 233, 0.28);
-    }
-
-    .reservation-lines {
-      display: grid;
-      gap: 8px;
-    }
-
-    .reservation-line {
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.45;
-    }
-
-    .reservation-line strong {
-      color: var(--text);
-    }
-
+    .badge.activa { background:rgba(199,168,107,.14); color:#f0d39a; border:1px solid rgba(199,168,107,.28); }
+    .badge.cancelada { background:rgba(217,119,119,.14); color:#ffb5b5; border:1px solid rgba(217,119,119,.28); }
+    .badge.completada { background:rgba(120,171,233,.14); color:var(--info); border:1px solid rgba(120,171,233,.28); }
+    .reservation-line, .history-line { color:var(--muted); font-size:.92rem; line-height:1.45; }
+    .reservation-line strong, .history-line strong, .notes-panel strong { color:var(--text); }
     .notes-panel {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 12px;
-      display: grid;
-      gap: 10px;
+      background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);
+      border-radius:12px; padding:12px;
     }
-
-    .notes-panel strong {
-      color: var(--muted);
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+    .notes-panel strong { font-size:.82rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+    .history-summary { grid-template-columns:repeat(4, minmax(0, 1fr)); margin-bottom:18px; }
+    .summary-card {
+      background:var(--panel-2); border:1px solid var(--border); border-radius:14px; padding:14px; display:grid; gap:4px;
     }
-
-    .notes-actions,
-    .reservation-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .summary-card strong { font-size:1.3rem; }
+    .status { font-size:.95rem; color:var(--muted); margin-top:14px; }
+    .status.error { color:#ffb5b5; }
+    .status.success { color:var(--success); }
+    .hidden { display:none !important; }
+    @media (max-width:1180px) {
+      .week-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .history-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
     }
-
-    .status {
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-top: 14px;
-    }
-
-    .status.error {
-      color: #ffb5b5;
-    }
-
-    .status.success {
-      color: var(--success);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 1180px) {
-      .week-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 760px) {
-      body {
-        padding: 16px;
-      }
-
-      .brand h1 {
-        font-size: 1.6rem;
-      }
-
-      .week-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .toolbar-actions button,
-      .week-nav button,
-      .notes-actions button,
-      .reservation-actions button {
-        width: 100%;
-      }
-
-      .week-title {
-        min-width: 0;
-        width: 100%;
-      }
+    @media (max-width:760px) {
+      body { padding:16px; }
+      .brand h1 { font-size:1.6rem; }
+      .week-grid, .history-summary { grid-template-columns:1fr; }
+      .toolbar-actions button, .week-nav button, .history-nav button, .history-mode button,
+      .notes-actions button, .reservation-actions button, .view-switch button { width:100%; }
+      .range-title { min-width:0; width:100%; }
     }
   </style>
 </head>
@@ -399,7 +123,7 @@
     <section id="adminSection" class="hidden">
       <div class="topbar">
         <div class="brand">
-          <h1>Panel semanal</h1>
+          <h1>Panel de reservas</h1>
           <p>Gestion privada de reservas de Barber Elite.</p>
         </div>
         <div class="toolbar-actions">
@@ -410,48 +134,67 @@
       </div>
 
       <div class="card">
-        <div class="week-toolbar">
-          <div>
-            <h2 class="section-title">Calendario semanal</h2>
-            <p class="helper">Vista de lunes a viernes, ordenada de la hora mas temprana a la mas tarde.</p>
-          </div>
-          <div class="week-nav">
-            <button id="prevWeekButton" class="btn-secondary" type="button">Semana anterior</button>
-            <div id="weekTitle" class="week-title">Semana</div>
-            <button id="nextWeekButton" class="btn-secondary" type="button">Semana siguiente</button>
-          </div>
+        <div class="view-switch">
+          <button id="agendaTabButton" class="btn-secondary tab-button active" type="button">Agenda semanal</button>
+          <button id="historyTabButton" class="btn-secondary tab-button" type="button">Historial</button>
         </div>
 
-        <div class="search-row">
-          <input type="search" id="searchInput" placeholder="Buscar por nombre, correo, telefono, servicio u hora" />
-        </div>
+        <section id="agendaPanel">
+          <div class="panel-toolbar">
+            <div class="toolbar-block">
+              <h2 class="section-title">Calendario semanal</h2>
+              <p class="helper">Vista de lunes a viernes, ordenada de la hora mas temprana a la mas tarde.</p>
+            </div>
+            <div class="week-nav">
+              <button id="prevWeekButton" class="btn-secondary" type="button">Semana anterior</button>
+              <div id="weekTitle" class="range-title">Semana</div>
+              <button id="nextWeekButton" class="btn-secondary" type="button">Semana siguiente</button>
+            </div>
+          </div>
 
-        <div id="weekGrid" class="week-grid"></div>
+          <div class="search-row">
+            <input type="search" id="searchInput" placeholder="Buscar por nombre, correo, telefono, servicio u hora" />
+          </div>
+
+          <div id="weekGrid" class="week-grid"></div>
+        </section>
+
+        <section id="historyPanel" class="hidden">
+          <div class="panel-toolbar">
+            <div class="toolbar-block">
+              <h2 class="section-title">Historial</h2>
+              <p class="helper">Revisa lo que paso en la semana o en el mes, con estados y orden cronologico.</p>
+            </div>
+            <div class="history-mode">
+              <button id="historyWeekModeButton" class="btn-secondary tab-button active" type="button">Semana</button>
+              <button id="historyMonthModeButton" class="btn-secondary tab-button" type="button">Mes</button>
+            </div>
+          </div>
+
+          <div class="panel-toolbar">
+            <div class="history-nav">
+              <button id="prevHistoryButton" class="btn-secondary" type="button">Anterior</button>
+              <div id="historyTitle" class="range-title">Historial</div>
+              <button id="nextHistoryButton" class="btn-secondary" type="button">Siguiente</button>
+            </div>
+          </div>
+
+          <div class="search-row">
+            <input type="search" id="historySearchInput" placeholder="Buscar en historial por nombre, servicio, estado o fecha" />
+          </div>
+
+          <div id="historySummary" class="history-summary"></div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+
         <div id="adminStatus" class="status"></div>
       </div>
     </section>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signInWithEmailAndPassword,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      deleteDoc,
-      getFirestore,
-      collection,
-      doc,
-      getDocs,
-      orderBy,
-      query,
-      setDoc,
-      serverTimestamp,
-      updateDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { deleteDoc, getFirestore, collection, doc, getDocs, orderBy, query, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBc_r_3V9wmqWZpLeoBWZhRHJhy0F_zCIo",
@@ -481,17 +224,32 @@
     const adminEmail = document.getElementById("adminEmail");
     const refreshButton = document.getElementById("refreshButton");
     const logoutButton = document.getElementById("logoutButton");
+    const agendaTabButton = document.getElementById("agendaTabButton");
+    const historyTabButton = document.getElementById("historyTabButton");
+    const agendaPanel = document.getElementById("agendaPanel");
+    const historyPanel = document.getElementById("historyPanel");
     const prevWeekButton = document.getElementById("prevWeekButton");
     const nextWeekButton = document.getElementById("nextWeekButton");
     const weekTitle = document.getElementById("weekTitle");
     const searchInput = document.getElementById("searchInput");
     const weekGrid = document.getElementById("weekGrid");
+    const historyWeekModeButton = document.getElementById("historyWeekModeButton");
+    const historyMonthModeButton = document.getElementById("historyMonthModeButton");
+    const prevHistoryButton = document.getElementById("prevHistoryButton");
+    const nextHistoryButton = document.getElementById("nextHistoryButton");
+    const historyTitle = document.getElementById("historyTitle");
+    const historySearchInput = document.getElementById("historySearchInput");
+    const historySummary = document.getElementById("historySummary");
+    const historyList = document.getElementById("historyList");
 
     let allRequests = [];
     let currentUser = null;
     let loadingRequests = false;
     let noteDrafts = {};
+    let currentView = "agenda";
     let currentWeekStart = getMonday(new Date());
+    let historyMode = "week";
+    let historyCursorDate = getStartOfDay(new Date());
 
     function setStatus(node, message, type = "") {
       node.textContent = message;
@@ -518,10 +276,26 @@
       return result;
     }
 
+    function addMonths(date, amount) {
+      const result = new Date(date);
+      result.setMonth(result.getMonth() + amount);
+      return result;
+    }
+
+    function getMonthStart(date) {
+      return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+
+    function getMonthEnd(date) {
+      return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+
     function formatShortDate(date) {
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      return `${day}/${month}`;
+      return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatMonthTitle(date) {
+      return new Intl.DateTimeFormat("es-CL", { month: "long", year: "numeric" }).format(date);
     }
 
     function formatWeekRange(startDate) {
@@ -530,14 +304,18 @@
     }
 
     function formatCreatedDate(value) {
-      if (!value?.toDate) {
-        return "Sin fecha";
-      }
+      if (!value?.toDate) return "Sin fecha";
+      return new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(value.toDate());
+    }
 
-      return new Intl.DateTimeFormat("es-CL", {
-        dateStyle: "medium",
-        timeStyle: "short"
-      }).format(value.toDate());
+    function formatActionDate(item) {
+      if (item.estado === "cancelada") {
+        return item.gestionadoEn?.toDate ? formatCreatedDate(item.gestionadoEn) : "Sin registro";
+      }
+      if (item.estado === "completada") {
+        return item.finalizadoEn?.toDate ? formatCreatedDate(item.finalizadoEn) : "Sin registro";
+      }
+      return "Sin registro";
     }
 
     function getSlotId(fechaISO, hora) {
@@ -545,113 +323,105 @@
     }
 
     function getDraftNote(item) {
-      return Object.prototype.hasOwnProperty.call(noteDrafts, item.id)
-        ? noteDrafts[item.id]
-        : (item.notaInterna || "");
+      return Object.prototype.hasOwnProperty.call(noteDrafts, item.id) ? noteDrafts[item.id] : (item.notaInterna || "");
     }
 
     function getAppointmentDate(item) {
-      if (!item.fechaISO || !/^\d{4}-\d{2}-\d{2}$/.test(item.fechaISO)) {
-        return null;
-      }
-
+      if (!item.fechaISO || !/^\d{4}-\d{2}-\d{2}$/.test(item.fechaISO)) return null;
       const [year, month, day] = item.fechaISO.split("-").map(Number);
       return new Date(year, month - 1, day);
     }
 
+    function getAppointmentKey(item) {
+      return item.fechaISO && item.hora ? `${item.fechaISO}T${item.hora}` : "";
+    }
+
     function getDisplayState(item) {
-      return item.estado === "cancelada" ? "Cancelada"
-        : item.estado === "completada" ? "Cliente listo"
-        : "Activa";
+      return item.estado === "cancelada" ? "Cancelada" : item.estado === "completada" ? "Cliente listo" : "Activa";
     }
 
     function getBadgeClass(item) {
-      return item.estado === "cancelada" ? "cancelada"
-        : item.estado === "completada" ? "completada"
-        : "activa";
+      return item.estado === "cancelada" ? "cancelada" : item.estado === "completada" ? "completada" : "activa";
     }
 
     function buildSearchText(item) {
-      return [
-        item.nombre,
-        item.correo,
-        item.telefono,
-        item.servicio,
-        item.fecha,
-        item.fechaISO,
-        item.hora,
-        item.estado,
-        item.notaInterna
-      ].join(" ").toLowerCase();
+      return [item.nombre, item.correo, item.telefono, item.servicio, item.fecha, item.fechaISO, item.hora, item.estado, item.notaInterna]
+        .join(" ")
+        .toLowerCase();
     }
 
     function sortRequestsByAppointment(items) {
       return [...items].sort((a, b) => {
-        const aDate = getAppointmentDate(a);
-        const bDate = getAppointmentDate(b);
-
-        if (aDate && bDate) {
-          if (a.fechaISO !== b.fechaISO) {
-            return a.fechaISO.localeCompare(b.fechaISO);
-          }
-
-          if ((a.hora || "") !== (b.hora || "")) {
-            return String(a.hora || "").localeCompare(String(b.hora || ""));
-          }
-        }
-
+        const aKey = getAppointmentKey(a);
+        const bKey = getAppointmentKey(b);
+        if (aKey && bKey && aKey !== bKey) return aKey.localeCompare(bKey);
         const aCreated = a.creadoEn?.toDate ? a.creadoEn.toDate().getTime() : 0;
         const bCreated = b.creadoEn?.toDate ? b.creadoEn.toDate().getTime() : 0;
         return bCreated - aCreated;
       });
     }
 
-    function getVisibleRequests() {
-      const weekEnd = addDays(currentWeekStart, 4);
-      const search = searchInput.value.trim().toLowerCase();
-
-      return sortRequestsByAppointment(
-        allRequests.filter((item) => {
-          const appointmentDate = getAppointmentDate(item);
-          if (!appointmentDate) {
-            return false;
-          }
-
-          if (!["pendiente", "confirmada"].includes(item.estado || "pendiente")) {
-            return false;
-          }
-
-          const day = appointmentDate.getDay();
-          if (day < 1 || day > 5) {
-            return false;
-          }
-
-          if (appointmentDate < currentWeekStart || appointmentDate > weekEnd) {
-            return false;
-          }
-
-          if (search && !buildSearchText(item).includes(search)) {
-            return false;
-          }
-
-          return true;
-        })
-      );
+    function setCurrentView(view) {
+      currentView = view;
+      const isAgenda = view === "agenda";
+      agendaPanel.classList.toggle("hidden", !isAgenda);
+      historyPanel.classList.toggle("hidden", isAgenda);
+      agendaTabButton.classList.toggle("active", isAgenda);
+      historyTabButton.classList.toggle("active", !isAgenda);
     }
 
-    function renderWeek() {
-      const visibleRequests = getVisibleRequests();
+    function setHistoryMode(mode) {
+      historyMode = mode;
+      historyWeekModeButton.classList.toggle("active", mode === "week");
+      historyMonthModeButton.classList.toggle("active", mode === "month");
+      renderHistory();
+    }
+
+    function getAgendaRequests() {
+      const weekEnd = addDays(currentWeekStart, 4);
+      const search = searchInput.value.trim().toLowerCase();
+      return sortRequestsByAppointment(allRequests.filter((item) => {
+        const appointmentDate = getAppointmentDate(item);
+        if (!appointmentDate) return false;
+        if (!["pendiente", "confirmada"].includes(item.estado || "pendiente")) return false;
+        const day = appointmentDate.getDay();
+        if (day < 1 || day > 5) return false;
+        if (appointmentDate < currentWeekStart || appointmentDate > weekEnd) return false;
+        if (search && !buildSearchText(item).includes(search)) return false;
+        return true;
+      }));
+    }
+
+    function getHistoryRange() {
+      if (historyMode === "month") {
+        const start = getMonthStart(historyCursorDate);
+        return { start, end: getMonthEnd(historyCursorDate) };
+      }
+      const start = getMonday(historyCursorDate);
+      return { start, end: addDays(start, 4) };
+    }
+
+    function getHistoryRequests() {
+      const { start, end } = getHistoryRange();
+      const search = historySearchInput.value.trim().toLowerCase();
+      return sortRequestsByAppointment(allRequests.filter((item) => {
+        const appointmentDate = getAppointmentDate(item);
+        if (!appointmentDate) return false;
+        if (!["cancelada", "completada"].includes(item.estado || "")) return false;
+        if (appointmentDate < start || appointmentDate > end) return false;
+        if (search && !buildSearchText(item).includes(search)) return false;
+        return true;
+      }));
+    }
+
+    function renderAgenda() {
+      const visibleRequests = getAgendaRequests();
       weekGrid.innerHTML = "";
       weekTitle.textContent = `Semana ${formatWeekRange(currentWeekStart)}`;
 
       WEEKDAY_LABELS.forEach((label, index) => {
         const dayDate = addDays(currentWeekStart, index);
-        const isoDay = [
-          dayDate.getFullYear(),
-          String(dayDate.getMonth() + 1).padStart(2, "0"),
-          String(dayDate.getDate()).padStart(2, "0")
-        ].join("-");
-
+        const isoDay = `${dayDate.getFullYear()}-${String(dayDate.getMonth() + 1).padStart(2, "0")}-${String(dayDate.getDate()).padStart(2, "0")}`;
         const dayRequests = visibleRequests.filter((item) => item.fechaISO === isoDay);
 
         const column = document.createElement("section");
@@ -659,16 +429,11 @@
 
         const header = document.createElement("div");
         header.className = "day-header";
-
         const title = document.createElement("h3");
         title.textContent = `${label} ${formatShortDate(dayDate)}`;
-
         const count = document.createElement("div");
         count.className = "day-count";
-        count.textContent = dayRequests.length
-          ? `${dayRequests.length} reserva${dayRequests.length === 1 ? "" : "s"}`
-          : "Sin reservas";
-
+        count.textContent = dayRequests.length ? `${dayRequests.length} reserva${dayRequests.length === 1 ? "" : "s"}` : "Sin reservas";
         header.appendChild(title);
         header.appendChild(count);
         column.appendChild(header);
@@ -688,20 +453,16 @@
 
             const top = document.createElement("div");
             top.className = "reservation-top";
-
             const titleWrap = document.createElement("div");
             const hour = document.createElement("div");
             hour.className = "reservation-hour";
             hour.textContent = item.hora || "Sin hora";
-
             const name = document.createElement("div");
             name.className = "reservation-name";
             name.textContent = item.nombre || "Sin nombre";
-
             const created = document.createElement("div");
             created.className = "meta";
             created.textContent = `Creada ${formatCreatedDate(item.creadoEn)}`;
-
             titleWrap.appendChild(hour);
             titleWrap.appendChild(name);
             titleWrap.appendChild(created);
@@ -709,26 +470,21 @@
             const badge = document.createElement("span");
             badge.className = `badge ${getBadgeClass(item)}`;
             badge.textContent = getDisplayState(item);
-
             top.appendChild(titleWrap);
             top.appendChild(badge);
             card.appendChild(top);
 
             const lines = document.createElement("div");
             lines.className = "reservation-lines";
-
             const serviceLine = document.createElement("div");
             serviceLine.className = "reservation-line";
             serviceLine.innerHTML = `<strong>Servicio:</strong> ${item.servicio || "Sin dato"}`;
-
             const phoneLine = document.createElement("div");
             phoneLine.className = "reservation-line";
             phoneLine.innerHTML = `<strong>Telefono:</strong> ${item.telefono || "Sin dato"}`;
-
             const emailLine = document.createElement("div");
             emailLine.className = "reservation-line";
             emailLine.innerHTML = `<strong>Correo:</strong> ${item.correo || "Sin dato"}`;
-
             lines.appendChild(serviceLine);
             lines.appendChild(phoneLine);
             lines.appendChild(emailLine);
@@ -736,27 +492,22 @@
 
             const notesPanel = document.createElement("div");
             notesPanel.className = "notes-panel";
-
             const notesTitle = document.createElement("strong");
             notesTitle.textContent = "Notas internas";
-
             const notesTextarea = document.createElement("textarea");
             notesTextarea.value = getDraftNote(item);
             notesTextarea.placeholder = "Escribe una nota interna para esta reserva";
             notesTextarea.addEventListener("input", (event) => {
               noteDrafts[item.id] = event.target.value;
             });
-
             const notesActions = document.createElement("div");
             notesActions.className = "notes-actions";
-
             const saveNoteButton = document.createElement("button");
             saveNoteButton.className = "btn-secondary";
             saveNoteButton.textContent = "Guardar nota";
             saveNoteButton.addEventListener("click", () => {
               guardarNota(item.id);
             });
-
             notesActions.appendChild(saveNoteButton);
             notesPanel.appendChild(notesTitle);
             notesPanel.appendChild(notesTextarea);
@@ -765,21 +516,14 @@
 
             const actions = document.createElement("div");
             actions.className = "reservation-actions";
-
             const doneButton = document.createElement("button");
             doneButton.className = "btn-info";
             doneButton.textContent = "Cliente listo";
-            doneButton.addEventListener("click", () => {
-              cambiarEstado(item.id, "completada");
-            });
-
+            doneButton.addEventListener("click", () => cambiarEstado(item.id, "completada"));
             const cancelButton = document.createElement("button");
             cancelButton.className = "btn-danger";
             cancelButton.textContent = "Cancelar";
-            cancelButton.addEventListener("click", () => {
-              cambiarEstado(item.id, "cancelada");
-            });
-
+            cancelButton.addEventListener("click", () => cambiarEstado(item.id, "cancelada"));
             actions.appendChild(doneButton);
             actions.appendChild(cancelButton);
             card.appendChild(actions);
@@ -792,23 +536,90 @@
       });
     }
 
-    async function loadRequests() {
-      if (!currentUser || loadingRequests) {
+    function renderHistorySummary(items) {
+      const completedCount = items.filter((item) => item.estado === "completada").length;
+      const cancelledCount = items.filter((item) => item.estado === "cancelada").length;
+      const notedCount = items.filter((item) => (item.notaInterna || "").trim()).length;
+      historySummary.innerHTML = "";
+      [["Total", items.length], ["Cliente listo", completedCount], ["Canceladas", cancelledCount], ["Con nota", notedCount]].forEach(([label, value]) => {
+        const card = document.createElement("div");
+        card.className = "summary-card";
+        const title = document.createElement("span");
+        title.className = "helper";
+        title.textContent = label;
+        const number = document.createElement("strong");
+        number.textContent = String(value);
+        card.appendChild(title);
+        card.appendChild(number);
+        historySummary.appendChild(card);
+      });
+    }
+
+    function renderHistory() {
+      const { start } = getHistoryRange();
+      const items = getHistoryRequests();
+      historyTitle.textContent = historyMode === "month" ? `Mes ${formatMonthTitle(start)}` : `Semana ${formatWeekRange(start)}`;
+      renderHistorySummary(items);
+      historyList.innerHTML = "";
+
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-history";
+        empty.textContent = "Sin reservas cerradas en este periodo.";
+        historyList.appendChild(empty);
         return;
       }
 
+      items.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "history-card";
+        const top = document.createElement("div");
+        top.className = "history-top";
+        const titleWrap = document.createElement("div");
+        const hour = document.createElement("div");
+        hour.className = "history-hour";
+        hour.textContent = `${item.fecha || "Sin fecha"} - ${item.hora || "Sin hora"}`;
+        const name = document.createElement("div");
+        name.className = "history-name";
+        name.textContent = item.nombre || "Sin nombre";
+        const created = document.createElement("div");
+        created.className = "meta";
+        created.textContent = `Creada ${formatCreatedDate(item.creadoEn)}`;
+        titleWrap.appendChild(hour);
+        titleWrap.appendChild(name);
+        titleWrap.appendChild(created);
+        const badge = document.createElement("span");
+        badge.className = `badge ${getBadgeClass(item)}`;
+        badge.textContent = getDisplayState(item);
+        top.appendChild(titleWrap);
+        top.appendChild(badge);
+        card.appendChild(top);
+
+        const lines = document.createElement("div");
+        lines.className = "history-lines";
+        [["Servicio", item.servicio || "Sin dato"], ["Telefono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"], ["Cierre", formatActionDate(item)], ["Nota", item.notaInterna || "Sin nota interna"]]
+          .forEach(([label, value]) => {
+            const line = document.createElement("div");
+            line.className = "history-line";
+            line.innerHTML = `<strong>${label}:</strong> ${value}`;
+            lines.appendChild(line);
+          });
+        card.appendChild(lines);
+        historyList.appendChild(card);
+      });
+    }
+
+    async function loadRequests() {
+      if (!currentUser || loadingRequests) return;
       loadingRequests = true;
       refreshButton.disabled = true;
       setStatus(adminStatus, "Cargando reservas...");
-
       try {
         const requestsQuery = query(collection(db, COLECCION_SOLICITUDES), orderBy("creadoEn", "desc"));
         const snapshot = await getDocs(requestsQuery);
-        allRequests = snapshot.docs.map((item) => ({
-          id: item.id,
-          ...item.data()
-        }));
-        renderWeek();
+        allRequests = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        renderAgenda();
+        renderHistory();
         setStatus(adminStatus, `${allRequests.length} reservas cargadas.`, "success");
       } catch (error) {
         console.error("Error al cargar reservas:", error);
@@ -822,9 +633,7 @@
     async function enviarCorreoGestion(item, nuevoEstado) {
       const response = await fetch("/api/send-booking-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           notificationType: "customer_status",
           barbero: item.barbero,
@@ -838,24 +647,16 @@
           notaInterna: getDraftNote(item)
         })
       });
-
-      if (!response.ok) {
-        throw new Error(`Email endpoint error: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Email endpoint error: ${response.status}`);
     }
 
     async function sincronizarDisponibilidadPublica(item, nuevoEstado) {
-      if (!item.fechaISO) {
-        return;
-      }
-
+      if (!item.fechaISO) return;
       const slotRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(item.fechaISO, item.hora));
-
       if (nuevoEstado === "cancelada" || nuevoEstado === "completada") {
         await deleteDoc(slotRef);
         return;
       }
-
       await setDoc(slotRef, {
         barbero: item.barbero,
         fecha: item.fecha,
@@ -867,30 +668,21 @@
     }
 
     async function guardarNota(id) {
-      if (!currentUser) {
-        return;
-      }
-
+      if (!currentUser) return;
       const item = allRequests.find((request) => request.id === id);
-      if (!item) {
-        return;
-      }
-
+      if (!item) return;
       const notaInterna = (getDraftNote(item) || "").trim();
       if (notaInterna === (item.notaInterna || "")) {
         setStatus(adminStatus, "La nota no tiene cambios.");
         return;
       }
-
       setStatus(adminStatus, "Guardando nota interna...");
-
       try {
         await updateDoc(doc(db, COLECCION_SOLICITUDES, id), {
           notaInterna,
           notaActualizadaEn: serverTimestamp(),
           notaActualizadaPor: currentUser.email
         });
-
         setStatus(adminStatus, "Nota interna guardada.", "success");
         await loadRequests();
       } catch (error) {
@@ -900,17 +692,10 @@
     }
 
     async function cambiarEstado(id, nuevoEstado) {
-      if (!currentUser || !ESTADOS_EDITABLES.includes(nuevoEstado)) {
-        return;
-      }
-
+      if (!currentUser || !ESTADOS_EDITABLES.includes(nuevoEstado)) return;
       const item = allRequests.find((request) => request.id === id);
-      if (!item) {
-        return;
-      }
-
+      if (!item) return;
       setStatus(adminStatus, `Actualizando reserva a ${nuevoEstado}...`);
-
       try {
         const updatePayload = {
           estado: nuevoEstado,
@@ -954,15 +739,12 @@
     loginButton.addEventListener("click", async () => {
       const email = emailInput.value.trim();
       const password = passwordInput.value;
-
       if (!email || !password) {
         setStatus(loginStatus, "Completa correo y contrasena.", "error");
         return;
       }
-
       loginButton.disabled = true;
       setStatus(loginStatus, "Iniciando sesion...");
-
       try {
         await signInWithEmailAndPassword(auth, email, password);
         passwordInput.value = "";
@@ -975,38 +757,32 @@
     });
 
     passwordInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        loginButton.click();
-      }
+      if (event.key === "Enter") loginButton.click();
     });
 
-    refreshButton.addEventListener("click", () => {
-      loadRequests();
-    });
-
+    refreshButton.addEventListener("click", () => loadRequests());
     logoutButton.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error("Error al cerrar sesion:", error);
-      }
+      try { await signOut(auth); } catch (error) { console.error("Error al cerrar sesion:", error); }
     });
-
-    prevWeekButton.addEventListener("click", () => {
-      currentWeekStart = addDays(currentWeekStart, -7);
-      renderWeek();
+    agendaTabButton.addEventListener("click", () => setCurrentView("agenda"));
+    historyTabButton.addEventListener("click", () => setCurrentView("history"));
+    prevWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, -7); renderAgenda(); });
+    nextWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, 7); renderAgenda(); });
+    historyWeekModeButton.addEventListener("click", () => setHistoryMode("week"));
+    historyMonthModeButton.addEventListener("click", () => setHistoryMode("month"));
+    prevHistoryButton.addEventListener("click", () => {
+      historyCursorDate = historyMode === "month" ? addMonths(historyCursorDate, -1) : addDays(historyCursorDate, -7);
+      renderHistory();
     });
-
-    nextWeekButton.addEventListener("click", () => {
-      currentWeekStart = addDays(currentWeekStart, 7);
-      renderWeek();
+    nextHistoryButton.addEventListener("click", () => {
+      historyCursorDate = historyMode === "month" ? addMonths(historyCursorDate, 1) : addDays(historyCursorDate, 7);
+      renderHistory();
     });
-
-    searchInput.addEventListener("input", renderWeek);
+    searchInput.addEventListener("input", renderAgenda);
+    historySearchInput.addEventListener("input", renderHistory);
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
-
       if (!user) {
         loginSection.classList.remove("hidden");
         adminSection.classList.add("hidden");
@@ -1014,14 +790,18 @@
         allRequests = [];
         noteDrafts = {};
         weekGrid.innerHTML = "";
+        historySummary.innerHTML = "";
+        historyList.innerHTML = "";
         setStatus(loginStatus, "");
         return;
       }
-
       loginSection.classList.add("hidden");
       adminSection.classList.remove("hidden");
       adminEmail.textContent = user.email || "";
       currentWeekStart = getMonday(new Date());
+      historyCursorDate = getStartOfDay(new Date());
+      setCurrentView("agenda");
+      setHistoryMode("week");
       setStatus(loginStatus, "");
       await loadRequests();
     });
