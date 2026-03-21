@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <title>Barber Elite</title>
 
   <style>
@@ -237,6 +238,46 @@
       line-height: 1.55;
     }
 
+    .verification-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .verification-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .verification-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: max-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .verification-pill.ok {
+      background: rgba(127, 210, 140, 0.14);
+      color: #9ff0aa;
+      border: 1px solid rgba(127, 210, 140, 0.28);
+    }
+
+    .verification-pill.pending {
+      background: rgba(231, 214, 174, 0.12);
+      color: #f3dd9d;
+      border: 1px solid rgba(231, 214, 174, 0.2);
+    }
+
     .btn-secundario {
       min-height: 46px;
       padding: 0 16px;
@@ -267,6 +308,121 @@
 
     .mensaje.info {
       color: #e7d6ae;
+    }
+
+    .reservas-propias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .reserva-columna {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .reserva-cliente-card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), #0f0f0f);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .reserva-cliente-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .reserva-cliente-fecha {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .reserva-cliente-hora {
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .estado-cliente {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .estado-cliente.recibida {
+      background: rgba(199, 168, 107, 0.14);
+      color: #f0d39a;
+      border: 1px solid rgba(199, 168, 107, 0.22);
+    }
+
+    .estado-cliente.confirmada {
+      background: rgba(127, 210, 140, 0.14);
+      color: #9ff0aa;
+      border: 1px solid rgba(127, 210, 140, 0.24);
+    }
+
+    .estado-cliente.cancelada {
+      background: rgba(217, 119, 119, 0.14);
+      color: #f0b2b2;
+      border: 1px solid rgba(217, 119, 119, 0.24);
+    }
+
+    .estado-cliente.completada {
+      background: rgba(120, 171, 233, 0.14);
+      color: #bfd9ff;
+      border: 1px solid rgba(120, 171, 233, 0.24);
+    }
+
+    .reserva-cliente-linea {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+
+    .reserva-cliente-linea strong {
+      color: #ffffff;
+    }
+
+    .empty-reservas {
+      padding: 16px;
+      border-radius: 18px;
+      background: #101010;
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .politica-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .politica-card {
+      background: #101010;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 18px;
+      padding: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .politica-card strong {
+      font-size: 1rem;
+      color: #ffffff;
     }
 
     .calendar-shell {
@@ -656,6 +812,16 @@
               </div>
               <button class="btn-secundario" id="btnCerrarSesionCliente" type="button">Cerrar sesion</button>
             </div>
+            <div class="verification-row">
+              <div class="verification-copy">
+                <span id="verificationBadge" class="verification-pill pending">Correo pendiente</span>
+                <p class="helper" id="verificationText">Verifica tu correo para poder enviar solicitudes con tu perfil.</p>
+              </div>
+              <div class="acciones-formulario auth-actions">
+                <button class="btn-secundario" id="btnReenviarVerificacion" type="button">Reenviar verificacion</button>
+                <button class="btn-secundario" id="btnActualizarVerificacion" type="button">Ya verifique</button>
+              </div>
+            </div>
           </div>
 
           <div class="mensaje info" id="authStatus">Inicia sesion o crea tu perfil para reservar de lunes a viernes.</div>
@@ -726,6 +892,48 @@
       </div>
 
       <div class="card">
+        <h2>Mis reservas</h2>
+        <p class="card-copy">Con tu perfil puedes revisar tus reservas activas y el historial reciente sin exponer datos de otros clientes.</p>
+        <div class="reservas-propias-grid">
+          <div class="reserva-columna">
+            <h3>Activas</h3>
+            <div id="misReservasActivas" class="reserva-columna">
+              <div class="empty-reservas">Inicia sesion para ver tus reservas activas.</div>
+            </div>
+          </div>
+          <div class="reserva-columna">
+            <h3>Historial</h3>
+            <div id="misReservasHistorial" class="reserva-columna">
+              <div class="empty-reservas">Aqui apareceran tus reservas completadas o canceladas.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Politicas de reserva</h2>
+        <p class="card-copy">La experiencia se siente mas clara cuando el cliente sabe exactamente como funciona la agenda.</p>
+        <div class="politica-grid">
+          <div class="politica-card">
+            <strong>Respuesta de la barberia</strong>
+            <div class="reserva-cliente-linea">Cada solicitud queda recibida y la barberia la revisa antes de gestionarla.</div>
+          </div>
+          <div class="politica-card">
+            <strong>Cancelaciones</strong>
+            <div class="reserva-cliente-linea">Si necesitas mover tu hora, escribe directo a <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.</div>
+          </div>
+          <div class="politica-card">
+            <strong>Puntualidad</strong>
+            <div class="reserva-cliente-linea">La agenda funciona por bloques, por eso conviene llegar unos minutos antes de tu hora.</div>
+          </div>
+          <div class="politica-card">
+            <strong>Disponibilidad</strong>
+            <div class="reserva-cliente-linea">La agenda online se abre de lunes a viernes y puede tener cierres especiales por feriados o ajustes internos.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <h2>Privacidad y seguridad</h2>
         <div class="aviso-seguridad">
           Esta web publica no expone datos personales ni consulta reservas de otros clientes.
@@ -743,6 +951,7 @@
       createUserWithEmailAndPassword,
       getAuth,
       onAuthStateChanged,
+      sendEmailVerification,
       sendPasswordResetEmail,
       signInWithEmailAndPassword,
       signOut
@@ -751,6 +960,7 @@
       getFirestore,
       collection,
       doc,
+      getDoc,
       getDocs,
       query,
       runTransaction,
@@ -770,11 +980,17 @@
     const RESERVA_COOLDOWN_MS = 60 * 1000;
     const ULTIMA_RESERVA_KEY = "barber-elite-ultima-reserva";
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
+    const COLECCION_RESERVAS_CLIENTE = "reservas_cliente";
     const COLECCION_AGENDA_PUBLICA = "agenda_publica";
+    const COLECCION_CONFIG_PUBLICA = "configuracion_publica";
+    const DOC_CONFIG_AGENDA = "agenda";
+    const COLECCION_FECHAS_BLOQUEADAS = "agenda_fechas_bloqueadas";
+    const COLECCION_FECHAS_ESPECIALES = "agenda_fechas_especiales";
     const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
     const SERVICIOS_DISPONIBLES = ["corte de pelo", "corte de pelo + barba", "barba"];
     const WEEKDAY_HEADERS = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
     const WEEKDAY_NAMES = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+    const WEEKDAY_CONFIG_KEYS = ["lunes", "martes", "miercoles", "jueves", "viernes"];
     const MONTH_NAMES = [
       "enero",
       "febrero",
@@ -803,6 +1019,10 @@
     let currentClientUser = null;
     let calendarMonth = getMonthStart(getToday());
     let horariosOcupados = new Map();
+    let agendaConfig = getDefaultAgendaConfig();
+    let fechasBloqueadas = new Map();
+    let fechasEspeciales = new Map();
+    let misReservas = [];
 
     const barberoNombre = "Barber Elite";
     const authCard = document.getElementById("authCard");
@@ -812,10 +1032,14 @@
     const authLoggedIn = document.getElementById("authLoggedIn");
     const perfilCorreoActivo = document.getElementById("perfilCorreoActivo");
     const authStatus = document.getElementById("authStatus");
+    const verificationBadge = document.getElementById("verificationBadge");
+    const verificationText = document.getElementById("verificationText");
     const btnCrearPerfil = document.getElementById("btnCrearPerfil");
     const btnIniciarSesion = document.getElementById("btnIniciarSesion");
     const btnRecuperarClave = document.getElementById("btnRecuperarClave");
     const btnCerrarSesionCliente = document.getElementById("btnCerrarSesionCliente");
+    const btnReenviarVerificacion = document.getElementById("btnReenviarVerificacion");
+    const btnActualizarVerificacion = document.getElementById("btnActualizarVerificacion");
     const btnPrevMonth = document.getElementById("btnPrevMonth");
     const btnNextMonth = document.getElementById("btnNextMonth");
     const btnVerHoras = document.getElementById("btnVerHoras");
@@ -834,6 +1058,8 @@
     const btnEnviarSolicitud = document.getElementById("btnEnviarSolicitud");
     const mensajeFormulario = document.getElementById("mensajeFormulario");
     const seccionReservas = document.getElementById("reservas");
+    const misReservasActivas = document.getElementById("misReservasActivas");
+    const misReservasHistorial = document.getElementById("misReservasHistorial");
 
     function normalizarTexto(valor) {
       return valor.replace(/\s+/g, " ").trim();
@@ -847,6 +1073,66 @@
       return /^[+\d\s()-]{8,20}$/.test(telefono);
     }
 
+    function getDefaultAgendaConfig() {
+      return {
+        lunesAbierto: true,
+        lunesHoras: [...HORAS_BASE],
+        martesAbierto: true,
+        martesHoras: [...HORAS_BASE],
+        miercolesAbierto: true,
+        miercolesHoras: [...HORAS_BASE],
+        juevesAbierto: true,
+        juevesHoras: [...HORAS_BASE],
+        viernesAbierto: true,
+        viernesHoras: [...HORAS_BASE]
+      };
+    }
+
+    function getWeekdayConfigKey(date) {
+      return WEEKDAY_NAMES[date.getDay()];
+    }
+
+    function getAgendaHoursForDate(date) {
+      const iso = formatISODate(date);
+
+      if (fechasBloqueadas.has(iso)) {
+        return [];
+      }
+
+      if (fechasEspeciales.has(iso)) {
+        return [...fechasEspeciales.get(iso).horas];
+      }
+
+      const key = getWeekdayConfigKey(date);
+      if (!WEEKDAY_CONFIG_KEYS.includes(key)) {
+        return [];
+      }
+
+      if (!agendaConfig[`${key}Abierto`]) {
+        return [];
+      }
+
+      return [...(agendaConfig[`${key}Horas`] || HORAS_BASE)];
+    }
+
+    function getAppointmentDateTime(item) {
+      if (!item?.fechaISO || !item?.hora) {
+        return null;
+      }
+
+      const [year, month, day] = item.fechaISO.split("-").map(Number);
+      const [hours, minutes] = item.hora.split(":").map(Number);
+
+      return new Date(year, month - 1, day, hours, minutes || 0, 0, 0);
+    }
+
+    function getClientStatusInfo(estado) {
+      if (estado === "confirmada") return { label: "Confirmada", className: "confirmada" };
+      if (estado === "cancelada") return { label: "Cancelada", className: "cancelada" };
+      if (estado === "completada") return { label: "Completada", className: "completada" };
+      return { label: "Recibida", className: "recibida" };
+    }
+
     function setAuthStatus(message, type = "info") {
       authStatus.textContent = message;
       authStatus.className = `mensaje ${type}`;
@@ -858,10 +1144,159 @@
       btnIniciarSesion.disabled = disabled;
       btnRecuperarClave.disabled = disabled;
       btnCerrarSesionCliente.disabled = disabled;
+      btnReenviarVerificacion.disabled = disabled;
+      btnActualizarVerificacion.disabled = disabled;
     }
 
     function syncClientEmailField() {
       correoCliente.value = currentClientUser?.email || "";
+    }
+
+    function updateVerificationUI() {
+      const hasSession = Boolean(currentClientUser);
+      const isVerified = Boolean(currentClientUser?.emailVerified);
+
+      verificationBadge.className = `verification-pill ${isVerified ? "ok" : "pending"}`;
+      verificationBadge.textContent = isVerified ? "Correo verificado" : "Correo pendiente";
+      verificationText.textContent = isVerified
+        ? "Tu correo ya esta verificado y tu perfil puede enviar solicitudes con normalidad."
+        : "Verifica tu correo antes de reservar. Asi reducimos cuentas falsas y solicitudes de abuso.";
+      btnReenviarVerificacion.classList.toggle("paso-oculto", !hasSession || isVerified);
+      btnActualizarVerificacion.classList.toggle("paso-oculto", !hasSession || isVerified);
+    }
+
+    function renderMisReservas() {
+      misReservasActivas.innerHTML = "";
+      misReservasHistorial.innerHTML = "";
+
+      if (!currentClientUser) {
+        misReservasActivas.innerHTML = '<div class="empty-reservas">Inicia sesion para ver tus reservas activas.</div>';
+        misReservasHistorial.innerHTML = '<div class="empty-reservas">Aqui apareceran tus reservas completadas o canceladas.</div>';
+        return;
+      }
+
+      const activas = misReservas
+        .filter((item) => !["cancelada", "completada"].includes(item.estado || "pendiente"))
+        .sort((a, b) => (getAppointmentDateTime(a)?.getTime() || 0) - (getAppointmentDateTime(b)?.getTime() || 0));
+      const historial = misReservas
+        .filter((item) => ["cancelada", "completada"].includes(item.estado || ""))
+        .sort((a, b) => (getAppointmentDateTime(b)?.getTime() || 0) - (getAppointmentDateTime(a)?.getTime() || 0));
+
+      const renderTarget = (items, target, emptyText) => {
+        if (!items.length) {
+          target.innerHTML = `<div class="empty-reservas">${emptyText}</div>`;
+          return;
+        }
+
+        items.forEach((item) => {
+          const status = getClientStatusInfo(item.estado);
+          const card = document.createElement("article");
+          card.className = "reserva-cliente-card";
+
+          const top = document.createElement("div");
+          top.className = "reserva-cliente-top";
+
+          const titleWrap = document.createElement("div");
+          const fecha = document.createElement("div");
+          fecha.className = "reserva-cliente-fecha";
+          fecha.textContent = item.fecha || "Sin fecha";
+          const hora = document.createElement("div");
+          hora.className = "reserva-cliente-hora";
+          hora.textContent = item.hora || "Sin hora";
+          titleWrap.appendChild(fecha);
+          titleWrap.appendChild(hora);
+
+          const badge = document.createElement("span");
+          badge.className = `estado-cliente ${status.className}`;
+          badge.textContent = status.label;
+          top.appendChild(titleWrap);
+          top.appendChild(badge);
+          card.appendChild(top);
+
+          [["Servicio", item.servicio || "Sin dato"], ["Nombre", item.nombre || "Sin dato"], ["Telefono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"]]
+            .forEach(([label, value]) => {
+              const line = document.createElement("div");
+              line.className = "reserva-cliente-linea";
+              line.innerHTML = `<strong>${label}:</strong> ${value}`;
+              card.appendChild(line);
+            });
+
+          target.appendChild(card);
+        });
+      };
+
+      renderTarget(activas, misReservasActivas, "No tienes reservas activas en este momento.");
+      renderTarget(historial, misReservasHistorial, "Todavia no hay reservas canceladas o completadas en tu historial.");
+    }
+
+    async function loadMisReservas() {
+      if (!currentClientUser) {
+        misReservas = [];
+        renderMisReservas();
+        return;
+      }
+
+      try {
+        const reservasQuery = query(
+          collection(db, COLECCION_RESERVAS_CLIENTE),
+          where("clienteUid", "==", currentClientUser.uid)
+        );
+        const snapshot = await getDocs(reservasQuery);
+        misReservas = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        renderMisReservas();
+      } catch (error) {
+        console.error("Error al cargar mis reservas:", error);
+        misReservasActivas.innerHTML = '<div class="empty-reservas">No se pudieron cargar tus reservas activas.</div>';
+        misReservasHistorial.innerHTML = '<div class="empty-reservas">No se pudo cargar tu historial.</div>';
+      }
+    }
+
+    async function loadAgendaConfig() {
+      try {
+        const configRef = doc(db, COLECCION_CONFIG_PUBLICA, DOC_CONFIG_AGENDA);
+        const [configSnapshot, bloqueadasSnapshot, especialesSnapshot] = await Promise.all([
+          getDoc(configRef),
+          getDocs(query(
+            collection(db, COLECCION_FECHAS_BLOQUEADAS),
+            where("fechaISO", ">=", formatISODate(getToday())),
+            where("fechaISO", "<=", formatISODate(getMaxDate()))
+          )),
+          getDocs(query(
+            collection(db, COLECCION_FECHAS_ESPECIALES),
+            where("fechaISO", ">=", formatISODate(getToday())),
+            where("fechaISO", "<=", formatISODate(getMaxDate()))
+          ))
+        ]);
+
+        agendaConfig = configSnapshot.exists()
+          ? { ...getDefaultAgendaConfig(), ...configSnapshot.data() }
+          : getDefaultAgendaConfig();
+        fechasBloqueadas = new Map(bloqueadasSnapshot.docs.map((item) => [item.id, item.data()]));
+        fechasEspeciales = new Map(especialesSnapshot.docs.map((item) => [item.id, item.data()]));
+      } catch (error) {
+        console.error("Error al cargar configuracion de agenda:", error);
+        agendaConfig = getDefaultAgendaConfig();
+        fechasBloqueadas = new Map();
+        fechasEspeciales = new Map();
+      }
+
+      if (fechaSeleccionada) {
+        const currentDate = new Date(`${fechaSeleccionada.iso}T00:00:00`);
+        if (!isSelectableDate(currentDate)) {
+          fechaSeleccionada = null;
+          horarioSeleccionado = null;
+          horariosOcupados = new Map();
+          btnVerHoras.disabled = true;
+          contenedorHoras.classList.add("oculto");
+          horasGrid.innerHTML = "";
+          calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
+          textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
+          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          datosClienteCard.classList.add("paso-oculto");
+        }
+      }
+
+      renderCalendar();
     }
 
     function updateAuthUI() {
@@ -870,21 +1305,35 @@
       authLoggedIn.classList.toggle("paso-oculto", !hasSession);
       perfilCorreoActivo.textContent = currentClientUser?.email || "Correo";
       syncClientEmailField();
+      updateVerificationUI();
 
       if (hasSession) {
         authEmail.value = currentClientUser.email || authEmail.value;
         authPassword.value = "";
-        setAuthStatus("Perfil activo. Ya puedes elegir una fecha, una hora y enviar tu solicitud.", "success");
+        setAuthStatus(
+          currentClientUser.emailVerified
+            ? "Perfil activo. Ya puedes elegir una fecha, una hora y enviar tu solicitud."
+            : "Perfil activo. Verifica tu correo antes de reservar.",
+          currentClientUser.emailVerified ? "success" : "info"
+        );
       } else {
         setAuthStatus("Inicia sesion o crea tu perfil para reservar de lunes a viernes.", "info");
         datosClienteCard.classList.add("paso-oculto");
         mensajeFormulario.textContent = "Debes iniciar sesion para completar la reserva.";
       }
+
+      renderMisReservas();
     }
 
     function asegurarSesionCliente() {
       if (currentClientUser) {
-        return true;
+        if (currentClientUser.emailVerified) {
+          return true;
+        }
+
+        setAuthStatus("Verifica tu correo antes de reservar. Puedes reenviar el enlace desde tu perfil.", "error");
+        authCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        return false;
       }
 
       setAuthStatus("Inicia sesion o crea tu perfil para continuar con la reserva.", "error");
@@ -934,7 +1383,7 @@
     function isSelectableDate(date) {
       const today = getToday();
       const maxDate = getMaxDate();
-      return date >= today && date <= maxDate && date.getDay() !== 0 && date.getDay() !== 6;
+      return date >= today && date <= maxDate && getAgendaHoursForDate(date).length > 0;
     }
 
     function getSelectedDateData(date) {
@@ -1189,6 +1638,7 @@
 
       const disponibilidadRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(horarioSeleccionado.fechaISO, horarioSeleccionado.hora));
       const solicitudRef = doc(collection(db, COLECCION_SOLICITUDES));
+      const reservaClienteRef = doc(collection(db, COLECCION_RESERVAS_CLIENTE), solicitudRef.id);
       const disponibilidadPayload = {
         barbero: barberoNombre,
         fecha: horarioSeleccionado.fecha,
@@ -1207,6 +1657,7 @@
           }
 
           transaction.set(solicitudRef, solicitud);
+          transaction.set(reservaClienteRef, solicitud);
           transaction.set(disponibilidadRef, disponibilidadPayload);
         });
 
@@ -1217,11 +1668,17 @@
         slotResumen.innerHTML = "Aun no has elegido un horario.";
         mensajeFormulario.textContent = "";
         await renderHoras();
+        await loadMisReservas();
         mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barberia revisara tu reserva.`;
         alert("Solicitud enviada con exito.");
 
-        enviarCorreoReserva(solicitud).catch((error) => {
-          console.error("Error al enviar correo de solicitud:", error);
+        Promise.allSettled([
+          enviarCorreoReserva({ ...solicitud, notificationType: "new_request", estado: "Pendiente" }),
+          enviarCorreoReserva({ ...solicitud, notificationType: "customer_received", estado: "Pendiente" })
+        ]).then((results) => {
+          results
+            .filter((result) => result.status === "rejected")
+            .forEach((result) => console.error("Error al enviar correo de solicitud:", result.reason));
         });
       } catch (error) {
         console.error("Error al enviar la solicitud:", error);
@@ -1266,9 +1723,20 @@
 
       contenedorHoras.classList.remove("oculto");
       horasGrid.innerHTML = "";
+      const selectedDate = new Date(`${fechaSeleccionada.iso}T00:00:00`);
+      const horasDisponibles = getAgendaHoursForDate(selectedDate);
+
+      if (!horasDisponibles.length) {
+        mensajeHoras.textContent = `No hay horarios configurados para ${fechaSeleccionada.label}.`;
+        contenedorHoras.classList.add("oculto");
+        btnVerHoras.disabled = false;
+        cargandoHoras = false;
+        return;
+      }
+
       mensajeHoras.textContent = `Horarios disponibles para ${fechaSeleccionada.label}.`;
 
-      HORAS_BASE.forEach((hora) => {
+      horasDisponibles.forEach((hora) => {
         const estadoOcupacion = horariosOcupados.get(getSlotId(fechaSeleccionada.iso, hora)) || null;
         const card = document.createElement("div");
         card.className = "hora-card";
@@ -1339,7 +1807,9 @@
       setAuthStatus("Creando tu perfil...", "info");
 
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(credential.user);
+        setAuthStatus("Perfil creado. Te enviamos un correo para verificar tu cuenta.", "success");
       } catch (error) {
         console.error("Error al crear perfil:", error);
         if (error.code === "auth/email-already-in-use") {
@@ -1347,6 +1817,50 @@
         } else {
           setAuthStatus("No se pudo crear el perfil.", "error");
         }
+      } finally {
+        setAuthButtonsDisabled(false);
+      }
+    }
+
+    async function reenviarVerificacionCliente() {
+      if (authEnProceso || !currentClientUser || currentClientUser.emailVerified) {
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      setAuthStatus("Reenviando correo de verificacion...", "info");
+
+      try {
+        await sendEmailVerification(currentClientUser);
+        setAuthStatus("Te enviamos otro correo de verificacion. Revisa tambien spam.", "success");
+      } catch (error) {
+        console.error("Error al reenviar verificacion:", error);
+        setAuthStatus("No se pudo reenviar el correo de verificacion.", "error");
+      } finally {
+        setAuthButtonsDisabled(false);
+      }
+    }
+
+    async function actualizarVerificacionCliente() {
+      if (authEnProceso || !currentClientUser) {
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+
+      try {
+        await currentClientUser.reload();
+        currentClientUser = auth.currentUser;
+        updateAuthUI();
+        setAuthStatus(
+          currentClientUser?.emailVerified
+            ? "Correo verificado. Ya puedes reservar con tu perfil."
+            : "Todavia no vemos la verificacion. Revisa el enlace del correo y vuelve a intentarlo.",
+          currentClientUser?.emailVerified ? "success" : "info"
+        );
+      } catch (error) {
+        console.error("Error al actualizar verificacion:", error);
+        setAuthStatus("No se pudo actualizar el estado de verificacion.", "error");
       } finally {
         setAuthButtonsDisabled(false);
       }
@@ -1468,6 +1982,14 @@
       cerrarSesionCliente();
     });
 
+    btnReenviarVerificacion.addEventListener("click", () => {
+      reenviarVerificacionCliente();
+    });
+
+    btnActualizarVerificacion.addEventListener("click", () => {
+      actualizarVerificacionCliente();
+    });
+
     authPassword.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         iniciarSesionCliente();
@@ -1479,15 +2001,26 @@
       seccionReservas.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       currentClientUser = user;
+      if (currentClientUser) {
+        try {
+          await currentClientUser.reload();
+          currentClientUser = auth.currentUser;
+        } catch (error) {
+          console.error("Error al refrescar sesion del cliente:", error);
+        }
+      }
       updateAuthUI();
+      await loadMisReservas();
     });
 
-    function iniciar() {
+    async function iniciar() {
       createWeekdayHeaders();
+      await loadAgendaConfig();
       renderCalendar();
       syncClientEmailField();
+      renderMisReservas();
       textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
       calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
       mensajeHoras.textContent = "Las solicitudes se registran sin exponer datos de otros clientes.";

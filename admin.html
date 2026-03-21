@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <title>Barber Elite Admin</title>
   <style>
     :root {
@@ -75,7 +76,7 @@
     .day-header { padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.06); }
     .day-header h3 { font-size:1.05rem; margin-bottom:4px; }
     .day-count { color:var(--muted); font-size:.9rem; }
-    .day-content, .history-list, .reservation-lines, .history-lines, .notes-panel, .history-summary { display:grid; gap:12px; }
+    .day-content, .history-list, .reservation-lines, .history-lines, .notes-panel, .history-summary, .settings-grid, .settings-stack, .settings-list, .weekday-settings { display:grid; gap:12px; }
     .day-content { align-content:start; }
     .empty-day, .empty-history {
       background:var(--panel-3); border:1px dashed #303030; border-radius:14px; padding:16px;
@@ -106,6 +107,32 @@
       background:var(--panel-2); border:1px solid var(--border); border-radius:14px; padding:14px; display:grid; gap:4px;
     }
     .summary-card strong { font-size:1.3rem; }
+    .settings-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .settings-card {
+      background:var(--panel-2); border:1px solid var(--border); border-radius:18px; padding:18px;
+      display:grid; gap:16px; align-content:start;
+    }
+    .settings-card h3 { font-size:1.15rem; }
+    .weekday-row, .settings-inline, .settings-item-top {
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+    }
+    .weekday-row {
+      justify-content:space-between; padding:14px; border-radius:14px; background:var(--panel-3);
+      border:1px solid rgba(255,255,255,.05);
+    }
+    .weekday-label { min-width:110px; font-weight:bold; }
+    .weekday-toggle {
+      display:flex; align-items:center; gap:10px; color:var(--muted);
+    }
+    .weekday-row input[type="checkbox"] { width:auto; }
+    .weekday-row input[type="text"], .settings-inline input[type="text"], .settings-inline input[type="date"] {
+      flex:1 1 220px;
+    }
+    .settings-item {
+      background:var(--panel-3); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:14px;
+      display:grid; gap:10px;
+    }
+    .settings-item p { color:var(--muted); line-height:1.5; }
     .status { font-size:.95rem; color:var(--muted); margin-top:14px; }
     .status.error { color:#ffb5b5; }
     .status.success { color:var(--success); }
@@ -113,6 +140,7 @@
     @media (max-width:1180px) {
       .week-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .history-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .settings-grid { grid-template-columns:1fr; }
     }
     @media (max-width:760px) {
       body { padding:16px; }
@@ -160,6 +188,7 @@
           <div class="view-switch">
             <button id="agendaTabButton" class="btn-secondary tab-button active" type="button">Agenda semanal</button>
             <button id="historyTabButton" class="btn-secondary tab-button" type="button">Historial</button>
+            <button id="settingsTabButton" class="btn-secondary tab-button" type="button">Configuracion</button>
           </div>
         </div>
 
@@ -211,6 +240,73 @@
           <div id="historyList" class="history-list"></div>
         </section>
 
+        <section id="settingsPanel" class="hidden">
+          <div class="panel-toolbar">
+            <div class="toolbar-block">
+              <h2 class="section-title">Configuracion de agenda</h2>
+              <p class="helper section-copy">Define los horarios por dia, bloquea fechas y crea excepciones sin tocar el codigo.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Horarios semanales</h3>
+              <p class="helper">Usa horas separadas por coma. Ejemplo: `10:00, 11:00, 12:00`.</p>
+              <div class="weekday-settings">
+                <div class="weekday-row">
+                  <div class="weekday-label">Lunes</div>
+                  <label class="weekday-toggle"><input type="checkbox" id="lunesAbiertoInput" checked />Abierto</label>
+                  <input type="text" id="lunesHorasInput" placeholder="10:00, 11:00, 12:00" />
+                </div>
+                <div class="weekday-row">
+                  <div class="weekday-label">Martes</div>
+                  <label class="weekday-toggle"><input type="checkbox" id="martesAbiertoInput" checked />Abierto</label>
+                  <input type="text" id="martesHorasInput" placeholder="10:00, 11:00, 12:00" />
+                </div>
+                <div class="weekday-row">
+                  <div class="weekday-label">Miercoles</div>
+                  <label class="weekday-toggle"><input type="checkbox" id="miercolesAbiertoInput" checked />Abierto</label>
+                  <input type="text" id="miercolesHorasInput" placeholder="10:00, 11:00, 12:00" />
+                </div>
+                <div class="weekday-row">
+                  <div class="weekday-label">Jueves</div>
+                  <label class="weekday-toggle"><input type="checkbox" id="juevesAbiertoInput" checked />Abierto</label>
+                  <input type="text" id="juevesHorasInput" placeholder="10:00, 11:00, 12:00" />
+                </div>
+                <div class="weekday-row">
+                  <div class="weekday-label">Viernes</div>
+                  <label class="weekday-toggle"><input type="checkbox" id="viernesAbiertoInput" checked />Abierto</label>
+                  <input type="text" id="viernesHorasInput" placeholder="10:00, 11:00, 12:00" />
+                </div>
+              </div>
+              <button id="saveScheduleButton" class="btn-primary" type="button">Guardar horarios</button>
+            </div>
+
+            <div class="settings-stack">
+              <div class="settings-card">
+                <h3>Fechas bloqueadas</h3>
+                <div class="settings-inline">
+                  <input type="date" id="blockedDateInput" />
+                  <input type="text" id="blockedReasonInput" placeholder="Motivo opcional" maxlength="120" />
+                  <button id="addBlockedDateButton" class="btn-danger" type="button">Bloquear fecha</button>
+                </div>
+                <div id="blockedDatesList" class="settings-list"></div>
+              </div>
+
+              <div class="settings-card">
+                <h3>Fechas especiales</h3>
+                <div class="settings-inline">
+                  <input type="date" id="specialDateInput" />
+                  <input type="text" id="specialHoursInput" placeholder="10:00, 11:00, 12:00" />
+                  <input type="text" id="specialNoteInput" placeholder="Nota opcional" maxlength="120" />
+                  <button id="addSpecialDateButton" class="btn-info" type="button">Guardar fecha especial</button>
+                </div>
+                <div id="specialDatesList" class="settings-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div id="adminStatus" class="status"></div>
       </div>
     </section>
@@ -218,7 +314,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { deleteDoc, getFirestore, collection, doc, getDocs, orderBy, query, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { deleteDoc, getDoc, getFirestore, collection, doc, getDocs, orderBy, query, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBc_r_3V9wmqWZpLeoBWZhRHJhy0F_zCIo",
@@ -230,9 +326,16 @@
     };
 
     const COLECCION_SOLICITUDES = "solicitudes_reserva";
+    const COLECCION_RESERVAS_CLIENTE = "reservas_cliente";
     const COLECCION_AGENDA_PUBLICA = "agenda_publica";
+    const COLECCION_CONFIG_PUBLICA = "configuracion_publica";
+    const DOC_CONFIG_AGENDA = "agenda";
+    const COLECCION_FECHAS_BLOQUEADAS = "agenda_fechas_bloqueadas";
+    const COLECCION_FECHAS_ESPECIALES = "agenda_fechas_especiales";
     const ESTADOS_EDITABLES = ["cancelada", "completada"];
     const WEEKDAY_LABELS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+    const WEEKDAY_KEYS = ["lunes", "martes", "miercoles", "jueves", "viernes"];
+    const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -250,8 +353,10 @@
     const logoutButton = document.getElementById("logoutButton");
     const agendaTabButton = document.getElementById("agendaTabButton");
     const historyTabButton = document.getElementById("historyTabButton");
+    const settingsTabButton = document.getElementById("settingsTabButton");
     const agendaPanel = document.getElementById("agendaPanel");
     const historyPanel = document.getElementById("historyPanel");
+    const settingsPanel = document.getElementById("settingsPanel");
     const prevWeekButton = document.getElementById("prevWeekButton");
     const nextWeekButton = document.getElementById("nextWeekButton");
     const weekTitle = document.getElementById("weekTitle");
@@ -265,6 +370,16 @@
     const historySearchInput = document.getElementById("historySearchInput");
     const historySummary = document.getElementById("historySummary");
     const historyList = document.getElementById("historyList");
+    const saveScheduleButton = document.getElementById("saveScheduleButton");
+    const blockedDateInput = document.getElementById("blockedDateInput");
+    const blockedReasonInput = document.getElementById("blockedReasonInput");
+    const addBlockedDateButton = document.getElementById("addBlockedDateButton");
+    const blockedDatesList = document.getElementById("blockedDatesList");
+    const specialDateInput = document.getElementById("specialDateInput");
+    const specialHoursInput = document.getElementById("specialHoursInput");
+    const specialNoteInput = document.getElementById("specialNoteInput");
+    const addSpecialDateButton = document.getElementById("addSpecialDateButton");
+    const specialDatesList = document.getElementById("specialDatesList");
 
     let allRequests = [];
     let currentUser = null;
@@ -274,10 +389,49 @@
     let currentWeekStart = getMonday(new Date());
     let historyMode = "week";
     let historyCursorDate = getStartOfDay(new Date());
+    let agendaConfig = getDefaultAgendaConfig();
+    let blockedDates = [];
+    let specialDates = [];
 
     function setStatus(node, message, type = "") {
       node.textContent = message;
       node.className = type ? `status ${type}` : "status";
+    }
+
+    function getDefaultAgendaConfig() {
+      return {
+        lunesAbierto: true,
+        lunesHoras: [...HORAS_BASE],
+        martesAbierto: true,
+        martesHoras: [...HORAS_BASE],
+        miercolesAbierto: true,
+        miercolesHoras: [...HORAS_BASE],
+        juevesAbierto: true,
+        juevesHoras: [...HORAS_BASE],
+        viernesAbierto: true,
+        viernesHoras: [...HORAS_BASE]
+      };
+    }
+
+    function normalizeHourList(rawValue) {
+      const unique = [...new Set(String(rawValue || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean))];
+
+      if (!unique.length) {
+        return null;
+      }
+
+      if (unique.some((hour) => !HORAS_BASE.includes(hour))) {
+        return null;
+      }
+
+      return HORAS_BASE.filter((hour) => unique.includes(hour));
+    }
+
+    function formatHoursList(hours) {
+      return (hours || []).join(", ");
     }
 
     function getStartOfDay(date) {
@@ -388,10 +542,14 @@
     function setCurrentView(view) {
       currentView = view;
       const isAgenda = view === "agenda";
+      const isHistory = view === "history";
+      const isSettings = view === "settings";
       agendaPanel.classList.toggle("hidden", !isAgenda);
-      historyPanel.classList.toggle("hidden", isAgenda);
+      historyPanel.classList.toggle("hidden", !isHistory);
+      settingsPanel.classList.toggle("hidden", !isSettings);
       agendaTabButton.classList.toggle("active", isAgenda);
-      historyTabButton.classList.toggle("active", !isAgenda);
+      historyTabButton.classList.toggle("active", isHistory);
+      settingsTabButton.classList.toggle("active", isSettings);
     }
 
     function setHistoryMode(mode) {
@@ -633,6 +791,203 @@
       });
     }
 
+    function renderSettings() {
+      WEEKDAY_KEYS.forEach((key) => {
+        document.getElementById(`${key}AbiertoInput`).checked = Boolean(agendaConfig[`${key}Abierto`]);
+        document.getElementById(`${key}HorasInput`).value = formatHoursList(agendaConfig[`${key}Horas`]);
+      });
+
+      blockedDatesList.innerHTML = "";
+      if (!blockedDates.length) {
+        blockedDatesList.innerHTML = '<div class="empty-history">No hay fechas bloqueadas.</div>';
+      } else {
+        [...blockedDates]
+          .sort((a, b) => a.fechaISO.localeCompare(b.fechaISO))
+          .forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "settings-item";
+            const top = document.createElement("div");
+            top.className = "settings-item-top";
+            top.innerHTML = `<strong>${item.fechaISO}</strong>`;
+            const button = document.createElement("button");
+            button.className = "btn-danger";
+            button.textContent = "Quitar";
+            button.addEventListener("click", () => removeBlockedDate(item.fechaISO));
+            top.appendChild(button);
+            card.appendChild(top);
+            const note = document.createElement("p");
+            note.textContent = item.motivo || "Sin motivo registrado.";
+            card.appendChild(note);
+            blockedDatesList.appendChild(card);
+          });
+      }
+
+      specialDatesList.innerHTML = "";
+      if (!specialDates.length) {
+        specialDatesList.innerHTML = '<div class="empty-history">No hay fechas especiales.</div>';
+      } else {
+        [...specialDates]
+          .sort((a, b) => a.fechaISO.localeCompare(b.fechaISO))
+          .forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "settings-item";
+            const top = document.createElement("div");
+            top.className = "settings-item-top";
+            top.innerHTML = `<strong>${item.fechaISO}</strong>`;
+            const button = document.createElement("button");
+            button.className = "btn-danger";
+            button.textContent = "Quitar";
+            button.addEventListener("click", () => removeSpecialDate(item.fechaISO));
+            top.appendChild(button);
+            card.appendChild(top);
+            const hours = document.createElement("p");
+            hours.textContent = `Horas: ${formatHoursList(item.horas)}`;
+            const note = document.createElement("p");
+            note.textContent = item.nota || "Sin nota.";
+            card.appendChild(hours);
+            card.appendChild(note);
+            specialDatesList.appendChild(card);
+          });
+      }
+    }
+
+    async function loadSettings() {
+      if (!currentUser) return;
+
+      try {
+        const [configSnapshot, blockedSnapshot, specialSnapshot] = await Promise.all([
+          getDoc(doc(db, COLECCION_CONFIG_PUBLICA, DOC_CONFIG_AGENDA)),
+          getDocs(collection(db, COLECCION_FECHAS_BLOQUEADAS)),
+          getDocs(collection(db, COLECCION_FECHAS_ESPECIALES))
+        ]);
+
+        agendaConfig = configSnapshot.exists()
+          ? { ...getDefaultAgendaConfig(), ...configSnapshot.data() }
+          : getDefaultAgendaConfig();
+        blockedDates = blockedSnapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        specialDates = specialSnapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        renderSettings();
+      } catch (error) {
+        console.error("Error al cargar configuracion:", error);
+        setStatus(adminStatus, "No se pudo cargar la configuracion de agenda.", "error");
+      }
+    }
+
+    async function saveAgendaConfig() {
+      if (!currentUser) return;
+
+      const nextConfig = { ...getDefaultAgendaConfig() };
+      for (const key of WEEKDAY_KEYS) {
+        const abierto = document.getElementById(`${key}AbiertoInput`).checked;
+        const rawHours = document.getElementById(`${key}HorasInput`).value;
+        const horas = normalizeHourList(rawHours);
+        if (!horas && abierto) {
+          setStatus(adminStatus, `Revisa las horas configuradas para ${key}.`, "error");
+          return;
+        }
+        nextConfig[`${key}Abierto`] = abierto;
+        nextConfig[`${key}Horas`] = horas || [...HORAS_BASE];
+      }
+
+      setStatus(adminStatus, "Guardando configuracion de agenda...");
+      try {
+        await setDoc(doc(db, COLECCION_CONFIG_PUBLICA, DOC_CONFIG_AGENDA), {
+          ...nextConfig,
+          actualizadoEn: serverTimestamp(),
+          actualizadoPor: currentUser.email
+        }, { merge: true });
+        agendaConfig = nextConfig;
+        renderSettings();
+        setStatus(adminStatus, "Configuracion de agenda guardada.", "success");
+      } catch (error) {
+        console.error("Error al guardar configuracion:", error);
+        setStatus(adminStatus, "No se pudo guardar la configuracion de agenda.", "error");
+      }
+    }
+
+    async function addBlockedDate() {
+      if (!currentUser) return;
+      const fechaISO = blockedDateInput.value;
+      if (!fechaISO) {
+        setStatus(adminStatus, "Selecciona una fecha para bloquear.", "error");
+        return;
+      }
+
+      setStatus(adminStatus, "Bloqueando fecha...");
+      try {
+        await setDoc(doc(db, COLECCION_FECHAS_BLOQUEADAS, fechaISO), {
+          fechaISO,
+          motivo: blockedReasonInput.value.trim(),
+          actualizadoEn: serverTimestamp(),
+          actualizadoPor: currentUser.email
+        });
+        blockedDateInput.value = "";
+        blockedReasonInput.value = "";
+        await loadSettings();
+        setStatus(adminStatus, "Fecha bloqueada correctamente.", "success");
+      } catch (error) {
+        console.error("Error al bloquear fecha:", error);
+        setStatus(adminStatus, "No se pudo bloquear la fecha.", "error");
+      }
+    }
+
+    async function removeBlockedDate(fechaISO) {
+      if (!currentUser) return;
+      setStatus(adminStatus, "Quitando fecha bloqueada...");
+      try {
+        await deleteDoc(doc(db, COLECCION_FECHAS_BLOQUEADAS, fechaISO));
+        await loadSettings();
+        setStatus(adminStatus, "Fecha bloqueada eliminada.", "success");
+      } catch (error) {
+        console.error("Error al quitar fecha bloqueada:", error);
+        setStatus(adminStatus, "No se pudo quitar la fecha bloqueada.", "error");
+      }
+    }
+
+    async function addSpecialDate() {
+      if (!currentUser) return;
+
+      const fechaISO = specialDateInput.value;
+      const horas = normalizeHourList(specialHoursInput.value);
+
+      if (!fechaISO || !horas) {
+        setStatus(adminStatus, "Completa una fecha especial con horas validas.", "error");
+        return;
+      }
+
+      setStatus(adminStatus, "Guardando fecha especial...");
+      try {
+        await setDoc(doc(db, COLECCION_FECHAS_ESPECIALES, fechaISO), {
+          fechaISO,
+          horas,
+          nota: specialNoteInput.value.trim(),
+          actualizadoEn: serverTimestamp(),
+          actualizadoPor: currentUser.email
+        });
+        specialDateInput.value = "";
+        specialHoursInput.value = "";
+        specialNoteInput.value = "";
+        await loadSettings();
+        setStatus(adminStatus, "Fecha especial guardada.", "success");
+      } catch (error) {
+        console.error("Error al guardar fecha especial:", error);
+        setStatus(adminStatus, "No se pudo guardar la fecha especial.", "error");
+      }
+    }
+
+    async function removeSpecialDate(fechaISO) {
+      if (!currentUser) return;
+      setStatus(adminStatus, "Quitando fecha especial...");
+      try {
+        await deleteDoc(doc(db, COLECCION_FECHAS_ESPECIALES, fechaISO));
+        await loadSettings();
+        setStatus(adminStatus, "Fecha especial eliminada.", "success");
+      } catch (error) {
+        console.error("Error al quitar fecha especial:", error);
+        setStatus(adminStatus, "No se pudo quitar la fecha especial.", "error");
+      }
+    }
+
     async function loadRequests() {
       if (!currentUser || loadingRequests) return;
       loadingRequests = true;
@@ -640,7 +995,10 @@
       setStatus(adminStatus, "Cargando reservas...");
       try {
         const requestsQuery = query(collection(db, COLECCION_SOLICITUDES), orderBy("creadoEn", "desc"));
-        const snapshot = await getDocs(requestsQuery);
+        const [snapshot] = await Promise.all([
+          getDocs(requestsQuery),
+          loadSettings()
+        ]);
         allRequests = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
         renderAgenda();
         renderHistory();
@@ -655,6 +1013,7 @@
     }
 
     async function enviarCorreoGestion(item, nuevoEstado) {
+      const estadoCorreo = nuevoEstado === "cancelada" ? "Cancelada" : nuevoEstado === "completada" ? "Completada" : "Confirmada";
       const response = await fetch("/api/send-booking-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -667,7 +1026,7 @@
           servicio: item.servicio,
           fecha: item.fecha,
           hora: item.hora,
-          estado: nuevoEstado === "cancelada" ? "Cancelada" : "Cliente listo",
+          estado: estadoCorreo,
           notaInterna: getDraftNote(item)
         })
       });
@@ -687,6 +1046,25 @@
         fechaISO: item.fechaISO,
         hora: item.hora,
         estado: nuevoEstado,
+        actualizadoEn: serverTimestamp()
+      }, { merge: true });
+    }
+
+    async function sincronizarReservaCliente(item, nuevoEstado) {
+      if (!item.clienteUid) return;
+
+      await setDoc(doc(db, COLECCION_RESERVAS_CLIENTE, item.id), {
+        barbero: item.barbero,
+        fecha: item.fecha,
+        fechaISO: item.fechaISO,
+        hora: item.hora,
+        nombre: item.nombre,
+        correo: item.correo,
+        clienteUid: item.clienteUid,
+        telefono: item.telefono,
+        servicio: item.servicio,
+        estado: nuevoEstado,
+        creadoEn: item.creadoEn,
         actualizadoEn: serverTimestamp()
       }, { merge: true });
     }
@@ -740,17 +1118,26 @@
 
         await updateDoc(doc(db, COLECCION_SOLICITUDES, id), updatePayload);
         await sincronizarDisponibilidadPublica(item, nuevoEstado);
+        await sincronizarReservaCliente(item, nuevoEstado);
 
-        if (nuevoEstado === "cancelada") {
-          try {
-            await enviarCorreoGestion(item, nuevoEstado);
-            setStatus(adminStatus, "Reserva cancelada y correo enviado al cliente.", "success");
-          } catch (emailError) {
-            console.error("Error al enviar correo al cliente:", emailError);
-            setStatus(adminStatus, "Reserva cancelada, pero fallo el correo al cliente.", "error");
-          }
-        } else {
-          setStatus(adminStatus, "Reserva marcada como cliente listo.", "success");
+        try {
+          await enviarCorreoGestion(item, nuevoEstado);
+          setStatus(
+            adminStatus,
+            nuevoEstado === "cancelada"
+              ? "Reserva cancelada y correo enviado al cliente."
+              : "Reserva completada y correo enviado al cliente.",
+            "success"
+          );
+        } catch (emailError) {
+          console.error("Error al enviar correo al cliente:", emailError);
+          setStatus(
+            adminStatus,
+            nuevoEstado === "cancelada"
+              ? "Reserva cancelada, pero fallo el correo al cliente."
+              : "Reserva completada, pero fallo el correo al cliente.",
+            "error"
+          );
         }
 
         await loadRequests();
@@ -790,6 +1177,7 @@
     });
     agendaTabButton.addEventListener("click", () => setCurrentView("agenda"));
     historyTabButton.addEventListener("click", () => setCurrentView("history"));
+    settingsTabButton.addEventListener("click", () => setCurrentView("settings"));
     prevWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, -7); renderAgenda(); });
     nextWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, 7); renderAgenda(); });
     historyWeekModeButton.addEventListener("click", () => setHistoryMode("week"));
@@ -804,6 +1192,9 @@
     });
     searchInput.addEventListener("input", renderAgenda);
     historySearchInput.addEventListener("input", renderHistory);
+    saveScheduleButton.addEventListener("click", () => saveAgendaConfig());
+    addBlockedDateButton.addEventListener("click", () => addBlockedDate());
+    addSpecialDateButton.addEventListener("click", () => addSpecialDate());
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;

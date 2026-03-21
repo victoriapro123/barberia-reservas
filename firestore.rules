@@ -20,6 +20,13 @@ service cloud.firestore {
       return hour in ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
     }
 
+    function areAllowedHours(hours) {
+      return hours is list
+        && hours.size() > 0
+        && hours.size() <= 9
+        && hours.hasOnly(["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"]);
+    }
+
     function isAllowedService(serviceName) {
       return serviceName in ["corte de pelo", "corte de pelo + barba", "barba"];
     }
@@ -41,6 +48,12 @@ service cloud.firestore {
     function isValidPhone(value) {
       return value is string
         && value.matches("^[+\\d\\s()\\-]{8,20}$");
+    }
+
+    function isOwnerDocument(data) {
+      return request.auth != null
+        && data.keys().hasAny(["clienteUid"])
+        && data.clienteUid == request.auth.uid;
     }
 
     function hasRequiredBaseKeys(data) {
@@ -243,6 +256,101 @@ service cloud.firestore {
       );
     }
 
+    function isValidAgendaConfig(data) {
+      return data.keys().hasOnly([
+          "lunesAbierto",
+          "lunesHoras",
+          "martesAbierto",
+          "martesHoras",
+          "miercolesAbierto",
+          "miercolesHoras",
+          "juevesAbierto",
+          "juevesHoras",
+          "viernesAbierto",
+          "viernesHoras",
+          "actualizadoEn",
+          "actualizadoPor"
+        ])
+        && data.lunesAbierto is bool
+        && data.martesAbierto is bool
+        && data.miercolesAbierto is bool
+        && data.juevesAbierto is bool
+        && data.viernesAbierto is bool
+        && areAllowedHours(data.lunesHoras)
+        && areAllowedHours(data.martesHoras)
+        && areAllowedHours(data.miercolesHoras)
+        && areAllowedHours(data.juevesHoras)
+        && areAllowedHours(data.viernesHoras)
+        && data.actualizadoPor == request.auth.token.email
+        && data.actualizadoEn == request.time;
+    }
+
+    function isValidBlockedDate(data, docId) {
+      return data.keys().hasOnly([
+          "fechaISO",
+          "motivo",
+          "actualizadoEn",
+          "actualizadoPor"
+        ])
+        && isValidDateISO(data.fechaISO)
+        && data.fechaISO == docId
+        && (
+          !data.keys().hasAny(["motivo"])
+          || (data.motivo is string && data.motivo.size() <= 120)
+        )
+        && data.actualizadoPor == request.auth.token.email
+        && data.actualizadoEn == request.time;
+    }
+
+    function isValidSpecialDate(data, docId) {
+      return data.keys().hasOnly([
+          "fechaISO",
+          "horas",
+          "nota",
+          "actualizadoEn",
+          "actualizadoPor"
+        ])
+        && isValidDateISO(data.fechaISO)
+        && data.fechaISO == docId
+        && areAllowedHours(data.horas)
+        && (
+          !data.keys().hasAny(["nota"])
+          || (data.nota is string && data.nota.size() <= 120)
+        )
+        && data.actualizadoPor == request.auth.token.email
+        && data.actualizadoEn == request.time;
+    }
+
+    function hasOnlyClientReservationKeys(data) {
+      return data.keys().hasOnly([
+          "barbero",
+          "fecha",
+          "fechaISO",
+          "hora",
+          "nombre",
+          "correo",
+          "clienteUid",
+          "telefono",
+          "servicio",
+          "estado",
+          "creadoEn",
+          "actualizadoEn"
+        ]);
+    }
+
+    function keepsClientReservationImmutableFields() {
+      return request.resource.data.barbero == resource.data.barbero
+        && request.resource.data.fecha == resource.data.fecha
+        && request.resource.data.fechaISO == resource.data.fechaISO
+        && request.resource.data.hora == resource.data.hora
+        && request.resource.data.nombre == resource.data.nombre
+        && request.resource.data.correo == resource.data.correo
+        && request.resource.data.clienteUid == resource.data.clienteUid
+        && request.resource.data.telefono == resource.data.telefono
+        && request.resource.data.servicio == resource.data.servicio
+        && request.resource.data.creadoEn == resource.data.creadoEn;
+    }
+
     match /solicitudes_reserva/{requestId} {
       allow create: if
         hasRequiredBaseKeys(request.resource.data)
@@ -271,6 +379,64 @@ service cloud.firestore {
         && hasValidOptionalNoteFields(request.resource.data);
 
       allow delete: if false;
+    }
+
+    match /reservas_cliente/{requestId} {
+      allow create: if
+        hasRequiredBaseKeys(request.resource.data)
+        && hasOnlyClientReservationKeys(request.resource.data)
+        && request.resource.data.barbero == "Barber Elite"
+        && hasRequiredCalendarFieldsForCreate(request.resource.data)
+        && isAllowedHour(request.resource.data.hora)
+        && isSizedString(request.resource.data.nombre, 3, 60)
+        && isValidEmail(request.resource.data.correo)
+        && isValidPhone(request.resource.data.telefono)
+        && isAllowedService(request.resource.data.servicio)
+        && (
+          (
+            hasValidAuthenticatedClientForCreate(request.resource.data)
+            && request.resource.data.estado == "pendiente"
+            && request.resource.data.creadoEn == request.time
+            && !request.resource.data.keys().hasAny(["actualizadoEn"])
+          ) || (
+            isAdmin()
+            && request.resource.data.estado in ["pendiente", "confirmada", "cancelada", "completada"]
+            && request.resource.data.creadoEn is timestamp
+            && (
+              !request.resource.data.keys().hasAny(["actualizadoEn"])
+              || request.resource.data.actualizadoEn == request.time
+            )
+          )
+        );
+
+      allow read: if isAdmin() || isOwnerDocument(resource.data);
+
+      allow update: if isAdmin()
+        && hasRequiredBaseKeys(request.resource.data)
+        && hasOnlyClientReservationKeys(request.resource.data)
+        && keepsClientReservationImmutableFields()
+        && request.resource.data.estado in ["pendiente", "confirmada", "cancelada", "completada"]
+        && request.resource.data.actualizadoEn == request.time;
+
+      allow delete: if false;
+    }
+
+    match /configuracion_publica/agenda {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidAgendaConfig(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /agenda_fechas_bloqueadas/{fechaISO} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidBlockedDate(request.resource.data, fechaISO);
+      allow delete: if isAdmin();
+    }
+
+    match /agenda_fechas_especiales/{fechaISO} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidSpecialDate(request.resource.data, fechaISO);
+      allow delete: if isAdmin();
     }
 
     match /agenda_publica/{slotId} {

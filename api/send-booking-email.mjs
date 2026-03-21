@@ -1,7 +1,7 @@
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
 
-const VALID_NOTIFICATION_TYPES = ["new_request", "customer_status"];
-const VALID_STATUS_VALUES = ["Pendiente", "Confirmada", "Cancelada"];
+const VALID_NOTIFICATION_TYPES = ["new_request", "customer_received", "customer_status"];
+const VALID_STATUS_VALUES = ["Pendiente", "Confirmada", "Cancelada", "Completada"];
 
 function normalizeStatusValue(value) {
   if (typeof value !== "string") return "Pendiente";
@@ -11,6 +11,8 @@ function normalizeStatusValue(value) {
   if (normalized === "pendiente") return "Pendiente";
   if (normalized === "confirmada") return "Confirmada";
   if (normalized === "cancelada") return "Cancelada";
+  if (normalized === "completada") return "Completada";
+  if (normalized === "cliente listo") return "Completada";
 
   return value.trim();
 }
@@ -73,7 +75,11 @@ function validatePayload(payload) {
     return "Estado invalido.";
   }
 
-  if (payload.notificationType === "customer_status" && !["Confirmada", "Cancelada"].includes(payload.estado)) {
+  if (payload.notificationType === "customer_received" && payload.estado !== "Pendiente") {
+    return "Estado invalido para solicitud recibida.";
+  }
+
+  if (payload.notificationType === "customer_status" && !["Confirmada", "Cancelada", "Completada"].includes(payload.estado)) {
     return "Estado invalido para cliente.";
   }
 
@@ -89,12 +95,28 @@ function getTemplateParams(payload, barberEmail) {
   const mensaje =
     payload.notificationType === "new_request"
       ? "Nueva solicitud registrada desde la web."
-      : payload.estado === "Confirmada"
-        ? "Tu solicitud fue confirmada por la barberia."
-        : "Tu solicitud fue cancelada por la barberia.";
+      : payload.notificationType === "customer_received"
+        ? "Recibimos tu solicitud y pronto la revisaremos."
+        : payload.estado === "Confirmada"
+          ? "Tu solicitud fue confirmada por la barberia."
+          : payload.estado === "Cancelada"
+            ? "Tu solicitud fue cancelada por la barberia."
+            : "Tu visita fue marcada como completada por la barberia.";
+
+  const titulo =
+    payload.notificationType === "new_request"
+      ? "Nueva solicitud de reserva"
+      : payload.notificationType === "customer_received"
+        ? "Solicitud recibida"
+        : payload.estado === "Confirmada"
+          ? "Reserva confirmada"
+          : payload.estado === "Cancelada"
+            ? "Reserva cancelada"
+            : "Reserva completada";
 
   return {
     to_email: toEmail,
+    email_title: titulo,
     cliente_nombre: payload.nombre,
     cliente_correo: payload.correo,
     cliente_telefono: payload.telefono,
