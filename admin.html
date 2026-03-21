@@ -29,7 +29,7 @@
     button:hover { opacity:.95; }
     button:disabled { cursor:not-allowed; opacity:.5; }
     .shell { max-width:1440px; margin:0 auto; }
-    .topbar, .panel-toolbar, .toolbar-actions, .view-switch, .week-nav, .history-nav, .history-mode, .notes-actions, .reservation-actions {
+    .topbar, .panel-toolbar, .toolbar-actions, .view-switch, .week-nav, .history-nav, .history-mode, .notes-actions, .reservation-actions, .search-tools {
       display:flex; gap:10px; flex-wrap:wrap; align-items:center;
     }
     .topbar, .panel-toolbar { justify-content:space-between; gap:16px; }
@@ -47,6 +47,7 @@
     .btn-secondary { background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
     .btn-danger { background:rgba(217,119,119,.14); color:#ffb5b5; border:1px solid rgba(217,119,119,.28); }
     .btn-info { background:rgba(120,171,233,.14); color:var(--info); border:1px solid rgba(120,171,233,.28); }
+    .btn-whatsapp { background:rgba(127,210,140,.14); color:var(--success); border:1px solid rgba(127,210,140,.28); }
     .panel-shell { display:grid; gap:28px; }
     .panel-header {
       display:grid; gap:14px; padding:18px; border-radius:18px;
@@ -67,11 +68,37 @@
     .section-title { font-size:2rem; line-height:1; margin-bottom:0; letter-spacing:-.03em; }
     .section-copy { max-width:760px; font-size:1rem; }
     .range-title { min-width:220px; text-align:center; font-weight:bold; color:var(--text); }
-    .search-row { margin-bottom:18px; }
+    .search-row { margin-bottom:18px; display:grid; gap:10px; }
+    .search-meta { min-height:22px; }
+    .search-tools input { flex:1 1 320px; }
+    .agenda-summary { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-bottom:18px; }
+    .today-panel {
+      display:grid; gap:14px; margin-bottom:18px;
+      background:linear-gradient(135deg, rgba(199,168,107,.08), rgba(255,255,255,.02)), var(--panel-2);
+      border:1px solid rgba(199,168,107,.14); border-radius:18px; padding:18px;
+    }
+    .today-panel-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+    .today-panel-head h3 { font-size:1.2rem; margin-bottom:6px; }
+    .today-panel-copy { color:var(--muted); line-height:1.5; }
+    .today-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; }
+    .today-card {
+      background:var(--panel-3); border:1px solid #252525; border-radius:14px; padding:14px; display:grid; gap:12px;
+    }
+    .today-card-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .today-card-name { font-size:1rem; font-weight:bold; }
+    .today-card-service, .today-card-contact { color:var(--muted); line-height:1.45; font-size:.92rem; }
+    .today-empty {
+      background:var(--panel-3); border:1px dashed #303030; border-radius:14px; padding:16px;
+      color:var(--muted);
+    }
     .week-grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:14px; }
     .day-column {
       background:var(--panel-2); border:1px solid var(--border); border-radius:16px;
       padding:14px; min-height:420px; display:flex; flex-direction:column; gap:12px;
+    }
+    .day-column.today-column {
+      border-color:rgba(199,168,107,.34);
+      box-shadow:inset 0 0 0 1px rgba(199,168,107,.1);
     }
     .day-header { padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.06); }
     .day-header h3 { font-size:1.05rem; margin-bottom:4px; }
@@ -154,6 +181,7 @@
     @media (max-width:1180px) {
       .week-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .history-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .agenda-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .settings-grid { grid-template-columns:1fr; }
       .settings-field-grid { grid-template-columns:1fr; }
     }
@@ -163,9 +191,9 @@
       .card { padding:22px; }
       .panel-shell { gap:22px; }
       .panel-header { padding:14px; }
-      .week-grid, .history-summary { grid-template-columns:1fr; }
+      .week-grid, .history-summary, .agenda-summary { grid-template-columns:1fr; }
       .toolbar-actions button, .week-nav button, .history-nav button, .history-mode button,
-      .notes-actions button, .reservation-actions button, .view-switch button { width:100%; }
+      .notes-actions button, .reservation-actions button, .view-switch button, .search-tools button { width:100%; }
       .range-title { min-width:0; width:100%; }
       .view-switch { width:100%; }
       .section-title { font-size:1.6rem; }
@@ -216,12 +244,20 @@
             <div class="week-nav">
               <button id="prevWeekButton" class="btn-secondary" type="button">Semana anterior</button>
               <div id="weekTitle" class="range-title">Semana</div>
+              <button id="todayWeekButton" class="btn-secondary" type="button">Hoy</button>
               <button id="nextWeekButton" class="btn-secondary" type="button">Semana siguiente</button>
             </div>
           </div>
 
+          <div id="agendaSummary" class="agenda-summary"></div>
+          <div id="todayPanel" class="today-panel"></div>
+
           <div class="search-row">
-            <input type="search" id="searchInput" placeholder="Buscar por nombre, correo, telefono, servicio u hora" />
+            <div class="search-tools">
+              <input type="search" id="searchInput" placeholder="Buscar cliente por nombre, correo, telefono, servicio u hora" />
+              <button id="clearSearchButton" class="btn-secondary" type="button">Limpiar</button>
+            </div>
+            <div id="agendaSearchMeta" class="helper search-meta"></div>
           </div>
 
           <div id="weekGrid" class="week-grid"></div>
@@ -393,8 +429,13 @@
     const settingsPanel = document.getElementById("settingsPanel");
     const prevWeekButton = document.getElementById("prevWeekButton");
     const nextWeekButton = document.getElementById("nextWeekButton");
+    const todayWeekButton = document.getElementById("todayWeekButton");
     const weekTitle = document.getElementById("weekTitle");
+    const agendaSummary = document.getElementById("agendaSummary");
+    const todayPanel = document.getElementById("todayPanel");
     const searchInput = document.getElementById("searchInput");
+    const clearSearchButton = document.getElementById("clearSearchButton");
+    const agendaSearchMeta = document.getElementById("agendaSearchMeta");
     const weekGrid = document.getElementById("weekGrid");
     const historyWeekModeButton = document.getElementById("historyWeekModeButton");
     const historyMonthModeButton = document.getElementById("historyMonthModeButton");
@@ -584,10 +625,41 @@
       return item.estado === "cancelada" ? "cancelada" : item.estado === "completada" ? "completada" : "activa";
     }
 
+    function normalizeSearchValue(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function getPhoneDigits(value) {
+      return String(value || "").replace(/\D/g, "");
+    }
+
+    function getWhatsAppUrl(item) {
+      const digits = getPhoneDigits(item.telefono);
+      if (!digits || digits.length < 8) {
+        return "";
+      }
+
+      const message = `Hola ${item.nombre || ""}, te escribo por tu reserva en Barber Elite para ${item.fecha || ""} a las ${item.hora || ""}.`;
+      return `https://wa.me/${digits}?text=${encodeURIComponent(message.trim())}`;
+    }
+
     function buildSearchText(item) {
-      return [item.nombre, item.correo, item.telefono, item.servicio, item.fecha, item.fechaISO, item.hora, item.estado, item.notaInterna]
-        .join(" ")
-        .toLowerCase();
+      return normalizeSearchValue([
+        item.nombre,
+        item.correo,
+        item.telefono,
+        getPhoneDigits(item.telefono),
+        item.servicio,
+        item.fecha,
+        item.fechaISO,
+        item.hora,
+        item.estado,
+        item.notaInterna
+      ].join(" "));
     }
 
     function sortRequestsByAppointment(items) {
@@ -622,18 +694,27 @@
     }
 
     function getAgendaRequests() {
+      const activeRequests = getActiveAgendaRequests();
       const weekEnd = addDays(currentWeekStart, 4);
-      const search = searchInput.value.trim().toLowerCase();
-      return sortRequestsByAppointment(allRequests.filter((item) => {
+      const search = normalizeSearchValue(searchInput.value);
+      return sortRequestsByAppointment(activeRequests.filter((item) => {
+        const appointmentDate = getAppointmentDate(item);
+        if (!appointmentDate) return false;
+        if (appointmentDate < currentWeekStart || appointmentDate > weekEnd) return false;
+        if (search && !buildSearchText(item).includes(search)) return false;
+        return true;
+      }));
+    }
+
+    function getActiveAgendaRequests() {
+      return allRequests.filter((item) => {
         const appointmentDate = getAppointmentDate(item);
         if (!appointmentDate) return false;
         if (!["pendiente", "confirmada"].includes(item.estado || "pendiente")) return false;
         const day = appointmentDate.getDay();
         if (day < 1 || day > 5) return false;
-        if (appointmentDate < currentWeekStart || appointmentDate > weekEnd) return false;
-        if (search && !buildSearchText(item).includes(search)) return false;
         return true;
-      }));
+      });
     }
 
     function getHistoryRange() {
@@ -647,7 +728,7 @@
 
     function getHistoryRequests() {
       const { start, end } = getHistoryRange();
-      const search = historySearchInput.value.trim().toLowerCase();
+      const search = normalizeSearchValue(historySearchInput.value);
       return sortRequestsByAppointment(allRequests.filter((item) => {
         const appointmentDate = getAppointmentDate(item);
         if (!appointmentDate) return false;
@@ -658,10 +739,139 @@
       }));
     }
 
+    function getTodayIso() {
+      const today = getStartOfDay(new Date());
+      return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    }
+
+    function getTodayAgendaRequests(items) {
+      const todayIso = getTodayIso();
+      return items.filter((item) => item.fechaISO === todayIso);
+    }
+
+    function renderAgendaSummary(visibleRequests, filteredActiveRequests) {
+      const todayItems = getTodayAgendaRequests(filteredActiveRequests);
+      const pendingCount = visibleRequests.filter((item) => item.estado === "pendiente").length;
+      const nextItem = filteredActiveRequests.find((item) => {
+        const key = getAppointmentKey(item);
+        return key && key >= `${getTodayIso()}T00:00`;
+      }) || filteredActiveRequests[0] || null;
+
+      agendaSummary.innerHTML = "";
+      [
+        ["Hoy", todayItems.length ? `${todayItems.length} reserva${todayItems.length === 1 ? "" : "s"}` : "Sin reservas"],
+        ["Semana activa", `${visibleRequests.length} agendada${visibleRequests.length === 1 ? "" : "s"}`],
+        ["Pendientes", String(pendingCount)],
+        ["Proxima cita", nextItem ? `${nextItem.fecha || "Sin fecha"} · ${nextItem.hora || "Sin hora"}` : "Sin reservas"]
+      ].forEach(([label, value]) => {
+        const card = document.createElement("div");
+        card.className = "summary-card";
+        const title = document.createElement("span");
+        title.className = "helper";
+        title.textContent = label;
+        const number = document.createElement("strong");
+        number.textContent = value;
+        card.appendChild(title);
+        card.appendChild(number);
+        agendaSummary.appendChild(card);
+      });
+    }
+
+    function createReservationActions(item) {
+      const actions = document.createElement("div");
+      actions.className = "reservation-actions";
+
+      const whatsappUrl = getWhatsAppUrl(item);
+      if (whatsappUrl) {
+        const whatsappButton = document.createElement("button");
+        whatsappButton.className = "btn-whatsapp";
+        whatsappButton.textContent = "WhatsApp";
+        whatsappButton.addEventListener("click", () => {
+          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        });
+        actions.appendChild(whatsappButton);
+      }
+
+      const doneButton = document.createElement("button");
+      doneButton.className = "btn-info";
+      doneButton.textContent = "Cliente listo";
+      doneButton.addEventListener("click", () => cambiarEstado(item.id, "completada"));
+      const cancelButton = document.createElement("button");
+      cancelButton.className = "btn-danger";
+      cancelButton.textContent = "Cancelar";
+      cancelButton.addEventListener("click", () => cambiarEstado(item.id, "cancelada"));
+      actions.appendChild(doneButton);
+      actions.appendChild(cancelButton);
+      return actions;
+    }
+
+    function renderTodayPanel(filteredActiveRequests) {
+      const todayItems = getTodayAgendaRequests(filteredActiveRequests);
+      todayPanel.innerHTML = "";
+
+      const head = document.createElement("div");
+      head.className = "today-panel-head";
+      const copy = document.createElement("div");
+      copy.innerHTML = `<h3>Operacion de hoy</h3><p class="today-panel-copy">Acceso rapido a las reservas del dia para cerrar, cancelar o contactar al cliente sin recorrer toda la semana.</p>`;
+      const badge = document.createElement("span");
+      badge.className = "badge activa";
+      badge.textContent = todayItems.length ? `${todayItems.length} para hoy` : "Hoy libre";
+      head.appendChild(copy);
+      head.appendChild(badge);
+      todayPanel.appendChild(head);
+
+      if (!todayItems.length) {
+        const empty = document.createElement("div");
+        empty.className = "today-empty";
+        empty.textContent = "No hay reservas activas para hoy.";
+        todayPanel.appendChild(empty);
+        return;
+      }
+
+      const list = document.createElement("div");
+      list.className = "today-list";
+      todayItems.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "today-card";
+
+        const top = document.createElement("div");
+        top.className = "today-card-top";
+        const titleWrap = document.createElement("div");
+        titleWrap.innerHTML = `<div class="reservation-hour">${item.hora || "Sin hora"}</div><div class="today-card-name">${item.nombre || "Sin nombre"}</div>`;
+        const badge = document.createElement("span");
+        badge.className = `badge ${getBadgeClass(item)}`;
+        badge.textContent = getDisplayState(item);
+        top.appendChild(titleWrap);
+        top.appendChild(badge);
+        card.appendChild(top);
+
+        const service = document.createElement("div");
+        service.className = "today-card-service";
+        service.innerHTML = `<strong>Servicio:</strong> ${item.servicio || "Sin dato"}`;
+        const contact = document.createElement("div");
+        contact.className = "today-card-contact";
+        contact.innerHTML = `<strong>Contacto:</strong> ${item.telefono || "Sin telefono"} · ${item.correo || "Sin correo"}`;
+        card.appendChild(service);
+        card.appendChild(contact);
+        card.appendChild(createReservationActions(item));
+        list.appendChild(card);
+      });
+      todayPanel.appendChild(list);
+    }
+
     function renderAgenda() {
       const visibleRequests = getAgendaRequests();
       weekGrid.innerHTML = "";
       weekTitle.textContent = `Semana ${formatWeekRange(currentWeekStart)}`;
+      const search = normalizeSearchValue(searchInput.value);
+      const filteredActiveRequests = sortRequestsByAppointment(getActiveAgendaRequests().filter((item) => !search || buildSearchText(item).includes(search)));
+      renderAgendaSummary(visibleRequests, filteredActiveRequests);
+      renderTodayPanel(filteredActiveRequests);
+
+      const todayIso = getTodayIso();
+      agendaSearchMeta.textContent = search
+        ? `${visibleRequests.length} resultado${visibleRequests.length === 1 ? "" : "s"} para "${searchInput.value.trim()}".`
+        : `${visibleRequests.length} reserva${visibleRequests.length === 1 ? "" : "s"} activa${visibleRequests.length === 1 ? "" : "s"} en esta semana.`;
 
       WEEKDAY_LABELS.forEach((label, index) => {
         const dayDate = addDays(currentWeekStart, index);
@@ -670,6 +880,9 @@
 
         const column = document.createElement("section");
         column.className = "day-column";
+        if (isoDay === todayIso) {
+          column.classList.add("today-column");
+        }
 
         const header = document.createElement("div");
         header.className = "day-header";
@@ -758,19 +971,7 @@
             notesPanel.appendChild(notesActions);
             card.appendChild(notesPanel);
 
-            const actions = document.createElement("div");
-            actions.className = "reservation-actions";
-            const doneButton = document.createElement("button");
-            doneButton.className = "btn-info";
-            doneButton.textContent = "Cliente listo";
-            doneButton.addEventListener("click", () => cambiarEstado(item.id, "completada"));
-            const cancelButton = document.createElement("button");
-            cancelButton.className = "btn-danger";
-            cancelButton.textContent = "Cancelar";
-            cancelButton.addEventListener("click", () => cambiarEstado(item.id, "cancelada"));
-            actions.appendChild(doneButton);
-            actions.appendChild(cancelButton);
-            card.appendChild(actions);
+            card.appendChild(createReservationActions(item));
             content.appendChild(card);
           });
         }
@@ -1275,6 +1476,10 @@
     settingsTabButton.addEventListener("click", () => setCurrentView("settings"));
     prevWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, -7); renderAgenda(); });
     nextWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, 7); renderAgenda(); });
+    todayWeekButton.addEventListener("click", () => {
+      currentWeekStart = getMonday(new Date());
+      renderAgenda();
+    });
     historyWeekModeButton.addEventListener("click", () => setHistoryMode("week"));
     historyMonthModeButton.addEventListener("click", () => setHistoryMode("month"));
     prevHistoryButton.addEventListener("click", () => {
@@ -1286,6 +1491,11 @@
       renderHistory();
     });
     searchInput.addEventListener("input", renderAgenda);
+    clearSearchButton.addEventListener("click", () => {
+      searchInput.value = "";
+      renderAgenda();
+      searchInput.focus();
+    });
     historySearchInput.addEventListener("input", renderHistory);
     saveScheduleButton.addEventListener("click", () => saveAgendaConfig());
     addBlockedDateButton.addEventListener("click", () => addBlockedDate());
