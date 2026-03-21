@@ -3,6 +3,18 @@ const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
 const VALID_NOTIFICATION_TYPES = ["new_request", "customer_status"];
 const VALID_STATUS_VALUES = ["Pendiente", "Confirmada", "Cancelada"];
 
+function normalizeStatusValue(value) {
+  if (typeof value !== "string") return "Pendiente";
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === "pendiente") return "Pendiente";
+  if (normalized === "confirmada") return "Confirmada";
+  if (normalized === "cancelada") return "Cancelada";
+
+  return value.trim();
+}
+
 function isSizedString(value, min, max) {
   return typeof value === "string" && value.trim().length >= min && value.trim().length <= max;
 }
@@ -19,7 +31,7 @@ function normalizePayload(payload) {
   return {
     ...payload,
     notificationType: payload?.notificationType || "new_request",
-    estado: payload?.estado || "Pendiente",
+    estado: normalizeStatusValue(payload?.estado),
     notaInterna: typeof payload?.notaInterna === "string" ? payload.notaInterna.trim() : ""
   };
 }
