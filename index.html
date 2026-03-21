@@ -734,7 +734,7 @@
       <div class="hero-etiqueta">Reservas online</div>
       <h1 class="hero-titulo">Barber Elite</h1>
       <p class="hero-subtitulo">
-        Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la respuesta de la barberia.
+        Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la respuesta de la barbería.
       </p>
       <button type="button" id="btnAbrirReserva" class="hero-btn">Elegir fecha</button>
     </div>
@@ -744,12 +744,12 @@
     <div class="container">
       <div class="titulo">Agenda tu visita</div>
       <div class="subtitulo">
-        Crea tu perfil o inicia sesion, elige una fecha del calendario y solicita tu hora. La barberia revisa cada solicitud antes de gestionarla.
+        Crea tu perfil o inicia sesión, elige una fecha del calendario y solicita tu hora. La barbería revisa cada solicitud antes de gestionarla.
       </div>
 
       <div class="card" id="authCard">
         <h2>Tu perfil de cliente</h2>
-        <p class="card-copy">Usa tu correo y tu clave para reservar. Si olvidas la clave, puedes enviarte un correo de recuperacion.</p>
+        <p class="card-copy">Usa tu correo y tu clave para reservar. Si olvidas la clave, puedes enviarte un correo de recuperación.</p>
 
         <div class="perfil-grid">
           <div class="perfil-panel" id="authLoggedOut">
@@ -759,7 +759,7 @@
             </div>
             <div class="acciones-formulario auth-actions">
               <button class="btn-principal" id="btnCrearPerfil" type="button">Crear perfil</button>
-              <button class="btn-secundario" id="btnIniciarSesion" type="button">Iniciar sesion</button>
+              <button class="btn-secundario" id="btnIniciarSesion" type="button">Iniciar sesión</button>
               <button class="btn-secundario" id="btnRecuperarClave" type="button">Recuperar clave</button>
             </div>
           </div>
@@ -768,19 +768,19 @@
             <div class="perfil-activo">
               <div>
                 <strong id="perfilCorreoActivo">Correo</strong>
-                <p>Tu perfil esta activo. Ese correo se usara para la reserva y para recuperar tu clave.</p>
+                <p>Tu perfil está activo. Ese correo se usará para la reserva y para recuperar tu clave.</p>
               </div>
-              <button class="btn-secundario" id="btnCerrarSesionCliente" type="button">Cerrar sesion</button>
+              <button class="btn-secundario" id="btnCerrarSesionCliente" type="button">Cerrar sesión</button>
             </div>
           </div>
 
-          <div class="mensaje info" id="authStatus">Inicia sesion o crea tu perfil para reservar de lunes a viernes.</div>
+          <div class="mensaje info" id="authStatus">Inicia sesión o crea tu perfil para reservar de lunes a viernes.</div>
         </div>
       </div>
 
       <div class="card">
         <h2>Selecciona una fecha</h2>
-        <p class="card-copy">Puedes solicitar desde hoy hasta los proximos 90 dias. La atencion se agenda solo de lunes a viernes y ya considera cupos, descansos y anticipacion minima.</p>
+        <p class="card-copy">Puedes solicitar desde hoy hasta los próximos 90 días. La atención se agenda solo de lunes a viernes y ya considera cupos, descansos y anticipación mínima.</p>
 
         <div class="calendar-shell">
           <div class="calendar-top">
@@ -799,7 +799,7 @@
 
           <div class="calendar-note">
             <strong id="calendarSelectionText">Fecha seleccionada: ninguna</strong>
-            <span>Las horas visibles ya incluyen bloqueos, colacion y reglas de agenda.</span>
+            <span>Las horas visibles ya incluyen bloqueos, colación y reglas de agenda.</span>
           </div>
         </div>
 
@@ -819,14 +819,14 @@
 
       <div class="card paso-oculto" id="datosClienteCard">
         <h2>Completa tus datos</h2>
-        <p class="card-copy">Primero eliges la fecha y la hora. Despues envias tu solicitud con los datos de tu reserva.</p>
+        <p class="card-copy">Primero eliges la fecha y la hora. Después envías tu solicitud con los datos de tu reserva.</p>
         <div class="slot-resumen" id="slotResumen">
-          Aun no has elegido un horario.
+          Aún no has elegido un horario.
         </div>
         <div class="form-grid">
           <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
           <input type="email" id="correoCliente" class="campo-bloqueado" placeholder="Tu correo del perfil" maxlength="120" autocomplete="email" readonly />
-          <input type="tel" id="telefonoCliente" placeholder="Tu telefono" maxlength="20" autocomplete="tel" />
+          <input type="tel" id="telefonoCliente" placeholder="Tu teléfono" maxlength="20" autocomplete="tel" />
           <select id="servicioCliente">
             <option value="">Selecciona un servicio</option>
             <option value="corte de pelo">corte de pelo</option>
@@ -848,25 +848,25 @@
           <div class="reserva-columna">
             <h3>Activas</h3>
             <div id="misReservasActivas" class="reserva-columna">
-              <div class="empty-reservas">Inicia sesion para ver tus reservas activas.</div>
+              <div class="empty-reservas">Inicia sesión para ver tus reservas activas.</div>
             </div>
           </div>
           <div class="reserva-columna">
             <h3>Historial</h3>
             <div id="misReservasHistorial" class="reserva-columna">
-              <div class="empty-reservas">Aqui apareceran tus reservas completadas o canceladas.</div>
+              <div class="empty-reservas">Aquí aparecerán tus reservas completadas o canceladas.</div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2>Politicas de reserva</h2>
-        <p class="card-copy">La experiencia se siente mas clara cuando el cliente sabe exactamente como funciona la agenda.</p>
+        <h2>Políticas de reserva</h2>
+        <p class="card-copy">La experiencia se siente más clara cuando el cliente sabe exactamente cómo funciona la agenda.</p>
         <div class="politica-grid">
           <div class="politica-card">
-            <strong>Respuesta de la barberia</strong>
-            <div class="reserva-cliente-linea">Cada solicitud queda recibida y la barberia la revisa antes de gestionarla.</div>
+            <strong>Respuesta de la barbería</strong>
+            <div class="reserva-cliente-linea">Cada solicitud queda recibida y la barbería la revisa antes de gestionarla.</div>
           </div>
           <div class="politica-card">
             <strong>Cancelaciones</strong>
@@ -886,9 +886,9 @@
       <div class="card">
         <h2>Privacidad y seguridad</h2>
         <div class="aviso-seguridad">
-          Esta web publica no expone datos personales ni consulta reservas de otros clientes.
-          Las solicitudes de hora quedan en revision y las cancelaciones se gestionan
-          por contacto directo con la barberia en
+          Esta web pública no expone datos personales ni consulta reservas de otros clientes.
+          Las solicitudes de hora quedan en revisión y las cancelaciones se gestionan
+          por contacto directo con la barbería en
           <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
         </div>
       </div>
@@ -1137,8 +1137,8 @@
       misReservasHistorial.innerHTML = "";
 
       if (!currentClientUser) {
-        misReservasActivas.innerHTML = '<div class="empty-reservas">Inicia sesion para ver tus reservas activas.</div>';
-        misReservasHistorial.innerHTML = '<div class="empty-reservas">Aqui apareceran tus reservas completadas o canceladas.</div>';
+        misReservasActivas.innerHTML = '<div class="empty-reservas">Inicia sesión para ver tus reservas activas.</div>';
+        misReservasHistorial.innerHTML = '<div class="empty-reservas">Aquí aparecerán tus reservas completadas o canceladas.</div>';
         return;
       }
 
@@ -1180,7 +1180,7 @@
           top.appendChild(badge);
           card.appendChild(top);
 
-          [["Servicio", item.servicio || "Sin dato"], ["Nombre", item.nombre || "Sin dato"], ["Telefono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"]]
+          [["Servicio", item.servicio || "Sin dato"], ["Nombre", item.nombre || "Sin dato"], ["Teléfono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"]]
             .forEach(([label, value]) => {
               const line = document.createElement("div");
               line.className = "reserva-cliente-linea";
@@ -1193,7 +1193,7 @@
       };
 
       renderTarget(activas, misReservasActivas, "No tienes reservas activas en este momento.");
-      renderTarget(historial, misReservasHistorial, "Todavia no hay reservas canceladas o completadas en tu historial.");
+      renderTarget(historial, misReservasHistorial, "Todavía no hay reservas canceladas o completadas en tu historial.");
     }
 
     async function loadMisReservas() {
@@ -1241,7 +1241,7 @@
         fechasBloqueadas = new Map(bloqueadasSnapshot.docs.map((item) => [item.id, item.data()]));
         fechasEspeciales = new Map(especialesSnapshot.docs.map((item) => [item.id, item.data()]));
       } catch (error) {
-        console.error("Error al cargar configuracion de agenda:", error);
+        console.error("Error al cargar configuración de agenda:", error);
         agendaConfig = getDefaultAgendaConfig();
         fechasBloqueadas = new Map();
         fechasEspeciales = new Map();
@@ -1258,7 +1258,7 @@
           horasGrid.innerHTML = "";
           calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
           textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
-          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          slotResumen.innerHTML = "Aún no has elegido un horario.";
           datosClienteCard.classList.add("paso-oculto");
         }
       }
@@ -1278,9 +1278,9 @@
         authPassword.value = "";
         setAuthStatus("Perfil activo. Ya puedes elegir una fecha, una hora y enviar tu solicitud.", "success");
       } else {
-        setAuthStatus("Inicia sesion o crea tu perfil para reservar de lunes a viernes.", "info");
+        setAuthStatus("Inicia sesión o crea tu perfil para reservar de lunes a viernes.", "info");
         datosClienteCard.classList.add("paso-oculto");
-        mensajeFormulario.textContent = "Debes iniciar sesion para completar la reserva.";
+        mensajeFormulario.textContent = "Debes iniciar sesión para completar la reserva.";
       }
 
       renderMisReservas();
@@ -1291,7 +1291,7 @@
         return true;
       }
 
-      setAuthStatus("Inicia sesion o crea tu perfil para continuar con la reserva.", "error");
+      setAuthStatus("Inicia sesión o crea tu perfil para continuar con la reserva.", "error");
       authCard.scrollIntoView({ behavior: "smooth", block: "start" });
       return false;
     }
@@ -1462,7 +1462,7 @@
       const servicio = normalizarTexto(document.getElementById("servicioCliente").value);
 
       if (!currentClientUser?.email) {
-        alert("Primero inicia sesion o crea tu perfil.");
+        alert("Primero inicia sesión o crea tu perfil.");
         return null;
       }
 
@@ -1472,12 +1472,12 @@
       }
 
       if (nombre.length < 3 || nombre.length > 60) {
-        alert("Escribe un nombre valido.");
+        alert("Escribe un nombre válido.");
         return null;
       }
 
       if (!validarCorreo(correo)) {
-        alert("Escribe un correo valido.");
+        alert("Escribe un correo válido.");
         return null;
       }
 
@@ -1488,7 +1488,7 @@
       }
 
       if (!validarTelefono(telefono)) {
-        alert("Escribe un telefono valido.");
+        alert("Escribe un teléfono válido.");
         return null;
       }
 
@@ -1636,12 +1636,12 @@
         limpiarFormulario();
         horarioSeleccionado = null;
         datosClienteCard.classList.add("paso-oculto");
-        slotResumen.innerHTML = "Aun no has elegido un horario.";
+        slotResumen.innerHTML = "Aún no has elegido un horario.";
         mensajeFormulario.textContent = "";
         await renderHoras();
         await loadMisReservas();
-        mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barberia revisara tu reserva.`;
-        alert("Solicitud enviada con exito.");
+        mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barbería revisará tu reserva.`;
+        alert("Solicitud enviada con éxito.");
 
         Promise.allSettled([
           enviarCorreoReserva({ ...solicitud, notificationType: "new_request", estado: "Pendiente" }),
@@ -1657,23 +1657,23 @@
           await renderHoras();
           datosClienteCard.classList.add("paso-oculto");
           horarioSeleccionado = null;
-          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          slotResumen.innerHTML = "Aún no has elegido un horario.";
           mensajeFormulario.textContent = "";
           alert("Esa hora ya no esta disponible. Elige otra.");
         } else if (error.message === "daily_limit") {
           await renderHoras();
           datosClienteCard.classList.add("paso-oculto");
           horarioSeleccionado = null;
-          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          slotResumen.innerHTML = "Aún no has elegido un horario.";
           mensajeFormulario.textContent = "";
-          alert("Ese dia ya alcanzo el cupo maximo. Elige otro horario o una fecha distinta.");
+          alert("Ese día ya alcanzó el cupo máximo. Elige otro horario o una fecha distinta.");
         } else if (error.message === "slot_unavailable") {
           await renderHoras();
           datosClienteCard.classList.add("paso-oculto");
           horarioSeleccionado = null;
-          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          slotResumen.innerHTML = "Aún no has elegido un horario.";
           mensajeFormulario.textContent = "";
-          alert("Esa hora dejo de estar disponible por las reglas actuales de agenda. Elige otra.");
+          alert("Esa hora dejó de estar disponible por las reglas actuales de agenda. Elige otra.");
         } else {
           alert("Hubo un error al registrar la solicitud.");
         }
@@ -1716,7 +1716,7 @@
 
       if (!horasDisponibles.length) {
         mensajeHoras.textContent = horasBase.length
-          ? `Ya no quedan horas reservables para ${fechaSeleccionada.label} con la anticipacion minima configurada.`
+          ? `Ya no quedan horas reservables para ${fechaSeleccionada.label} con la anticipación mínima configurada.`
           : `No hay horarios configurados para ${fechaSeleccionada.label}.`;
         contenedorHoras.classList.add("oculto");
         btnVerHoras.disabled = false;
@@ -1725,7 +1725,7 @@
       }
 
       mensajeHoras.textContent = dailyLimitReached
-        ? `El dia ${fechaSeleccionada.label} ya alcanzo el cupo maximo configurado.`
+        ? `El día ${fechaSeleccionada.label} ya alcanzó el cupo máximo configurado.`
         : `Horarios disponibles para ${fechaSeleccionada.label}.`;
 
       horasDisponibles.forEach((hora) => {
@@ -1759,11 +1759,11 @@
         card.appendChild(top);
 
         if (estadoOcupacion) {
-          crearTextoReserva(card, "Esta hora ya esta tomada o en revision. Elige otro horario.");
+          crearTextoReserva(card, "Esta hora ya está tomada o en revisión. Elige otro horario.");
         } else if (cupoCerrado) {
-          crearTextoReserva(card, `La agenda de ${fechaSeleccionada.label} ya alcanzo su cupo maximo. Elige otro dia.`);
+          crearTextoReserva(card, `La agenda de ${fechaSeleccionada.label} ya alcanzó su cupo máximo. Elige otro día.`);
         } else {
-          crearTextoReserva(card, `La hora quedara en revision para ${fechaSeleccionada.label} hasta que la barberia la gestione.`);
+          crearTextoReserva(card, `La hora quedará en revisión para ${fechaSeleccionada.label} hasta que la barbería la gestione.`);
         }
 
         const btnReservar = document.createElement("button");
@@ -1795,7 +1795,7 @@
       const password = authPassword.value;
 
       if (!validarCorreo(email)) {
-        setAuthStatus("Escribe un correo valido para crear tu perfil.", "error");
+        setAuthStatus("Escribe un correo válido para crear tu perfil.", "error");
         return;
       }
 
@@ -1813,7 +1813,7 @@
       } catch (error) {
         console.error("Error al crear perfil:", error);
         if (error.code === "auth/email-already-in-use") {
-          setAuthStatus("Ese correo ya existe. Prueba iniciar sesion.", "error");
+          setAuthStatus("Ese correo ya existe. Prueba iniciar sesión.", "error");
         } else {
           setAuthStatus("No se pudo crear el perfil.", "error");
         }
@@ -1831,18 +1831,18 @@
       const password = authPassword.value;
 
       if (!validarCorreo(email) || !password) {
-        setAuthStatus("Completa tu correo y tu clave para iniciar sesion.", "error");
+        setAuthStatus("Completa tu correo y tu clave para iniciar sesión.", "error");
         return;
       }
 
       setAuthButtonsDisabled(true);
-      setAuthStatus("Iniciando sesion...", "info");
+      setAuthStatus("Iniciando sesión...", "info");
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
-        console.error("Error al iniciar sesion de cliente:", error);
-        setAuthStatus("No se pudo iniciar sesion. Revisa tu correo o tu clave.", "error");
+        console.error("Error al iniciar sesión de cliente:", error);
+        setAuthStatus("No se pudo iniciar sesión. Revisa tu correo o tu clave.", "error");
       } finally {
         setAuthButtonsDisabled(false);
       }
@@ -1856,19 +1856,19 @@
       const email = normalizarTexto(authEmail.value).toLowerCase();
 
       if (!validarCorreo(email)) {
-        setAuthStatus("Escribe tu correo para enviarte el enlace de recuperacion.", "error");
+        setAuthStatus("Escribe tu correo para enviarte el enlace de recuperación.", "error");
         return;
       }
 
       setAuthButtonsDisabled(true);
-      setAuthStatus("Enviando correo de recuperacion...", "info");
+      setAuthStatus("Enviando correo de recuperación...", "info");
 
       try {
         await sendPasswordResetEmail(auth, email);
-        setAuthStatus("Te enviamos un correo para recuperar tu clave. Revisa tambien spam.", "success");
+        setAuthStatus("Te enviamos un correo para recuperar tu clave. Revisa también spam.", "success");
       } catch (error) {
-        console.error("Error al enviar recuperacion de clave:", error);
-        setAuthStatus("No se pudo enviar el correo de recuperacion.", "error");
+        console.error("Error al enviar recuperación de clave:", error);
+        setAuthStatus("No se pudo enviar el correo de recuperación.", "error");
       } finally {
         setAuthButtonsDisabled(false);
       }
@@ -1884,8 +1884,8 @@
       try {
         await signOut(auth);
       } catch (error) {
-        console.error("Error al cerrar sesion de cliente:", error);
-        setAuthStatus("No se pudo cerrar sesion.", "error");
+        console.error("Error al cerrar sesión de cliente:", error);
+        setAuthStatus("No se pudo cerrar sesión.", "error");
       } finally {
         setAuthButtonsDisabled(false);
       }
