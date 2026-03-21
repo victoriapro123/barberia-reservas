@@ -780,7 +780,7 @@
 
       <div class="card">
         <h2>Selecciona una fecha</h2>
-        <p class="card-copy">Puedes solicitar desde hoy hasta los proximos 90 dias. La atencion se agenda solo de lunes a viernes.</p>
+        <p class="card-copy">Puedes solicitar desde hoy hasta los proximos 90 dias. La atencion se agenda solo de lunes a viernes y ya considera cupos, descansos y anticipacion minima.</p>
 
         <div class="calendar-shell">
           <div class="calendar-top">
@@ -799,7 +799,7 @@
 
           <div class="calendar-note">
             <strong id="calendarSelectionText">Fecha seleccionada: ninguna</strong>
-            <span>Las horas se muestran despues de elegir una fecha valida.</span>
+            <span>Las horas visibles ya incluyen bloqueos, colacion y reglas de agenda.</span>
           </div>
         </div>
 
@@ -1029,7 +1029,10 @@
         juevesAbierto: true,
         juevesHoras: [...HORAS_BASE],
         viernesAbierto: true,
-        viernesHoras: [...HORAS_BASE]
+        viernesHoras: [...HORAS_BASE],
+        horasDescanso: [],
+        limiteReservasPorDia: HORAS_BASE.length,
+        minutosMinimosAnticipacion: 120
       };
     }
 
@@ -1037,27 +1040,63 @@
       return WEEKDAY_NAMES[date.getDay()];
     }
 
-    function getAgendaHoursForDate(date) {
+    function getAgendaBreakHours() {
+      const hours = Array.isArray(agendaConfig.horasDescanso) ? agendaConfig.horasDescanso : [];
+      return HORAS_BASE.filter((hour) => hours.includes(hour));
+    }
+
+    function getDailyLimit() {
+      const value = Number(agendaConfig.limiteReservasPorDia);
+      return Number.isInteger(value) && value >= 1 && value <= HORAS_BASE.length ? value : HORAS_BASE.length;
+    }
+
+    function getLeadTimeMinutes() {
+      const value = Number(agendaConfig.minutosMinimosAnticipacion);
+      return Number.isInteger(value) && value >= 0 && value <= 1440 ? value : 120;
+    }
+
+    function buildDateTime(date, hora) {
+      const [hours, minutes] = hora.split(":").map(Number);
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes || 0, 0, 0);
+    }
+
+    function isHourTooClose(date, hora) {
+      return buildDateTime(date, hora).getTime() - Date.now() < getLeadTimeMinutes() * 60 * 1000;
+    }
+
+    function getAgendaHoursForDate(date, options = {}) {
+      const { applyLeadTime = false } = options;
       const iso = formatISODate(date);
+      let hours = [];
 
       if (fechasBloqueadas.has(iso)) {
         return [];
       }
 
       if (fechasEspeciales.has(iso)) {
-        return [...fechasEspeciales.get(iso).horas];
+        hours = [...fechasEspeciales.get(iso).horas];
+      } else {
+        const key = getWeekdayConfigKey(date);
+        if (!WEEKDAY_CONFIG_KEYS.includes(key)) {
+          return [];
+        }
+
+        if (!agendaConfig[`${key}Abierto`]) {
+          return [];
+        }
+
+        hours = [...(agendaConfig[`${key}Horas`] || HORAS_BASE)];
+        const breakHours = getAgendaBreakHours();
+        if (breakHours.length) {
+          hours = hours.filter((hour) => !breakHours.includes(hour));
+        }
       }
 
-      const key = getWeekdayConfigKey(date);
-      if (!WEEKDAY_CONFIG_KEYS.includes(key)) {
-        return [];
+      if (applyLeadTime) {
+        hours = hours.filter((hour) => !isHourTooClose(date, hour));
       }
 
-      if (!agendaConfig[`${key}Abierto`]) {
-        return [];
-      }
-
-      return [...(agendaConfig[`${key}Horas`] || HORAS_BASE)];
+      return hours;
     }
 
     function getAppointmentDateTime(item) {
@@ -1066,9 +1105,7 @@
       }
 
       const [year, month, day] = item.fechaISO.split("-").map(Number);
-      const [hours, minutes] = item.hora.split(":").map(Number);
-
-      return new Date(year, month - 1, day, hours, minutes || 0, 0, 0);
+      return buildDateTime(new Date(year, month - 1, day), item.hora);
     }
 
     function getClientStatusInfo(estado) {
@@ -1301,7 +1338,7 @@
     function isSelectableDate(date) {
       const today = getToday();
       const maxDate = getMaxDate();
-      return date >= today && date <= maxDate && getAgendaHoursForDate(date).length > 0;
+      return date >= today && date <= maxDate && getAgendaHoursForDate(date, { applyLeadTime: true }).length > 0;
     }
 
     function getSelectedDateData(date) {
@@ -1567,6 +1604,22 @@
       };
 
       try {
+        const selectedDate = new Date(`${horarioSeleccionado.fechaISO}T00:00:00`);
+        const horasVigentes = getAgendaHoursForDate(selectedDate, { applyLeadTime: true });
+        await cargarHorariosOcupados(horarioSeleccionado.fechaISO);
+
+        if (!horasVigentes.includes(horarioSeleccionado.hora)) {
+          throw new Error("slot_unavailable");
+        }
+
+        if (horariosOcupados.has(getSlotId(horarioSeleccionado.fechaISO, horarioSeleccionado.hora))) {
+          throw new Error("slot_taken");
+        }
+
+        if (horariosOcupados.size >= getDailyLimit()) {
+          throw new Error("daily_limit");
+        }
+
         await runTransaction(db, async (transaction) => {
           const disponibilidadSnapshot = await transaction.get(disponibilidadRef);
 
@@ -1607,6 +1660,20 @@
           slotResumen.innerHTML = "Aun no has elegido un horario.";
           mensajeFormulario.textContent = "";
           alert("Esa hora ya no esta disponible. Elige otra.");
+        } else if (error.message === "daily_limit") {
+          await renderHoras();
+          datosClienteCard.classList.add("paso-oculto");
+          horarioSeleccionado = null;
+          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          mensajeFormulario.textContent = "";
+          alert("Ese dia ya alcanzo el cupo maximo. Elige otro horario o una fecha distinta.");
+        } else if (error.message === "slot_unavailable") {
+          await renderHoras();
+          datosClienteCard.classList.add("paso-oculto");
+          horarioSeleccionado = null;
+          slotResumen.innerHTML = "Aun no has elegido un horario.";
+          mensajeFormulario.textContent = "";
+          alert("Esa hora dejo de estar disponible por las reglas actuales de agenda. Elige otra.");
         } else {
           alert("Hubo un error al registrar la solicitud.");
         }
@@ -1642,23 +1709,31 @@
       contenedorHoras.classList.remove("oculto");
       horasGrid.innerHTML = "";
       const selectedDate = new Date(`${fechaSeleccionada.iso}T00:00:00`);
-      const horasDisponibles = getAgendaHoursForDate(selectedDate);
+      const horasBase = getAgendaHoursForDate(selectedDate);
+      const horasDisponibles = getAgendaHoursForDate(selectedDate, { applyLeadTime: true });
+      const dailyLimit = getDailyLimit();
+      const dailyLimitReached = horariosOcupados.size >= dailyLimit;
 
       if (!horasDisponibles.length) {
-        mensajeHoras.textContent = `No hay horarios configurados para ${fechaSeleccionada.label}.`;
+        mensajeHoras.textContent = horasBase.length
+          ? `Ya no quedan horas reservables para ${fechaSeleccionada.label} con la anticipacion minima configurada.`
+          : `No hay horarios configurados para ${fechaSeleccionada.label}.`;
         contenedorHoras.classList.add("oculto");
         btnVerHoras.disabled = false;
         cargandoHoras = false;
         return;
       }
 
-      mensajeHoras.textContent = `Horarios disponibles para ${fechaSeleccionada.label}.`;
+      mensajeHoras.textContent = dailyLimitReached
+        ? `El dia ${fechaSeleccionada.label} ya alcanzo el cupo maximo configurado.`
+        : `Horarios disponibles para ${fechaSeleccionada.label}.`;
 
       horasDisponibles.forEach((hora) => {
         const estadoOcupacion = horariosOcupados.get(getSlotId(fechaSeleccionada.iso, hora)) || null;
+        const cupoCerrado = dailyLimitReached && !estadoOcupacion;
         const card = document.createElement("div");
         card.className = "hora-card";
-        if (estadoOcupacion) {
+        if (estadoOcupacion || cupoCerrado) {
           card.classList.add("ocupada");
         }
 
@@ -1670,8 +1745,14 @@
         textoHora.textContent = hora;
 
         const estado = document.createElement("div");
-        estado.className = estadoOcupacion ? "estado-ocupada" : "estado-disponible";
-        estado.textContent = estadoOcupacion === "confirmada" ? "Confirmada" : estadoOcupacion ? "Bloqueada" : "Disponible";
+        estado.className = estadoOcupacion || cupoCerrado ? "estado-ocupada" : "estado-disponible";
+        estado.textContent = estadoOcupacion === "confirmada"
+          ? "Confirmada"
+          : estadoOcupacion
+            ? "Bloqueada"
+            : cupoCerrado
+              ? "Cupo completo"
+              : "Disponible";
 
         top.appendChild(textoHora);
         top.appendChild(estado);
@@ -1679,15 +1760,17 @@
 
         if (estadoOcupacion) {
           crearTextoReserva(card, "Esta hora ya esta tomada o en revision. Elige otro horario.");
+        } else if (cupoCerrado) {
+          crearTextoReserva(card, `La agenda de ${fechaSeleccionada.label} ya alcanzo su cupo maximo. Elige otro dia.`);
         } else {
           crearTextoReserva(card, `La hora quedara en revision para ${fechaSeleccionada.label} hasta que la barberia la gestione.`);
         }
 
         const btnReservar = document.createElement("button");
         btnReservar.className = "btn-reservar";
-        btnReservar.textContent = estadoOcupacion ? "No disponible" : "Elegir hora";
-        btnReservar.disabled = Boolean(estadoOcupacion);
-        if (estadoOcupacion) {
+        btnReservar.textContent = estadoOcupacion || cupoCerrado ? "No disponible" : "Elegir hora";
+        btnReservar.disabled = Boolean(estadoOcupacion || cupoCerrado);
+        if (estadoOcupacion || cupoCerrado) {
           btnReservar.classList.add("btn-bloqueado");
         } else {
           btnReservar.addEventListener("click", () => {

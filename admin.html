@@ -116,6 +116,20 @@
     .weekday-row, .settings-inline, .settings-item-top {
       display:flex; gap:12px; flex-wrap:wrap; align-items:center;
     }
+    .settings-field-grid {
+      display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px;
+    }
+    .settings-field {
+      background:var(--panel-3); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:14px;
+      display:grid; gap:8px;
+    }
+    .settings-field label {
+      color:var(--muted); font-size:.86rem; font-weight:600; letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+    .settings-field p {
+      color:var(--muted); line-height:1.45; font-size:.9rem;
+    }
     .weekday-row {
       justify-content:space-between; padding:14px; border-radius:14px; background:var(--panel-3);
       border:1px solid rgba(255,255,255,.05);
@@ -141,6 +155,7 @@
       .week-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .history-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .settings-grid { grid-template-columns:1fr; }
+      .settings-field-grid { grid-template-columns:1fr; }
     }
     @media (max-width:760px) {
       body { padding:16px; }
@@ -251,7 +266,7 @@
           <div class="settings-grid">
             <div class="settings-card">
               <h3>Horarios semanales</h3>
-              <p class="helper">Usa horas separadas por coma. Ejemplo: `10:00, 11:00, 12:00`.</p>
+              <p class="helper">Usa horas separadas por coma. Ejemplo: `10:00, 11:00, 12:00`. Aqui tambien defines el cupo diario, la anticipacion minima y la colacion.</p>
               <div class="weekday-settings">
                 <div class="weekday-row">
                   <div class="weekday-label">Lunes</div>
@@ -279,16 +294,35 @@
                   <input type="text" id="viernesHorasInput" placeholder="10:00, 11:00, 12:00" />
                 </div>
               </div>
+              <div class="settings-field-grid">
+                <div class="settings-field">
+                  <label for="dailyLimitInput">Cupo diario</label>
+                  <input type="number" id="dailyLimitInput" min="1" max="9" />
+                  <p>Limita cuantas reservas activas aceptas por dia.</p>
+                </div>
+                <div class="settings-field">
+                  <label for="leadTimeMinutesInput">Anticipacion minima</label>
+                  <input type="number" id="leadTimeMinutesInput" min="0" max="1440" step="15" />
+                  <p>Evita que tomen horas demasiado cercanas a la hora actual.</p>
+                </div>
+                <div class="settings-field">
+                  <label for="breakHoursInput">Descanso o colacion</label>
+                  <input type="text" id="breakHoursInput" placeholder="13:00, 17:00" />
+                  <p>Esas horas se ocultan en todos los dias normales de la semana.</p>
+                </div>
+              </div>
               <button id="saveScheduleButton" class="btn-primary" type="button">Guardar horarios</button>
             </div>
 
             <div class="settings-stack">
               <div class="settings-card">
                 <h3>Fechas bloqueadas</h3>
+                <p class="helper">Puedes bloquear una fecha normal o marcarla como feriado con un clic.</p>
                 <div class="settings-inline">
                   <input type="date" id="blockedDateInput" />
                   <input type="text" id="blockedReasonInput" placeholder="Motivo opcional" maxlength="120" />
                   <button id="addBlockedDateButton" class="btn-danger" type="button">Bloquear fecha</button>
+                  <button id="addHolidayButton" class="btn-secondary" type="button">Marcar feriado</button>
                 </div>
                 <div id="blockedDatesList" class="settings-list"></div>
               </div>
@@ -371,9 +405,13 @@
     const historySummary = document.getElementById("historySummary");
     const historyList = document.getElementById("historyList");
     const saveScheduleButton = document.getElementById("saveScheduleButton");
+    const dailyLimitInput = document.getElementById("dailyLimitInput");
+    const leadTimeMinutesInput = document.getElementById("leadTimeMinutesInput");
+    const breakHoursInput = document.getElementById("breakHoursInput");
     const blockedDateInput = document.getElementById("blockedDateInput");
     const blockedReasonInput = document.getElementById("blockedReasonInput");
     const addBlockedDateButton = document.getElementById("addBlockedDateButton");
+    const addHolidayButton = document.getElementById("addHolidayButton");
     const blockedDatesList = document.getElementById("blockedDatesList");
     const specialDateInput = document.getElementById("specialDateInput");
     const specialHoursInput = document.getElementById("specialHoursInput");
@@ -409,7 +447,10 @@
         juevesAbierto: true,
         juevesHoras: [...HORAS_BASE],
         viernesAbierto: true,
-        viernesHoras: [...HORAS_BASE]
+        viernesHoras: [...HORAS_BASE],
+        horasDescanso: [],
+        limiteReservasPorDia: HORAS_BASE.length,
+        minutosMinimosAnticipacion: 120
       };
     }
 
@@ -432,6 +473,27 @@
 
     function formatHoursList(hours) {
       return (hours || []).join(", ");
+    }
+
+    function normalizeOptionalHourList(rawValue) {
+      if (!String(rawValue || "").trim()) {
+        return [];
+      }
+      return normalizeHourList(rawValue);
+    }
+
+    function normalizeIntegerField(rawValue, min, max) {
+      const normalized = String(rawValue ?? "").trim();
+      if (!normalized) {
+        return null;
+      }
+
+      const value = Number.parseInt(normalized, 10);
+      if (!Number.isInteger(value) || value < min || value > max) {
+        return null;
+      }
+
+      return value;
     }
 
     function getStartOfDay(date) {
@@ -796,6 +858,9 @@
         document.getElementById(`${key}AbiertoInput`).checked = Boolean(agendaConfig[`${key}Abierto`]);
         document.getElementById(`${key}HorasInput`).value = formatHoursList(agendaConfig[`${key}Horas`]);
       });
+      dailyLimitInput.value = String(agendaConfig.limiteReservasPorDia || HORAS_BASE.length);
+      leadTimeMinutesInput.value = String(agendaConfig.minutosMinimosAnticipacion ?? 120);
+      breakHoursInput.value = formatHoursList(agendaConfig.horasDescanso);
 
       blockedDatesList.innerHTML = "";
       if (!blockedDates.length) {
@@ -889,6 +954,28 @@
         nextConfig[`${key}Horas`] = horas || [...HORAS_BASE];
       }
 
+      const horasDescanso = normalizeOptionalHourList(breakHoursInput.value);
+      if (horasDescanso === null) {
+        setStatus(adminStatus, "Revisa las horas de descanso o colacion.", "error");
+        return;
+      }
+
+      const limiteReservasPorDia = normalizeIntegerField(dailyLimitInput.value, 1, HORAS_BASE.length);
+      if (limiteReservasPorDia === null) {
+        setStatus(adminStatus, `El cupo diario debe estar entre 1 y ${HORAS_BASE.length}.`, "error");
+        return;
+      }
+
+      const minutosMinimosAnticipacion = normalizeIntegerField(leadTimeMinutesInput.value, 0, 1440);
+      if (minutosMinimosAnticipacion === null) {
+        setStatus(adminStatus, "La anticipacion minima debe estar entre 0 y 1440 minutos.", "error");
+        return;
+      }
+
+      nextConfig.horasDescanso = horasDescanso;
+      nextConfig.limiteReservasPorDia = limiteReservasPorDia;
+      nextConfig.minutosMinimosAnticipacion = minutosMinimosAnticipacion;
+
       setStatus(adminStatus, "Guardando configuracion de agenda...");
       try {
         await setDoc(doc(db, COLECCION_CONFIG_PUBLICA, DOC_CONFIG_AGENDA), {
@@ -905,7 +992,7 @@
       }
     }
 
-    async function addBlockedDate() {
+    async function saveBlockedDate(defaultReason = "", successMessage = "Fecha bloqueada correctamente.") {
       if (!currentUser) return;
       const fechaISO = blockedDateInput.value;
       if (!fechaISO) {
@@ -917,18 +1004,26 @@
       try {
         await setDoc(doc(db, COLECCION_FECHAS_BLOQUEADAS, fechaISO), {
           fechaISO,
-          motivo: blockedReasonInput.value.trim(),
+          motivo: blockedReasonInput.value.trim() || defaultReason,
           actualizadoEn: serverTimestamp(),
           actualizadoPor: currentUser.email
         });
         blockedDateInput.value = "";
         blockedReasonInput.value = "";
         await loadSettings();
-        setStatus(adminStatus, "Fecha bloqueada correctamente.", "success");
+        setStatus(adminStatus, successMessage, "success");
       } catch (error) {
         console.error("Error al bloquear fecha:", error);
         setStatus(adminStatus, "No se pudo bloquear la fecha.", "error");
       }
+    }
+
+    async function addBlockedDate() {
+      await saveBlockedDate();
+    }
+
+    async function addHolidayDate() {
+      await saveBlockedDate("Feriado", "Feriado bloqueado correctamente.");
     }
 
     async function removeBlockedDate(fechaISO) {
@@ -1194,6 +1289,7 @@
     historySearchInput.addEventListener("input", renderHistory);
     saveScheduleButton.addEventListener("click", () => saveAgendaConfig());
     addBlockedDateButton.addEventListener("click", () => addBlockedDate());
+    addHolidayButton.addEventListener("click", () => addHolidayDate());
     addSpecialDateButton.addEventListener("click", () => addSpecialDate());
 
     onAuthStateChanged(auth, async (user) => {

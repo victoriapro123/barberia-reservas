@@ -27,6 +27,12 @@ service cloud.firestore {
         && hours.hasOnly(["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"]);
     }
 
+    function areAllowedHoursOrEmpty(hours) {
+      return hours is list
+        && hours.size() <= 9
+        && hours.hasOnly(["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"]);
+    }
+
     function isAllowedService(serviceName) {
       return serviceName in ["corte de pelo", "corte de pelo + barba", "barba"];
     }
@@ -268,6 +274,9 @@ service cloud.firestore {
           "juevesHoras",
           "viernesAbierto",
           "viernesHoras",
+          "horasDescanso",
+          "limiteReservasPorDia",
+          "minutosMinimosAnticipacion",
           "actualizadoEn",
           "actualizadoPor"
         ])
@@ -281,6 +290,13 @@ service cloud.firestore {
         && areAllowedHours(data.miercolesHoras)
         && areAllowedHours(data.juevesHoras)
         && areAllowedHours(data.viernesHoras)
+        && areAllowedHoursOrEmpty(data.horasDescanso)
+        && data.limiteReservasPorDia is int
+        && data.limiteReservasPorDia >= 1
+        && data.limiteReservasPorDia <= 9
+        && data.minutosMinimosAnticipacion is int
+        && data.minutosMinimosAnticipacion >= 0
+        && data.minutosMinimosAnticipacion <= 1440
         && data.actualizadoPor == request.auth.token.email
         && data.actualizadoEn == request.time;
     }
