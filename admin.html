@@ -482,6 +482,25 @@
       return ADMIN_EMAILS.includes(String(email || "").trim().toLowerCase());
     }
 
+    function resetAdminView() {
+      allRequests = [];
+      noteDrafts = {};
+      weekGrid.innerHTML = "";
+      agendaSummary.innerHTML = "";
+      todayPanel.innerHTML = "";
+      historySummary.innerHTML = "";
+      historyList.innerHTML = "";
+      adminEmail.textContent = "";
+    }
+
+    function showLoginOnly(message = "", type = "") {
+      loginSection.classList.remove("hidden");
+      adminSection.classList.add("hidden");
+      resetAdminView();
+      setStatus(loginStatus, message, type);
+      setStatus(adminStatus, "");
+    }
+
     function getDefaultAgendaConfig() {
       return {
         lunesAbierto: true,
@@ -1541,6 +1560,11 @@
         setStatus(loginStatus, "Completa correo y contraseña.", "error");
         return;
       }
+      if (!isAllowedAdminEmail(email)) {
+        setStatus(loginStatus, "Esta cuenta no tiene permisos para entrar al panel admin.", "error");
+        passwordInput.value = "";
+        return;
+      }
       loginButton.disabled = true;
       setStatus(loginStatus, "Iniciando sesión...");
       try {
@@ -1596,29 +1620,18 @@
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (!user) {
-        loginSection.classList.remove("hidden");
-        adminSection.classList.add("hidden");
-        adminEmail.textContent = "";
-        allRequests = [];
-        noteDrafts = {};
-        weekGrid.innerHTML = "";
-        historySummary.innerHTML = "";
-        historyList.innerHTML = "";
-        setStatus(loginStatus, "");
+        showLoginOnly();
+        return;
+      }
+      if (!isAllowedAdminEmail(user.email)) {
+        showLoginOnly("Esta cuenta no tiene permisos de administrador. Inicia sesiÃ³n con un correo autorizado.", "error");
+        emailInput.value = user.email || "";
+        passwordInput.value = "";
         return;
       }
       loginSection.classList.add("hidden");
       adminSection.classList.remove("hidden");
       adminEmail.textContent = user.email || "";
-      if (!isAllowedAdminEmail(user.email)) {
-        weekGrid.innerHTML = "";
-        agendaSummary.innerHTML = "";
-        todayPanel.innerHTML = "";
-        historySummary.innerHTML = "";
-        historyList.innerHTML = "";
-        setStatus(adminStatus, "Tu cuenta no tiene permisos para ver el calendario admin.", "error");
-        return;
-      }
       currentWeekStart = getMonday(new Date());
       historyCursorDate = getStartOfDay(new Date());
       setCurrentView("agenda");
