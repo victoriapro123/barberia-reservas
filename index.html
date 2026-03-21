@@ -812,11 +812,11 @@
               </div>
               <button class="btn-secundario" id="btnCerrarSesionCliente" type="button">Cerrar sesion</button>
             </div>
-            <div class="verification-row">
-              <div class="verification-copy">
-                <span id="verificationBadge" class="verification-pill pending">Correo pendiente</span>
-                <p class="helper" id="verificationText">Verifica tu correo para poder enviar solicitudes con tu perfil.</p>
-              </div>
+        <div class="verification-row">
+          <div class="verification-copy">
+            <span id="verificationBadge" class="verification-pill pending">Correo pendiente</span>
+            <p class="helper" id="verificationText">Puedes verificar tu correo para proteger mejor tu cuenta, pero no es obligatorio para reservar.</p>
+          </div>
               <div class="acciones-formulario auth-actions">
                 <button class="btn-secundario" id="btnReenviarVerificacion" type="button">Reenviar verificacion</button>
                 <button class="btn-secundario" id="btnActualizarVerificacion" type="button">Ya verifique</button>
@@ -1148,6 +1148,27 @@
       btnActualizarVerificacion.disabled = disabled;
     }
 
+    function getVerificationActionSettings() {
+      return {
+        url: `${window.location.origin}/#reservas`,
+        handleCodeInApp: false
+      };
+    }
+
+    async function requestVerificationEmail(user) {
+      try {
+        await sendEmailVerification(user, getVerificationActionSettings());
+        return true;
+      } catch (error) {
+        if (["auth/unauthorized-continue-uri", "auth/invalid-continue-uri", "auth/missing-continue-uri"].includes(error.code)) {
+          await sendEmailVerification(user);
+          return true;
+        }
+
+        throw error;
+      }
+    }
+
     function syncClientEmailField() {
       correoCliente.value = currentClientUser?.email || "";
     }
@@ -1160,7 +1181,7 @@
       verificationBadge.textContent = isVerified ? "Correo verificado" : "Correo pendiente";
       verificationText.textContent = isVerified
         ? "Tu correo ya esta verificado y tu perfil puede enviar solicitudes con normalidad."
-        : "Verifica tu correo antes de reservar. Asi reducimos cuentas falsas y solicitudes de abuso.";
+        : "Puedes reservar igual, pero te recomendamos verificar tu correo para recuperar tu cuenta con mas facilidad.";
       btnReenviarVerificacion.classList.toggle("paso-oculto", !hasSession || isVerified);
       btnActualizarVerificacion.classList.toggle("paso-oculto", !hasSession || isVerified);
     }
@@ -1313,7 +1334,7 @@
         setAuthStatus(
           currentClientUser.emailVerified
             ? "Perfil activo. Ya puedes elegir una fecha, una hora y enviar tu solicitud."
-            : "Perfil activo. Verifica tu correo antes de reservar.",
+            : "Perfil activo. Tu correo aun no esta verificado, pero ya puedes reservar.",
           currentClientUser.emailVerified ? "success" : "info"
         );
       } else {
@@ -1327,13 +1348,7 @@
 
     function asegurarSesionCliente() {
       if (currentClientUser) {
-        if (currentClientUser.emailVerified) {
-          return true;
-        }
-
-        setAuthStatus("Verifica tu correo antes de reservar. Puedes reenviar el enlace desde tu perfil.", "error");
-        authCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        return false;
+        return true;
       }
 
       setAuthStatus("Inicia sesion o crea tu perfil para continuar con la reserva.", "error");
@@ -1808,8 +1823,13 @@
 
       try {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(credential.user);
-        setAuthStatus("Perfil creado. Te enviamos un correo para verificar tu cuenta.", "success");
+        try {
+          await requestVerificationEmail(credential.user);
+          setAuthStatus("Perfil creado. Te enviamos un correo de verificacion, pero ya puedes reservar aunque no llegue.", "success");
+        } catch (verificationError) {
+          console.error("Error al enviar verificacion inicial:", verificationError);
+          setAuthStatus("Perfil creado. No pudimos enviar la verificacion ahora, pero ya puedes reservar con tu cuenta.", "info");
+        }
       } catch (error) {
         console.error("Error al crear perfil:", error);
         if (error.code === "auth/email-already-in-use") {
@@ -1831,11 +1851,11 @@
       setAuthStatus("Reenviando correo de verificacion...", "info");
 
       try {
-        await sendEmailVerification(currentClientUser);
-        setAuthStatus("Te enviamos otro correo de verificacion. Revisa tambien spam.", "success");
+        await requestVerificationEmail(currentClientUser);
+        setAuthStatus("Te reenviamos el correo de verificacion. Si no aparece, igualmente puedes reservar.", "success");
       } catch (error) {
         console.error("Error al reenviar verificacion:", error);
-        setAuthStatus("No se pudo reenviar el correo de verificacion.", "error");
+        setAuthStatus("No se pudo reenviar el correo de verificacion, pero tu cuenta sigue habilitada para reservar.", "info");
       } finally {
         setAuthButtonsDisabled(false);
       }
