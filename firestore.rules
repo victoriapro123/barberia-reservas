@@ -206,11 +206,16 @@ service cloud.firestore {
         && request.resource.data.estado == "pendiente"
       ) || (
         resource.data.estado == "pendiente"
-        && request.resource.data.estado in ["confirmada", "cancelada"]
+        && request.resource.data.estado == "confirmada"
         && request.resource.data.gestionadoPor == request.auth.token.email
         && request.resource.data.gestionadoEn == request.time
       ) || (
-        resource.data.estado == "confirmada"
+        resource.data.estado in ["pendiente", "confirmada"]
+        && request.resource.data.estado == "cancelada"
+        && request.resource.data.gestionadoPor == request.auth.token.email
+        && request.resource.data.gestionadoEn == request.time
+      ) || (
+        resource.data.estado in ["pendiente", "confirmada"]
         && request.resource.data.estado == "completada"
         && request.resource.data.finalizadoPor == request.auth.token.email
         && request.resource.data.finalizadoEn == request.time
