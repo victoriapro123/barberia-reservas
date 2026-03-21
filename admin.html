@@ -32,12 +32,12 @@
       display:flex; gap:10px; flex-wrap:wrap; align-items:center;
     }
     .topbar, .panel-toolbar { justify-content:space-between; gap:16px; }
-    .topbar { margin-bottom:24px; }
-    .brand h1 { font-size:2rem; margin-bottom:6px; }
+    .topbar { margin-bottom:28px; }
+    .brand h1 { font-size:2.6rem; line-height:1; margin-bottom:10px; letter-spacing:-.03em; }
     .brand p, .helper, .empty, .meta { color:var(--muted); line-height:1.5; }
     .card {
       background:var(--panel); border:1px solid var(--border); border-radius:18px;
-      padding:22px; box-shadow:0 14px 30px rgba(0,0,0,.22);
+      padding:28px; box-shadow:0 14px 30px rgba(0,0,0,.22);
     }
     .login-card { max-width:460px; margin:64px auto 0; }
     .login-card h2, .section-title { margin-bottom:14px; }
@@ -46,8 +46,23 @@
     .btn-secondary { background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
     .btn-danger { background:rgba(217,119,119,.14); color:#ffb5b5; border:1px solid rgba(217,119,119,.28); }
     .btn-info { background:rgba(120,171,233,.14); color:var(--info); border:1px solid rgba(120,171,233,.28); }
-    .tab-button.active { background:rgba(199,168,107,.14); color:#f0d39a; border:1px solid rgba(199,168,107,.28); }
-    .toolbar-block { display:grid; gap:6px; }
+    .panel-shell { display:grid; gap:28px; }
+    .panel-header {
+      display:grid; gap:14px; padding:18px; border-radius:18px;
+      background:linear-gradient(135deg, rgba(199,168,107,.08), rgba(255,255,255,.02)), var(--panel-2);
+      border:1px solid rgba(199,168,107,.12);
+    }
+    .view-switch {
+      gap:14px; padding:10px; border-radius:18px; width:max-content; max-width:100%;
+      background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);
+    }
+    .tab-button {
+      min-height:52px; padding:0 22px; border-radius:16px; font-size:1.02rem;
+    }
+    .tab-button.active { background:rgba(199,168,107,.14); color:#f0d39a; border:1px solid rgba(199,168,107,.28); box-shadow:inset 0 0 0 1px rgba(199,168,107,.08); }
+    .toolbar-block { display:grid; gap:8px; }
+    .section-title { font-size:2rem; line-height:1; margin-bottom:0; letter-spacing:-.03em; }
+    .section-copy { max-width:760px; font-size:1rem; }
     .range-title { min-width:220px; text-align:center; font-weight:bold; color:var(--text); }
     .search-row { margin-bottom:18px; }
     .week-grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:14px; }
@@ -99,11 +114,16 @@
     }
     @media (max-width:760px) {
       body { padding:16px; }
-      .brand h1 { font-size:1.6rem; }
+      .brand h1 { font-size:2rem; }
+      .card { padding:22px; }
+      .panel-shell { gap:22px; }
+      .panel-header { padding:14px; }
       .week-grid, .history-summary { grid-template-columns:1fr; }
       .toolbar-actions button, .week-nav button, .history-nav button, .history-mode button,
       .notes-actions button, .reservation-actions button, .view-switch button { width:100%; }
       .range-title { min-width:0; width:100%; }
+      .view-switch { width:100%; }
+      .section-title { font-size:1.6rem; }
     }
   </style>
 </head>
@@ -133,17 +153,19 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="view-switch">
-          <button id="agendaTabButton" class="btn-secondary tab-button active" type="button">Agenda semanal</button>
-          <button id="historyTabButton" class="btn-secondary tab-button" type="button">Historial</button>
+      <div class="card panel-shell">
+        <div class="panel-header">
+          <div class="view-switch">
+            <button id="agendaTabButton" class="btn-secondary tab-button active" type="button">Agenda semanal</button>
+            <button id="historyTabButton" class="btn-secondary tab-button" type="button">Historial</button>
+          </div>
         </div>
 
         <section id="agendaPanel">
           <div class="panel-toolbar">
             <div class="toolbar-block">
               <h2 class="section-title">Calendario semanal</h2>
-              <p class="helper">Vista de lunes a viernes, ordenada de la hora mas temprana a la mas tarde.</p>
+              <p class="helper section-copy">Vista de lunes a viernes, ordenada de la hora mas temprana a la mas tarde.</p>
             </div>
             <div class="week-nav">
               <button id="prevWeekButton" class="btn-secondary" type="button">Semana anterior</button>
@@ -163,7 +185,7 @@
           <div class="panel-toolbar">
             <div class="toolbar-block">
               <h2 class="section-title">Historial</h2>
-              <p class="helper">Revisa lo que paso en la semana o en el mes, con estados y orden cronologico.</p>
+              <p class="helper section-copy">Revisa lo que paso en la semana o en el mes, con estados y orden cronologico.</p>
             </div>
             <div class="history-mode">
               <button id="historyWeekModeButton" class="btn-secondary tab-button active" type="button">Semana</button>
