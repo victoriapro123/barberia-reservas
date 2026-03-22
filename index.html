@@ -961,12 +961,6 @@
     auth.languageCode = "es";
     auth.useDeviceLanguage?.();
 
-    const AUTH_ACTION_SETTINGS = {
-      url: `https://${firebaseConfig.authDomain}`,
-      handleCodeInApp: false
-    };
-    const FIREBASE_PASSWORD_RESET_URL = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${firebaseConfig.apiKey}`;
-
     let fechaSeleccionada = null;
     let horarioSeleccionado = null;
     let reservaEnProceso = false;
@@ -1871,16 +1865,13 @@
       setAuthStatus("Enviando correo de recuperación...", "info");
 
       try {
-        const response = await fetch(FIREBASE_PASSWORD_RESET_URL, {
+        const response = await fetch("/api/send-password-reset-email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            requestType: "PASSWORD_RESET",
-            email,
-            continueUrl: AUTH_ACTION_SETTINGS.url,
-            canHandleCodeInApp: AUTH_ACTION_SETTINGS.handleCodeInApp
+            email
           })
         });
         const payload = await response.json().catch(() => ({}));
