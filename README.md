@@ -76,6 +76,7 @@ Para que la funcion serverless de Vercel envie correos, configura estas variable
 - `EMAILJS_PUBLIC_KEY`
 - `EMAILJS_PRIVATE_KEY`
 - `BARBER_EMAIL`
+- `FIREBASE_SERVICE_ACCOUNT_JSON` recomendado, pegando el JSON completo de la service account
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY`
 - `FIREBASE_PROJECT_ID`

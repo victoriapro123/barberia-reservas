@@ -18,9 +18,10 @@ function toBase64Url(input) {
 }
 
 function getServiceAccountConfig() {
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = getNormalizedPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
-  const projectId = process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912";
+  const serviceAccount = getServiceAccountData();
+  const clientEmail = serviceAccount.clientEmail;
+  const privateKey = serviceAccount.privateKey;
+  const projectId = serviceAccount.projectId || process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912";
   const authDomain = process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`;
   const continueUrl = process.env.PASSWORD_RESET_CONTINUE_URL || `https://${authDomain}`;
 
@@ -37,8 +38,51 @@ function getServiceAccountConfig() {
   };
 }
 
+function getServiceAccountData() {
+  const rawJson = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || "").trim();
+
+  if (rawJson) {
+    const parsed = parseServiceAccountJson(rawJson);
+    return {
+      clientEmail: parsed.client_email || "",
+      privateKey: getNormalizedPrivateKey(parsed.private_key || ""),
+      projectId: parsed.project_id || ""
+    };
+  }
+
+  return {
+    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL || "").trim(),
+    privateKey: getNormalizedPrivateKey(process.env.FIREBASE_PRIVATE_KEY),
+    projectId: String(process.env.FIREBASE_PROJECT_ID || "").trim()
+  };
+}
+
+function parseServiceAccountJson(rawJson) {
+  const candidates = [
+    rawJson,
+    rawJson.replace(/^"(.*)"$/s, "$1"),
+    rawJson.replace(/\\n/g, "\n")
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch (error) {
+      continue;
+    }
+  }
+
+  throw new Error("Invalid FIREBASE_SERVICE_ACCOUNT_JSON format.");
+}
+
 function getNormalizedPrivateKey(rawValue) {
   const raw = String(rawValue || "").trim();
+
+  if (raw.startsWith("{") && raw.includes("private_key")) {
+    const parsed = parseServiceAccountJson(raw);
+    return getNormalizedPrivateKey(parsed.private_key || "");
+  }
+
   const candidates = [
     raw,
     raw.replace(/\\n/g, "\n"),
