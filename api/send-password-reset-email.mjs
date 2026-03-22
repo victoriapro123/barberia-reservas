@@ -1,4 +1,4 @@
-import { createSign } from "node:crypto";
+import { createPrivateKey, createSign } from "node:crypto";
 
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -19,10 +19,7 @@ function toBase64Url(input) {
 
 function getServiceAccountConfig() {
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = String(process.env.FIREBASE_PRIVATE_KEY || "")
-    .trim()
-    .replace(/^"(.*)"$/s, "$1")
-    .replace(/\\n/g, "\n");
+  const privateKey = getNormalizedPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
   const projectId = process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912";
   const authDomain = process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`;
   const continueUrl = process.env.PASSWORD_RESET_CONTINUE_URL || `https://${authDomain}`;
@@ -38,6 +35,29 @@ function getServiceAccountConfig() {
     authDomain,
     continueUrl
   };
+}
+
+function getNormalizedPrivateKey(rawValue) {
+  const raw = String(rawValue || "").trim();
+  const candidates = [
+    raw,
+    raw.replace(/\\n/g, "\n"),
+    raw.replace(/^"(.*)"$/s, "$1"),
+    raw.replace(/^'(.*)'$/s, "$1"),
+    raw.replace(/^"(.*)"$/s, "$1").replace(/\\n/g, "\n"),
+    raw.replace(/^'(.*)'$/s, "$1").replace(/\\n/g, "\n")
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    try {
+      const keyObject = createPrivateKey({ key: candidate, format: "pem" });
+      return keyObject.export({ format: "pem", type: "pkcs8" }).toString();
+    } catch (error) {
+      continue;
+    }
+  }
+
+  throw new Error("Invalid FIREBASE_PRIVATE_KEY format.");
 }
 
 function createGoogleJwt(clientEmail, privateKey) {
