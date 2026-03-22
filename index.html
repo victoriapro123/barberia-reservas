@@ -901,7 +901,6 @@
       createUserWithEmailAndPassword,
       getAuth,
       onAuthStateChanged,
-      sendPasswordResetEmail,
       signInWithEmailAndPassword,
       signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -966,6 +965,7 @@
       url: `https://${firebaseConfig.authDomain}`,
       handleCodeInApp: false
     };
+    const FIREBASE_PASSWORD_RESET_URL = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${firebaseConfig.apiKey}`;
 
     let fechaSeleccionada = null;
     let horarioSeleccionado = null;
@@ -1871,7 +1871,22 @@
       setAuthStatus("Enviando correo de recuperación...", "info");
 
       try {
-        await sendPasswordResetEmail(auth, email, AUTH_ACTION_SETTINGS);
+        const response = await fetch(FIREBASE_PASSWORD_RESET_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            requestType: "PASSWORD_RESET",
+            email,
+            continueUrl: AUTH_ACTION_SETTINGS.url,
+            canHandleCodeInApp: AUTH_ACTION_SETTINGS.handleCodeInApp
+          })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.error?.message || "PASSWORD_RESET_FAILED");
+        }
         setAuthStatus("Te enviamos un correo para recuperar tu clave. Revisa también spam.", "success");
       } catch (error) {
         console.error("Error al enviar recuperación de clave:", error);
