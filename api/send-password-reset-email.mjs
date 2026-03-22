@@ -19,7 +19,10 @@ function toBase64Url(input) {
 
 function getServiceAccountConfig() {
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const privateKey = String(process.env.FIREBASE_PRIVATE_KEY || "")
+    .trim()
+    .replace(/^"(.*)"$/s, "$1")
+    .replace(/\\n/g, "\n");
   const projectId = process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912";
   const authDomain = process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`;
   const continueUrl = process.env.PASSWORD_RESET_CONTINUE_URL || `https://${authDomain}`;
@@ -196,9 +199,6 @@ export default async function handler(request, response) {
       return;
     }
 
-    response.status(500).json({
-      error: "No se pudo enviar el correo de recuperacion.",
-      details: String(error.message || "UNKNOWN_ERROR")
-    });
+    response.status(500).json({ error: "No se pudo enviar el correo de recuperacion." });
   }
 }
