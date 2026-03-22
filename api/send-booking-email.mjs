@@ -101,7 +101,7 @@ function getTemplateParams(payload, barberEmail) {
           ? "Tu solicitud fue confirmada por la barberia."
           : payload.estado === "Cancelada"
             ? "Tu solicitud fue cancelada por la barberia."
-            : "Tu visita fue marcada como completada por la barberia.";
+            : "Gracias por su visita. Esperamos verle nuevamente en Barber Elite.";
 
   const titulo =
     payload.notificationType === "new_request"
@@ -112,7 +112,7 @@ function getTemplateParams(payload, barberEmail) {
           ? "Reserva confirmada"
           : payload.estado === "Cancelada"
             ? "Reserva cancelada"
-            : "Reserva completada";
+            : "Gracias por su visita";
 
   return {
     to_email: toEmail,

@@ -959,6 +959,13 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    auth.languageCode = "es";
+    auth.useDeviceLanguage?.();
+
+    const AUTH_ACTION_SETTINGS = {
+      url: `https://${firebaseConfig.authDomain}`,
+      handleCodeInApp: false
+    };
 
     let fechaSeleccionada = null;
     let horarioSeleccionado = null;
@@ -1864,7 +1871,7 @@
       setAuthStatus("Enviando correo de recuperación...", "info");
 
       try {
-        await sendPasswordResetEmail(auth, email);
+        await sendPasswordResetEmail(auth, email, AUTH_ACTION_SETTINGS);
         setAuthStatus("Te enviamos un correo para recuperar tu clave. Revisa también spam.", "success");
       } catch (error) {
         console.error("Error al enviar recuperación de clave:", error);
