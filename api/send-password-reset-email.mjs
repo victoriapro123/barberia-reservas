@@ -173,8 +173,7 @@ async function generatePasswordResetLink(email) {
       returnOobLink: true,
       continueUrl: config.continueUrl,
       canHandleCodeInApp: false,
-      targetProjectId: config.projectId,
-      linkDomain: config.authDomain
+      targetProjectId: config.projectId
     })
   });
 
