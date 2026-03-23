@@ -220,7 +220,7 @@ async function sendResetEmail(email, resetLink) {
         fecha: "-",
         hora: "-",
         estado: "Pendiente",
-        mensaje: `Haz clic en este enlace para restablecer tu clave: ${resetLink}`,
+        mensaje: "Recibimos una solicitud para restablecer tu clave. Usa el boton de abajo para continuar.",
         nota_interna: resetLink,
         notification_type: "password_reset",
         action_label: "Restablecer clave",
