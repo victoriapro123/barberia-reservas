@@ -140,7 +140,10 @@ function isCustomerNotificationForBarber(payload, barberEmail) {
 
 async function sendEmail(payload) {
   const serviceId = process.env.EMAILJS_SERVICE_ID;
-  const templateId = process.env.EMAILJS_TEMPLATE_ID;
+  const templateId =
+    payload.notificationType === "new_request"
+      ? process.env.EMAILJS_TEMPLATE_ID
+      : process.env.EMAILJS_CUSTOMER_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID;
   const publicKey = process.env.EMAILJS_PUBLIC_KEY;
   const privateKey = process.env.EMAILJS_PRIVATE_KEY;
   const barberEmail = process.env.BARBER_EMAIL;
