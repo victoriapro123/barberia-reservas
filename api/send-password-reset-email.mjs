@@ -192,12 +192,12 @@ async function generatePasswordResetLink(email) {
 
 async function sendResetEmail(email, resetLink) {
   const serviceId = process.env.EMAILJS_SERVICE_ID;
-  const templateId = process.env.EMAILJS_PASSWORD_RESET_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID;
+  const templateId = process.env.EMAILJS_PASSWORD_RESET_TEMPLATE_ID;
   const publicKey = process.env.EMAILJS_PUBLIC_KEY;
   const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
   if (!serviceId || !templateId || !publicKey || !privateKey) {
-    throw new Error("Missing email environment variables.");
+    throw new Error("Missing password reset email environment variables.");
   }
 
   const response = await fetch(EMAILJS_URL, {

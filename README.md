@@ -72,7 +72,7 @@ Para que la funcion serverless de Vercel envie correos, configura estas variable
 
 - `EMAILJS_SERVICE_ID`
 - `EMAILJS_TEMPLATE_ID`
-- `EMAILJS_PASSWORD_RESET_TEMPLATE_ID` opcional, para usar una plantilla dedicada al reset
+- `EMAILJS_PASSWORD_RESET_TEMPLATE_ID` para la plantilla dedicada al reset
 - `EMAILJS_PUBLIC_KEY`
 - `EMAILJS_PRIVATE_KEY`
 - `BARBER_EMAIL`
