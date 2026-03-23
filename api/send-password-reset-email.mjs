@@ -262,9 +262,6 @@ export default async function handler(request, response) {
       return;
     }
 
-    response.status(500).json({
-      error: "No se pudo enviar el correo de recuperacion.",
-      details: String(error.message || "UNKNOWN_ERROR")
-    });
+    response.status(500).json({ error: "No se pudo enviar el correo de recuperacion." });
   }
 }
