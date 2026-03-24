@@ -310,6 +310,21 @@
       margin-top: 4px;
     }
 
+    .reserva-cliente-toggle {
+      width: fit-content;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #151515;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .reserva-cliente-toggle:hover {
+      opacity: 0.96;
+    }
+
     .estado-cliente {
       display: inline-flex;
       align-items: center;
@@ -353,6 +368,15 @@
 
     .reserva-cliente-linea strong {
       color: #ffffff;
+    }
+
+    .reserva-cliente-detalle {
+      display: grid;
+      gap: 12px;
+    }
+
+    .reserva-cliente-detalle.oculto {
+      display: none;
     }
 
     .empty-reservas {
@@ -1168,11 +1192,7 @@
           const fecha = document.createElement("div");
           fecha.className = "reserva-cliente-fecha";
           fecha.textContent = item.fecha || "Sin fecha";
-          const hora = document.createElement("div");
-          hora.className = "reserva-cliente-hora";
-          hora.textContent = item.hora || "Sin hora";
           titleWrap.appendChild(fecha);
-          titleWrap.appendChild(hora);
 
           const badge = document.createElement("span");
           badge.className = `estado-cliente ${status.className}`;
@@ -1181,14 +1201,35 @@
           top.appendChild(badge);
           card.appendChild(top);
 
+          const toggleButton = document.createElement("button");
+          toggleButton.type = "button";
+          toggleButton.className = "reserva-cliente-toggle";
+          toggleButton.textContent = "Ver detalle";
+          card.appendChild(toggleButton);
+
+          const detailWrap = document.createElement("div");
+          detailWrap.className = "reserva-cliente-detalle oculto";
+
+          const hora = document.createElement("div");
+          hora.className = "reserva-cliente-hora";
+          hora.textContent = item.hora || "Sin hora";
+          detailWrap.appendChild(hora);
+
           [["Servicio", item.servicio || "Sin dato"], ["Nombre", item.nombre || "Sin dato"], ["Teléfono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"]]
             .forEach(([label, value]) => {
               const line = document.createElement("div");
               line.className = "reserva-cliente-linea";
               line.innerHTML = `<strong>${label}:</strong> ${value}`;
-              card.appendChild(line);
+              detailWrap.appendChild(line);
             });
 
+          toggleButton.addEventListener("click", () => {
+            const abierto = !detailWrap.classList.contains("oculto");
+            detailWrap.classList.toggle("oculto", abierto);
+            toggleButton.textContent = abierto ? "Ver detalle" : "Ocultar detalle";
+          });
+
+          card.appendChild(detailWrap);
           target.appendChild(card);
         });
       };
