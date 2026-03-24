@@ -420,10 +420,17 @@
       display: grid;
       gap: 14px;
       align-content: start;
+      justify-items: start;
       padding: 20px;
       border-radius: 18px;
       background: #101010;
       border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ubicacion-accion {
+      width: 100%;
+      display: flex;
+      justify-content: center;
     }
 
     .ubicacion-direccion {
@@ -959,14 +966,16 @@
               Av. Miraflores 1702<br />
               Peñaflor, Región Metropolitana
             </div>
-            <a
-              class="btn-principal"
-              href="https://www.google.com/maps/search/?api=1&query=Av.+Miraflores+1702,+Pe%C3%B1aflor,+Regi%C3%B3n+Metropolitana"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Cómo llegar
-            </a>
+            <div class="ubicacion-accion">
+              <a
+                class="btn-principal"
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Miraflores+1702,+Pe%C3%B1aflor,+Regi%C3%B3n+Metropolitana"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cómo llegar
+              </a>
+            </div>
           </div>
           <div class="ubicacion-mapa">
             <iframe
