@@ -124,6 +124,12 @@
     .badge.completada { background:rgba(120,171,233,.14); color:var(--info); border:1px solid rgba(120,171,233,.28); }
     .reservation-line, .history-line { color:var(--muted); font-size:.92rem; line-height:1.45; }
     .reservation-line strong, .history-line strong, .notes-panel strong { color:var(--text); }
+    .history-toggle {
+      width:fit-content; min-height:40px; padding:0 14px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.1); background:#151515; color:var(--text); cursor:pointer;
+    }
+    .history-toggle:hover { opacity:.96; }
+    .history-lines.oculto { display:none; }
     .notes-panel {
       background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);
       border-radius:12px; padding:12px;
@@ -1124,21 +1130,16 @@
       items.forEach((item) => {
         const card = document.createElement("article");
         card.className = "history-card";
+
         const top = document.createElement("div");
         top.className = "history-top";
+
         const titleWrap = document.createElement("div");
-        const hour = document.createElement("div");
-        hour.className = "history-hour";
-        hour.textContent = `${item.fecha || "Sin fecha"} - ${item.hora || "Sin hora"}`;
-        const name = document.createElement("div");
-        name.className = "history-name";
-        name.textContent = item.nombre || "Sin nombre";
-        const created = document.createElement("div");
-        created.className = "meta";
-        created.textContent = `Creada ${formatCreatedDate(item.creadoEn)}`;
-        titleWrap.appendChild(hour);
-        titleWrap.appendChild(name);
-        titleWrap.appendChild(created);
+        const dateLabel = document.createElement("div");
+        dateLabel.className = "history-hour";
+        dateLabel.textContent = item.fecha || "Sin fecha";
+        titleWrap.appendChild(dateLabel);
+
         const badge = document.createElement("span");
         badge.className = `badge ${getBadgeClass(item)}`;
         badge.textContent = getDisplayState(item);
@@ -1146,15 +1147,28 @@
         top.appendChild(badge);
         card.appendChild(top);
 
+        const toggleButton = document.createElement("button");
+        toggleButton.type = "button";
+        toggleButton.className = "history-toggle";
+        toggleButton.textContent = "Ver detalle";
+        card.appendChild(toggleButton);
+
         const lines = document.createElement("div");
-        lines.className = "history-lines";
-        [["Servicio", item.servicio || "Sin dato"], ["Teléfono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"], ["Cierre", formatActionDate(item)], ["Nota", item.notaInterna || "Sin nota interna"]]
+        lines.className = "history-lines oculto";
+        [["Hora", item.hora || "Sin hora"], ["Servicio", item.servicio || "Sin dato"], ["Nombre", item.nombre || "Sin nombre"], ["Telefono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"], ["Cierre", formatActionDate(item)], ["Nota", item.notaInterna || "Sin nota interna"]]
           .forEach(([label, value]) => {
             const line = document.createElement("div");
             line.className = "history-line";
             line.innerHTML = `<strong>${label}:</strong> ${value}`;
             lines.appendChild(line);
           });
+
+        toggleButton.addEventListener("click", () => {
+          const abierto = !lines.classList.contains("oculto");
+          lines.classList.toggle("oculto", abierto);
+          toggleButton.textContent = abierto ? "Ver detalle" : "Ocultar detalle";
+        });
+
         card.appendChild(lines);
         historyList.appendChild(card);
       });
