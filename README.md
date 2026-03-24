@@ -5,6 +5,7 @@ Sitio web estatico para gestionar solicitudes de reserva de una barberia. La app
 ## Estructura
 
 - `index.html`: interfaz principal y logica de solicitudes
+- `brand-config.mjs`: configuracion central de marca, nombre, fondo, direccion y admins
 - `styles.css`: estilos antiguos del proyecto
 - `script.js`: script antiguo del proyecto
 - `barbero.jpg`: imagen local del proyecto
@@ -85,6 +86,24 @@ Para que la funcion serverless de Vercel envie correos, configura estas variable
 - `PASSWORD_RESET_CONTINUE_URL`
 
 Puedes usar [.env.example](./.env.example) como referencia. En Vercel se cargan desde `Settings -> Environment Variables`.
+
+## Personalizacion de marca
+
+Para adaptar esta base a otro cliente, cambia primero `brand-config.mjs`.
+
+Desde ese archivo puedes actualizar:
+
+- nombre del negocio
+- titulo del admin
+- imagen principal de fondo
+- correo de contacto
+- direccion y mapa
+- favicon
+- correos admin autorizados
+
+Con eso se actualizan la portada, el panel admin y los correos serverless sin tener que buscar textos por todo el proyecto.
+
+Si cambias el correo admin, recuerda actualizar tambien `firestore.rules` y volver a desplegar las reglas en Firebase.
 
 ## Verificacion
 

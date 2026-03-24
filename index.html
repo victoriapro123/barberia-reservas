@@ -46,7 +46,7 @@
       min-height: 100vh;
       background:
         linear-gradient(rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.76)),
-        url("https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?auto=format&fit=crop&w=1400&q=80");
+        var(--hero-image, url("https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?auto=format&fit=crop&w=1400&q=80"));
       background-size: cover;
       background-position: center;
       display: flex;
@@ -812,9 +812,9 @@
 <body>
   <section class="hero">
     <div class="hero-contenido">
-      <div class="hero-etiqueta">Reservas online</div>
-      <h1 class="hero-titulo">Barber Elite</h1>
-      <p class="hero-subtitulo">
+      <div class="hero-etiqueta" id="heroLabel">Reservas online</div>
+      <h1 class="hero-titulo" id="heroTitle">Barber Elite</h1>
+      <p class="hero-subtitulo" id="heroSubtitle">
         Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la respuesta de la barbería.
       </p>
       <button type="button" id="btnAbrirReserva" class="hero-btn">Elegir fecha</button>
@@ -823,8 +823,8 @@
 
   <section class="seccion-reservas oculto-inicial" id="reservas">
     <div class="container">
-      <div class="titulo">Agenda tu visita</div>
-      <div class="subtitulo">
+      <div class="titulo" id="bookingTitle">Agenda tu visita</div>
+      <div class="subtitulo" id="bookingSubtitle">
         Crea tu perfil o inicia sesión, elige una fecha del calendario y solicita tu hora. La barbería revisa cada solicitud antes de gestionarla.
       </div>
 
@@ -951,7 +951,7 @@
           </div>
           <div class="politica-card">
             <strong>Cancelaciones</strong>
-            <div class="reserva-cliente-linea">Si necesitas mover tu hora, escribe directo a <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.</div>
+            <div class="reserva-cliente-linea">Si necesitas mover tu hora, escribe directo a <a id="brandPolicyEmailLink" href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.</div>
           </div>
           <div class="politica-card">
             <strong>Puntualidad</strong>
@@ -965,28 +965,30 @@
       </div>
 
       <div class="card">
-        <h2>Dónde estamos</h2>
-        <p class="card-copy">Si quieres ubicar el local antes de reservar, aquí tienes la dirección y el acceso directo al mapa.</p>
+        <h2 id="locationTitle">Dónde estamos</h2>
+        <p class="card-copy" id="locationCopy">Si quieres ubicar el local antes de reservar, aquí tienes la dirección y el acceso directo al mapa.</p>
         <div class="ubicacion-grid">
           <div class="ubicacion-info">
-            <strong>Barber Elite</strong>
-            <div class="ubicacion-direccion">
+            <strong id="locationName">Barber Elite</strong>
+            <div class="ubicacion-direccion" id="locationAddress">
               Av. Miraflores 1702<br />
               Peñaflor, Región Metropolitana
             </div>
             <div class="ubicacion-accion">
               <a
+                id="locationDirectionsLink"
                 class="btn-principal"
                 href="https://www.google.com/maps/search/?api=1&query=Av.+Miraflores+1702,+Pe%C3%B1aflor,+Regi%C3%B3n+Metropolitana"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Cómo llegar
+                <span id="locationDirectionsLabel">Cómo llegar</span>
               </a>
             </div>
           </div>
           <div class="ubicacion-mapa">
             <iframe
+              id="locationMap"
               title="Mapa de Barber Elite"
               src="https://www.google.com/maps?q=Av.+Miraflores+1702,+Pe%C3%B1aflor,+Regi%C3%B3n+Metropolitana&output=embed"
               loading="lazy"
@@ -1003,13 +1005,14 @@
           Esta web pública no expone datos personales ni consulta reservas de otros clientes.
           Las solicitudes de hora quedan en revisión y las cancelaciones se gestionan
           por contacto directo con la barbería en
-          <a href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
+          <a id="brandPrivacyEmailLink" href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
         </div>
       </div>
     </div>
   </section>
 
   <script type="module">
+    import { BRAND_CONFIG, buildGoogleMapsEmbedUrl, buildGoogleMapsSearchUrl } from "./brand-config.mjs";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       createUserWithEmailAndPassword,
@@ -1088,7 +1091,7 @@
     let fechasEspeciales = new Map();
     let misReservas = [];
 
-    const barberoNombre = "Barber Elite";
+    const barberoNombre = BRAND_CONFIG.name;
     const authCard = document.getElementById("authCard");
     const authEmail = document.getElementById("authEmail");
     const authPassword = document.getElementById("authPassword");
@@ -1120,6 +1123,53 @@
     const seccionReservas = document.getElementById("reservas");
     const misReservasActivas = document.getElementById("misReservasActivas");
     const misReservasHistorial = document.getElementById("misReservasHistorial");
+    const heroLabel = document.getElementById("heroLabel");
+    const heroTitle = document.getElementById("heroTitle");
+    const heroSubtitle = document.getElementById("heroSubtitle");
+    const bookingTitle = document.getElementById("bookingTitle");
+    const bookingSubtitle = document.getElementById("bookingSubtitle");
+    const brandPolicyEmailLink = document.getElementById("brandPolicyEmailLink");
+    const brandPrivacyEmailLink = document.getElementById("brandPrivacyEmailLink");
+    const locationTitle = document.getElementById("locationTitle");
+    const locationCopy = document.getElementById("locationCopy");
+    const locationName = document.getElementById("locationName");
+    const locationAddress = document.getElementById("locationAddress");
+    const locationDirectionsLink = document.getElementById("locationDirectionsLink");
+    const locationDirectionsLabel = document.getElementById("locationDirectionsLabel");
+    const locationMap = document.getElementById("locationMap");
+
+    applyBrandConfig();
+
+    function applyBrandConfig() {
+      document.title = BRAND_CONFIG.name;
+      document.documentElement.style.setProperty("--hero-image", `url("${BRAND_CONFIG.heroImageUrl}")`);
+
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon && BRAND_CONFIG.faviconPath) {
+        favicon.href = BRAND_CONFIG.faviconPath;
+      }
+
+      heroLabel.textContent = BRAND_CONFIG.heroLabel;
+      heroTitle.textContent = BRAND_CONFIG.heroTitle;
+      heroSubtitle.textContent = BRAND_CONFIG.heroSubtitle;
+      bookingTitle.textContent = BRAND_CONFIG.bookingTitle;
+      bookingSubtitle.textContent = BRAND_CONFIG.bookingSubtitle;
+
+      for (const link of [brandPolicyEmailLink, brandPrivacyEmailLink]) {
+        if (!link) continue;
+        link.textContent = BRAND_CONFIG.contactEmail;
+        link.href = `mailto:${BRAND_CONFIG.contactEmail}`;
+      }
+
+      locationTitle.textContent = BRAND_CONFIG.locationTitle;
+      locationCopy.textContent = BRAND_CONFIG.locationCopy;
+      locationName.textContent = BRAND_CONFIG.name;
+      locationAddress.innerHTML = BRAND_CONFIG.mapAddressLines.join("<br />");
+      locationDirectionsLink.href = buildGoogleMapsSearchUrl(BRAND_CONFIG.mapAddressText);
+      locationDirectionsLabel.textContent = BRAND_CONFIG.directionsLabel;
+      locationMap.title = `Mapa de ${BRAND_CONFIG.name}`;
+      locationMap.src = buildGoogleMapsEmbedUrl(BRAND_CONFIG.mapAddressText);
+    }
 
     function normalizarTexto(valor) {
       return valor.replace(/\s+/g, " ").trim();

@@ -1,4 +1,5 @@
 import { createPrivateKey, createSign } from "node:crypto";
+import { BRAND_CONFIG } from "../brand-config.mjs";
 
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -212,15 +213,15 @@ async function sendResetEmail(email, resetLink) {
       accessToken: privateKey,
       template_params: {
         to_email: email,
-        email_title: "Recupera tu clave",
+        email_title: `Recupera tu clave - ${BRAND_CONFIG.name}`,
         cliente_nombre: email.split("@")[0],
         cliente_correo: email,
         cliente_telefono: "-",
-        servicio: "Recuperación de acceso",
+        servicio: `Recuperación de acceso a ${BRAND_CONFIG.name}`,
         fecha: "-",
         hora: "-",
         estado: "Pendiente",
-        mensaje: "Recibimos una solicitud para restablecer tu clave. Usa el boton de abajo para continuar.",
+        mensaje: `Recibimos una solicitud para restablecer tu clave de ${BRAND_CONFIG.name}. Usa el botón de abajo para continuar.`,
         nota_interna: resetLink,
         notification_type: "password_reset",
         action_label: "Restablecer clave",

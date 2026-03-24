@@ -1,3 +1,5 @@
+import { BRAND_CONFIG } from "../brand-config.mjs";
+
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
 
 const VALID_NOTIFICATION_TYPES = ["new_request", "customer_received", "customer_status"];
@@ -47,7 +49,7 @@ function validatePayload(payload) {
     return "Tipo de notificacion invalido.";
   }
 
-  if (payload.barbero !== "Barber Elite") {
+  if (payload.barbero !== BRAND_CONFIG.name) {
     return "Barbero invalido.";
   }
 
@@ -101,7 +103,7 @@ function getTemplateParams(payload, barberEmail) {
           ? "Tu solicitud fue confirmada por la barberia."
           : payload.estado === "Cancelada"
             ? "Tu solicitud fue cancelada por la barberia."
-            : "Gracias por su visita. Esperamos verle nuevamente en Barber Elite.";
+            : `Gracias por su visita. Esperamos verle nuevamente en ${BRAND_CONFIG.name}.`;
 
   const titulo =
     payload.notificationType === "new_request"

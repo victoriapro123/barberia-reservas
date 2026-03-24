@@ -222,8 +222,8 @@
     <section id="adminSection" class="hidden">
       <div class="topbar">
         <div class="brand">
-          <h1>Panel de reservas</h1>
-          <p>Gestión privada de reservas de Barber Elite.</p>
+          <h1 id="adminBrandTitle">Panel de reservas</h1>
+          <p id="adminBrandDescription">Gestión privada de reservas de Barber Elite.</p>
         </div>
         <div class="toolbar-actions">
           <span id="adminEmail" class="helper"></span>
@@ -388,6 +388,7 @@
     </section>
   </div>
   <script type="module">
+    import { BRAND_CONFIG } from "./brand-config.mjs";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { deleteDoc, getDoc, getFirestore, collection, doc, getDocs, orderBy, query, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -409,7 +410,7 @@
     const COLECCION_FECHAS_BLOQUEADAS = "agenda_fechas_bloqueadas";
     const COLECCION_FECHAS_ESPECIALES = "agenda_fechas_especiales";
     const ESTADOS_EDITABLES = ["cancelada", "completada"];
-    const ADMIN_EMAILS = ["victoriap.rodriguezs@gmail.com"];
+    const ADMIN_EMAILS = BRAND_CONFIG.adminEmails;
     const WEEKDAY_LABELS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
     const WEEKDAY_KEYS = ["lunes", "martes", "miercoles", "jueves", "viernes"];
     const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
@@ -426,6 +427,8 @@
     const loginStatus = document.getElementById("loginStatus");
     const adminStatus = document.getElementById("adminStatus");
     const adminEmail = document.getElementById("adminEmail");
+    const adminBrandTitle = document.getElementById("adminBrandTitle");
+    const adminBrandDescription = document.getElementById("adminBrandDescription");
     const refreshButton = document.getElementById("refreshButton");
     const logoutButton = document.getElementById("logoutButton");
     const agendaTabButton = document.getElementById("agendaTabButton");
@@ -466,6 +469,20 @@
     const specialNoteInput = document.getElementById("specialNoteInput");
     const addSpecialDateButton = document.getElementById("addSpecialDateButton");
     const specialDatesList = document.getElementById("specialDatesList");
+
+    applyBrandConfig();
+
+    function applyBrandConfig() {
+      document.title = `${BRAND_CONFIG.name} Admin`;
+
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon && BRAND_CONFIG.faviconPath) {
+        favicon.href = BRAND_CONFIG.faviconPath;
+      }
+
+      adminBrandTitle.textContent = BRAND_CONFIG.adminTitle;
+      adminBrandDescription.textContent = BRAND_CONFIG.adminDescription;
+    }
 
     let allRequests = [];
     let currentUser = null;
@@ -673,7 +690,7 @@
         return "";
       }
 
-      const message = `Hola ${item.nombre || ""}, te escribo por tu reserva en Barber Elite para ${item.fecha || ""} a las ${item.hora || ""}.`;
+      const message = `Hola ${item.nombre || ""}, te escribo por tu reserva en ${BRAND_CONFIG.name} para ${item.fecha || ""} a las ${item.hora || ""}.`;
       return `https://wa.me/${digits}?text=${encodeURIComponent(message.trim())}`;
     }
 
