@@ -560,7 +560,6 @@
       width: 62%;
       height: 62%;
       transform: translateX(-50%);
-      mix-blend-mode: multiply;
     }
 
     #basicPreviewPlant {
@@ -569,7 +568,6 @@
       width: 80%;
       height: 64%;
       transform: translateX(-50%);
-      mix-blend-mode: multiply;
     }
 
     .basic-preview[data-plant="suculenta"] #basicPreviewPlant {
@@ -584,6 +582,12 @@
       height: 64%;
     }
 
+    .basic-preview[data-plant="planta3"] #basicPreviewPlant {
+      top: 8%;
+      width: 88%;
+      height: 60%;
+    }
+
     .basic-preview[data-pot="macetero1"] #basicPreviewPot {
       bottom: -2%;
       width: 64%;
@@ -595,6 +599,12 @@
       width: 92%;
       height: 76%;
       transform: translateX(-50%) scale(1.18);
+    }
+
+    .basic-preview[data-pot="macetero3"] #basicPreviewPot {
+      bottom: 1%;
+      width: 66%;
+      height: 64%;
     }
 
     .modal-side {
@@ -1038,22 +1048,26 @@
     const opcionesBasicas = {
       planta: [
         { value: "suculenta", label: "Suculenta" },
-        { value: "violetta", label: "Violetta" }
+        { value: "violetta", label: "Violetta" },
+        { value: "planta3", label: "Planta 3" }
       ],
       macetero: [
         { value: "macetero1", label: "Macetero 1" },
-        { value: "macetero2", label: "Macetero 2" }
+        { value: "macetero2", label: "Macetero 2" },
+        { value: "macetero3", label: "Macetero 3" }
       ]
     };
 
     const previewImages = {
       plantas: {
         suculenta: "/images/suculenta.png",
-        violetta: "/images/violetta.png"
+        violetta: "/images/violetta.png",
+        planta3: "/images/planta3.png"
       },
       maceteros: {
         macetero1: "/images/macetero1.png",
-        macetero2: "/images/macetero2.png"
+        macetero2: "/images/macetero2.png",
+        macetero3: "/images/macetero3.png"
       }
     };
 
