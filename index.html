@@ -253,9 +253,11 @@
       display: grid;
       align-items: center;
       background:
-        radial-gradient(circle at top right, rgba(111, 159, 104, 0.24), transparent 34%),
-        rgba(251, 250, 245, 0.92);
-      backdrop-filter: blur(18px);
+        linear-gradient(180deg, rgba(5, 20, 18, 0.88), rgba(7, 25, 22, 0.96)),
+        url("/assets/flor-de-loto-portada.png");
+      background-size: cover;
+      background-position: center;
+      backdrop-filter: blur(12px);
       opacity: 0;
       pointer-events: none;
       transform: translateY(14px) scale(0.985);
@@ -272,24 +274,25 @@
     .container {
       width: min(1120px, 100%);
       margin: 0 auto;
+      color: #fff8d8;
     }
 
     .section-head {
       display: grid;
-      gap: 10px;
+      gap: 12px;
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 30px;
       position: relative;
     }
 
     .cerrar-ofertas {
       justify-self: center;
       min-height: 42px;
-      padding: 0 16px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.76);
-      border: 1px solid var(--border);
-      color: var(--accent-dark);
+      padding: 0 18px;
+      border-radius: 2px;
+      background: rgba(255, 248, 216, 0.08);
+      border: 1px solid rgba(255, 248, 216, 0.24);
+      color: rgba(255, 248, 216, 0.88);
       font-weight: 900;
       cursor: pointer;
       transition: transform 0.2s ease, opacity 0.2s ease;
@@ -301,9 +304,9 @@
     }
 
     .section-head span {
-      color: var(--accent-dark);
+      color: rgba(242, 223, 130, 0.88);
       font-weight: 900;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       font-size: 0.84rem;
     }
@@ -312,10 +315,12 @@
       font-size: clamp(2.1rem, 5vw, 4rem);
       line-height: 1;
       letter-spacing: -0.045em;
+      color: #fff8d8;
+      text-shadow: 0 12px 38px rgba(0, 0, 0, 0.42);
     }
 
     .section-head p {
-      color: var(--muted);
+      color: rgba(255, 248, 216, 0.72);
       max-width: 680px;
       line-height: 1.65;
       margin: 0 auto;
@@ -324,19 +329,21 @@
     .packs-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
+      gap: 18px;
     }
 
     .pack-card {
       display: grid;
-      gap: 18px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 16px;
-      box-shadow: 0 20px 50px rgba(55, 81, 45, 0.1);
+      grid-template-rows: auto 1fr;
+      gap: 0;
+      background: rgba(255, 250, 240, 0.92);
+      border: 1px solid rgba(255, 248, 216, 0.24);
+      border-radius: 2px;
+      padding: 0;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
       transform: translateY(0);
-      transition: transform 0.24s ease, box-shadow 0.24s ease;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
       animation: aparecer 0.7s ease both;
     }
 
@@ -349,22 +356,25 @@
     }
 
     .pack-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 26px 62px rgba(55, 81, 45, 0.15);
+      transform: translateY(-4px);
+      border-color: rgba(242, 223, 130, 0.36);
+      box-shadow: 0 22px 52px rgba(0, 0, 0, 0.23);
     }
 
     .pack-img {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      height: 240px;
       object-fit: cover;
-      border-radius: 24px;
-      background: var(--accent-soft);
+      border-radius: 0;
+      background: #dfe8d5;
+      filter: saturate(0.88) contrast(0.98);
     }
 
     .pack-body {
       display: grid;
-      gap: 10px;
-      padding: 0 4px 4px;
+      gap: 14px;
+      align-content: start;
+      padding: 22px;
     }
 
     .pack-top {
@@ -372,23 +382,43 @@
       justify-content: space-between;
       gap: 12px;
       align-items: flex-start;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(23, 63, 49, 0.14);
     }
 
     .pack-top h3 {
-      font-size: 1.45rem;
-      letter-spacing: -0.02em;
+      font-size: 1.38rem;
+      letter-spacing: -0.03em;
+      color: #10231e;
     }
 
     .precio {
-      color: var(--accent-dark);
-      font-size: 1.18rem;
+      color: #315743;
+      font-size: 1.05rem;
       font-weight: 950;
       white-space: nowrap;
+      letter-spacing: 0.01em;
     }
 
     .pack-body p {
-      color: var(--muted);
-      line-height: 1.55;
+      color: #556457;
+      line-height: 1.62;
+      font-size: 0.98rem;
+    }
+
+    .pack-card .btn-principal {
+      width: 100%;
+      min-height: 50px;
+      border-radius: 2px;
+      background: #173f31;
+      color: #fff8d8;
+      box-shadow: none;
+      border: 1px solid rgba(23, 63, 49, 0.12);
+    }
+
+    .pack-card .btn-principal:hover {
+      background: #0d2b24;
+      box-shadow: none;
     }
 
     .modal {
@@ -397,7 +427,7 @@
       z-index: 20;
       display: none;
       padding: 18px;
-      background: rgba(20, 34, 22, 0.52);
+      background: rgba(5, 20, 18, 0.68);
       backdrop-filter: blur(10px);
       overflow-y: auto;
     }
@@ -412,10 +442,10 @@
       width: min(1040px, 100%);
       max-height: calc(100vh - 36px);
       overflow-y: auto;
-      background: #ffffff;
-      border-radius: 32px;
-      box-shadow: 0 30px 90px rgba(10, 28, 15, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.86);
+      background: #fffaf0;
+      border-radius: 2px;
+      box-shadow: 0 30px 90px rgba(0, 12, 10, 0.36);
+      border: 1px solid rgba(255, 248, 216, 0.34);
     }
 
     .modal-head {
@@ -427,7 +457,7 @@
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 250, 240, 0.94);
       backdrop-filter: blur(12px);
       z-index: 2;
     }
@@ -440,8 +470,8 @@
     .cerrar-modal {
       width: 44px;
       height: 44px;
-      border-radius: 999px;
-      background: var(--panel-soft);
+      border-radius: 2px;
+      background: #edf2e2;
       color: var(--text);
       cursor: pointer;
       font-size: 1.4rem;
@@ -458,7 +488,7 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       object-fit: cover;
-      border-radius: 28px;
+      border-radius: 2px;
       background: var(--accent-soft);
       position: sticky;
       top: 92px;
@@ -476,7 +506,7 @@
       align-items: center;
       background: var(--panel-soft);
       border: 1px solid var(--border);
-      border-radius: 22px;
+      border-radius: 2px;
       padding: 16px;
     }
 
@@ -496,7 +526,7 @@
       gap: 10px;
       background: #fffdf8;
       border: 1px solid var(--border);
-      border-radius: 22px;
+      border-radius: 2px;
       padding: 16px;
     }
 
@@ -529,7 +559,7 @@
       justify-content: center;
       text-align: center;
       padding: 10px 12px;
-      border-radius: 16px;
+      border-radius: 2px;
       background: #ffffff;
       border: 1px solid rgba(63, 110, 59, 0.18);
       color: var(--text);
@@ -550,7 +580,7 @@
       gap: 14px;
       background: var(--panel-soft);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 2px;
       padding: 18px;
       animation: aparecer 0.3s ease both;
     }
@@ -569,7 +599,7 @@
     .form-grid textarea {
       width: 100%;
       border: 1px solid rgba(63, 110, 59, 0.18);
-      border-radius: 16px;
+      border-radius: 2px;
       background: #ffffff;
       color: var(--text);
       min-height: 52px;
@@ -609,9 +639,21 @@
       color: var(--muted);
       line-height: 1.55;
       background: #ffffff;
-      border-radius: 18px;
+      border-radius: 2px;
       padding: 14px;
       border: 1px solid rgba(63, 110, 59, 0.12);
+    }
+
+    .modal .btn-principal {
+      border-radius: 2px;
+      background: #173f31;
+      color: #fff8d8;
+      box-shadow: none;
+    }
+
+    .modal .btn-principal:hover {
+      background: #0d2b24;
+      box-shadow: none;
     }
 
     @keyframes aparecer {
@@ -676,9 +718,12 @@
         background-position: center;
       }
 
-      .hero-card,
-      .modal-card {
+      .hero-card {
         border-radius: 24px;
+      }
+
+      .modal-card {
+        border-radius: 2px;
       }
 
       .hero-card {
