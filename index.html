@@ -8,17 +8,17 @@
 
   <style>
     :root {
-      --bg: #fbfaf5;
-      --panel: #ffffff;
-      --panel-soft: #f3f7ef;
-      --text: #223425;
-      --muted: #63705d;
-      --accent: #6f9f68;
-      --accent-dark: #3f6e3b;
-      --accent-soft: #e6f0dd;
-      --cream: #fff7e8;
-      --border: rgba(60, 91, 54, 0.14);
-      --shadow: 0 24px 70px rgba(55, 81, 45, 0.14);
+      --bg: #061715;
+      --panel: #fffaf0;
+      --panel-soft: #eef4df;
+      --text: #10231e;
+      --muted: #607568;
+      --accent: #d9c463;
+      --accent-dark: #173f31;
+      --accent-soft: #e9efd4;
+      --cream: #fff6d7;
+      --border: rgba(217, 196, 99, 0.22);
+      --shadow: 0 24px 70px rgba(0, 18, 14, 0.32);
       --danger: #a84141;
       --success: #2f7d4a;
     }
@@ -35,10 +35,8 @@
       height: 100vh;
       height: 100svh;
       overflow: hidden;
-      background:
-        radial-gradient(circle at top left, rgba(156, 195, 120, 0.28), transparent 30%),
-        linear-gradient(180deg, #fffdf7 0%, #f3f8ee 48%, #fbfaf5 100%);
-      color: var(--text);
+      background: var(--bg);
+      color: #fff8d8;
       font-family: "Segoe UI", "Trebuchet MS", sans-serif;
     }
 
@@ -74,53 +72,51 @@
       height: 100vh;
       height: 100svh;
       display: grid;
-      place-items: center;
-      padding: 28px 18px;
+      place-items: stretch;
+      padding: 0;
       position: relative;
       overflow: hidden;
-    }
-
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(2px);
-      opacity: 0.65;
-      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(0, 18, 17, 0.74) 0%, rgba(0, 20, 17, 0.18) 38%, rgba(0, 14, 13, 0.24) 58%, rgba(0, 10, 9, 0.76) 100%),
+        url("/assets/flor-de-loto-portada.png");
+      background-size: cover;
+      background-position: center;
     }
 
     .hero::before {
-      width: 360px;
-      height: 360px;
-      right: -130px;
-      top: 8%;
-      background: rgba(170, 205, 139, 0.36);
-    }
-
-    .hero::after {
-      width: 260px;
-      height: 260px;
-      left: -90px;
-      bottom: 8%;
-      background: rgba(243, 207, 161, 0.38);
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 39%, rgba(243, 222, 113, 0.22), transparent 18%),
+        radial-gradient(circle at 50% 100%, rgba(9, 25, 22, 0.7), transparent 44%);
+      pointer-events: none;
     }
 
     .hero-card {
-      width: min(980px, 100%);
+      width: 100%;
+      height: 100%;
       display: grid;
-      gap: 24px;
+      grid-template-rows: 1fr auto 1fr;
+      gap: 0;
       justify-items: center;
       text-align: center;
       position: relative;
       z-index: 1;
-      background: rgba(255, 255, 255, 0.70);
-      border: 1px solid rgba(255, 255, 255, 0.86);
-      border-radius: 36px;
-      padding: clamp(22px, 4vw, 42px);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: clamp(28px, 5vw, 58px) 18px;
+      box-shadow: none;
+      backdrop-filter: none;
       animation: aparecer 0.7s ease both;
+    }
+
+    .hero-card > div:first-child {
+      align-self: start;
+      display: grid;
+      justify-items: center;
+      padding-top: clamp(14px, 5vh, 42px);
     }
 
     .hero-etiqueta {
@@ -128,30 +124,34 @@
       width: fit-content;
       padding: 9px 14px;
       border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent-dark);
+      background: rgba(255, 248, 216, 0.13);
+      color: #f8e998;
+      border: 1px solid rgba(248, 233, 152, 0.26);
+      backdrop-filter: blur(10px);
       font-size: 0.86rem;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     h1 {
-      font-size: clamp(3rem, 8vw, 6.6rem);
-      line-height: 0.92;
-      letter-spacing: -0.06em;
-      margin-bottom: 18px;
-      color: #21351f;
+      font-size: clamp(3rem, 9vw, 7.4rem);
+      line-height: 0.9;
+      letter-spacing: -0.07em;
+      margin-bottom: 14px;
+      color: #fff8d8;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.58);
       text-wrap: balance;
     }
 
     .hero-copy {
-      color: var(--muted);
-      font-size: clamp(1.05rem, 2vw, 1.24rem);
-      line-height: 1.65;
-      max-width: 620px;
-      margin: 0 auto 26px;
+      color: rgba(255, 248, 216, 0.86);
+      font-size: clamp(1rem, 1.9vw, 1.18rem);
+      line-height: 1.55;
+      max-width: 680px;
+      margin: 0 auto;
+      text-shadow: 0 6px 26px rgba(0, 0, 0, 0.54);
     }
 
     .hero-actions {
@@ -160,6 +160,8 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
+      align-self: end;
+      padding-bottom: clamp(24px, 6vh, 64px);
     }
 
     .btn-principal,
@@ -178,15 +180,16 @@
     }
 
     .btn-principal {
-      background: linear-gradient(135deg, #7fb36e, #416f3a);
-      color: #ffffff;
-      box-shadow: 0 18px 34px rgba(68, 112, 57, 0.24);
+      background: linear-gradient(135deg, #f2df82, #b59b3f);
+      color: #061715;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
     }
 
     .hero .btn-principal {
-      min-height: 64px;
-      padding: 0 34px;
-      font-size: 1.08rem;
+      min-height: 68px;
+      padding: 0 38px;
+      font-size: 1.12rem;
+      border: 1px solid rgba(255, 248, 216, 0.42);
     }
 
     .btn-secundario {
@@ -198,7 +201,7 @@
     .btn-principal:hover,
     .btn-secundario:hover {
       transform: translateY(-2px);
-      box-shadow: 0 20px 40px rgba(68, 112, 57, 0.16);
+      box-shadow: 0 24px 44px rgba(0, 0, 0, 0.38);
     }
 
     .hero-visual {
@@ -207,26 +210,15 @@
       display: grid;
       place-items: center;
       order: -1;
+      align-self: center;
     }
 
     .hero-visual::before {
-      content: "";
-      position: absolute;
-      inset: 8%;
-      border-radius: 42% 58% 48% 52%;
-      background: linear-gradient(145deg, #dceecd, #f8eed9);
-      box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.55);
-      animation: flotar 8s ease-in-out infinite;
+      display: none;
     }
 
     .hero-visual img {
-      width: min(520px, 86vw);
-      height: min(320px, 42vh);
-      object-fit: cover;
-      border-radius: 34px;
-      position: relative;
-      box-shadow: 0 28px 70px rgba(47, 91, 45, 0.24);
-      transform: none;
+      display: none;
     }
 
     .mini-card {
@@ -665,7 +657,7 @@
       }
 
       .hero-visual img {
-        height: min(72vw, 420px);
+        display: none;
       }
 
       .mini-card,
@@ -680,7 +672,8 @@
 
     @media (max-width: 560px) {
       .hero {
-        padding: 12px;
+        padding: 0;
+        background-position: center;
       }
 
       .hero-card,
@@ -689,13 +682,12 @@
       }
 
       .hero-card {
-        max-height: calc(100svh - 24px);
-        gap: 14px;
-        padding: 18px;
+        max-height: none;
+        padding: 22px 14px;
       }
 
       h1 {
-        font-size: clamp(2.45rem, 13vw, 3.65rem);
+        font-size: clamp(2.8rem, 14vw, 4.4rem);
         margin-bottom: 12px;
       }
 
@@ -704,18 +696,17 @@
       }
 
       .hero-copy {
-        font-size: 0.98rem;
-        line-height: 1.5;
-        margin-bottom: 18px;
+        font-size: 0.95rem;
+        line-height: 1.45;
+        max-width: 340px;
       }
 
       .hero-visual img {
-        height: min(38vh, 280px);
-        border-radius: 24px;
+        display: none;
       }
 
       .hero .btn-principal {
-        min-height: 58px;
+        min-height: 62px;
       }
 
       .hero-actions,
