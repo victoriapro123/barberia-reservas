@@ -507,6 +507,14 @@
       background: var(--accent-soft);
       position: sticky;
       top: 92px;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.24s ease, transform 0.24s ease;
+    }
+
+    .modal-image.cambiando {
+      opacity: 0.18;
+      transform: scale(0.985);
     }
 
     .modal-side {
@@ -941,6 +949,28 @@
       chocolate: ["Bombones", "Chocolate artesanal", "Trufas", "Sin chocolate"]
     };
 
+    const opcionesBasicas = {
+      planta: [
+        { value: "planta1", label: "Planta 1" },
+        { value: "planta2", label: "Planta 2" }
+      ],
+      macetero: [
+        { value: "macetero1", label: "Macetero 1" },
+        { value: "macetero2", label: "Macetero 2" }
+      ]
+    };
+
+    const previewImages = {
+      planta1: {
+        macetero1: "/images/planta1-macetero1.png",
+        macetero2: "/images/planta1-macetero2.png"
+      },
+      planta2: {
+        macetero1: "/images/planta2-macetero1.png",
+        macetero2: "/images/planta2-macetero2.png"
+      }
+    };
+
     const packsGrid = document.getElementById("packsGrid");
     const ofertasPanel = document.getElementById("ofertas");
     const btnVerPromocion = document.getElementById("btnVerPromocion");
@@ -964,6 +994,8 @@
     const observaciones = document.getElementById("observaciones");
 
     let packSeleccionado = null;
+    let selectedPlant = "planta1";
+    let selectedPot = "macetero1";
 
     document.title = BRAND_CONFIG.name;
     renderPacks();
@@ -1027,20 +1059,31 @@
     }
 
     function renderOpciones() {
-      renderGrupo("opcionesPlanta", "planta", opciones.planta);
-      renderGrupo("opcionesMacetero", "macetero", opciones.macetero);
+      if (packSeleccionado?.id === "basico") {
+        renderGrupo("opcionesPlanta", "planta", opcionesBasicas.planta);
+        renderGrupo("opcionesMacetero", "macetero", opcionesBasicas.macetero);
+      } else {
+        renderGrupo("opcionesPlanta", "planta", opciones.planta);
+        renderGrupo("opcionesMacetero", "macetero", opciones.macetero);
+      }
+
       renderGrupo("opcionesGlobo", "globo", opciones.globo);
       renderGrupo("opcionesChocolate", "chocolate", opciones.chocolate);
     }
 
     function renderGrupo(containerId, name, values) {
       const container = document.getElementById(containerId);
-      container.innerHTML = values.map((value, index) => `
+      container.innerHTML = values.map((option, index) => {
+        const value = typeof option === "string" ? option : option.value;
+        const label = typeof option === "string" ? option : option.label;
+
+        return `
         <label class="radio-option">
-          <input type="checkbox" name="${name}" value="${value}" ${index === 0 ? "checked" : ""} />
-          <span>${value}</span>
+          <input type="checkbox" name="${name}" value="${value}" data-label="${label}" ${index === 0 ? "checked" : ""} />
+          <span>${label}</span>
         </label>
-      `).join("");
+      `;
+      }).join("");
     }
 
     function abrirPack(packId) {
@@ -1048,7 +1091,10 @@
       if (!packSeleccionado) return;
 
       modalTitulo.textContent = `Personaliza el pack ${packSeleccionado.nombre}`;
-      modalImagen.src = packSeleccionado.imagen;
+      selectedPlant = "planta1";
+      selectedPot = "macetero1";
+      renderOpciones();
+      modalImagen.src = getCurrentPreview();
       modalImagen.alt = `Pack ${packSeleccionado.nombre}`;
       modalPackNombre.textContent = `Pack ${packSeleccionado.nombre}`;
       modalPackDescripcion.textContent = packSeleccionado.descripcion;
@@ -1072,6 +1118,11 @@
       return document.querySelector(`input[name="${name}"]:checked`)?.value || "";
     }
 
+    function getSeleccionLabel(name) {
+      const input = document.querySelector(`input[name="${name}"]:checked`);
+      return input?.dataset.label || input?.value || "";
+    }
+
     function manejarCambioOpciones(event) {
       const input = event.target;
 
@@ -1087,16 +1138,48 @@
         }
       }
 
+      if (packSeleccionado?.id === "basico" && input.matches('input[name="planta"], input[name="macetero"]')) {
+        selectedPlant = getSeleccion("planta") || "planta1";
+        selectedPot = getSeleccion("macetero") || "macetero1";
+        updateBasicPreview();
+      }
+
       actualizarResumen();
     }
 
     function getPersonalizacion() {
       return {
-        planta: getSeleccion("planta"),
-        macetero: getSeleccion("macetero"),
-        globo: getSeleccion("globo"),
-        chocolate: getSeleccion("chocolate")
+        planta: getSeleccionLabel("planta"),
+        macetero: getSeleccionLabel("macetero"),
+        globo: getSeleccionLabel("globo"),
+        chocolate: getSeleccionLabel("chocolate")
       };
+    }
+
+    function getCurrentPreview() {
+      if (packSeleccionado?.id !== "basico") {
+        return packSeleccionado?.imagen || "";
+      }
+
+      return previewImages[selectedPlant]?.[selectedPot] || previewImages.planta1.macetero1;
+    }
+
+    function updateBasicPreview() {
+      if (packSeleccionado?.id !== "basico") return;
+
+      const currentPreview = getCurrentPreview();
+      if (!currentPreview || modalImagen.src.endsWith(currentPreview)) return;
+
+      const nextImage = new Image();
+      nextImage.onload = () => {
+        modalImagen.classList.add("cambiando");
+
+        window.setTimeout(() => {
+          modalImagen.src = currentPreview;
+          modalImagen.classList.remove("cambiando");
+        }, 120);
+      };
+      nextImage.src = currentPreview;
     }
 
     function actualizarResumen() {
