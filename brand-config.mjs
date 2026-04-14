@@ -7,7 +7,7 @@ export const BRAND_CONFIG = {
   bookingSubtitle: "Elige un pack, personalízalo y envía tu pedido en pocos pasos.",
   contactEmail: "victoriap.rodriguezs@gmail.com",
   heroImageUrl: "/assets/flor-de-loto-portada.png",
-  faviconPath: "/favicon.svg",
+  faviconPath: "/assets/flor-de-loto-portada.png",
   mapAddressText: "Av. Miraflores 1702, Peñaflor, Región Metropolitana",
   mapAddressLines: ["Av. Miraflores 1702", "Peñaflor, Región Metropolitana"],
   locationTitle: "Dónde estamos",

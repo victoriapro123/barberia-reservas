@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/assets/flor-de-loto-portada.png" type="image/png" />
   <title>Jardín Flor de Loto</title>
 
   <style>
@@ -112,11 +112,19 @@
       animation: aparecer 0.7s ease both;
     }
 
-    .hero-card > div:first-child {
+    .hero-intro {
       align-self: start;
       display: grid;
       justify-items: center;
       padding-top: 0;
+    }
+
+    .hero-cta {
+      align-self: end;
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+      padding-bottom: clamp(0px, 0.8vh, 10px);
     }
 
     .hero-etiqueta {
@@ -160,8 +168,6 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      align-self: end;
-      padding-bottom: clamp(0px, 0.8vh, 10px);
     }
 
     .btn-principal,
@@ -751,6 +757,11 @@
         max-width: 340px;
       }
 
+      .hero-cta {
+        gap: 14px;
+        padding-bottom: 0;
+      }
+
       .hero-visual img {
         display: none;
       }
@@ -790,15 +801,8 @@
   <main>
     <section class="hero" aria-label="Portada">
       <div class="hero-card">
-        <div>
+        <div class="hero-intro">
           <h1>Jardín Flor de Loto</h1>
-          <p class="hero-copy">
-            Packs naturales, delicados y listos para regalar. Elige una propuesta,
-            personalízala en segundos y agenda la entrega.
-          </p>
-          <div class="hero-actions">
-            <button type="button" class="btn-principal" id="btnVerPromocion">Ver Promoción</button>
-          </div>
         </div>
 
         <div class="hero-visual" aria-hidden="true">
@@ -809,6 +813,16 @@
           <div class="mini-card">
             <strong>Regalos con vida</strong>
             <span>Plantas, maceteros y detalles para entregar un gesto memorable.</span>
+          </div>
+        </div>
+
+        <div class="hero-cta">
+          <p class="hero-copy">
+            Packs naturales, delicados y listos para regalar. Elige una propuesta,
+            personalízala en segundos y agenda la entrega.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="btn-principal" id="btnVerPromocion">Ver Promoción</button>
           </div>
         </div>
       </div>
