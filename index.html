@@ -499,14 +499,20 @@
       padding: 22px;
     }
 
-    .modal-image {
+    .modal-preview {
       width: 100%;
       aspect-ratio: 1 / 1;
-      object-fit: cover;
       border-radius: 2px;
       background: var(--accent-soft);
       position: sticky;
       top: 92px;
+      overflow: hidden;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       opacity: 1;
       transform: scale(1);
       transition: opacity 0.24s ease, transform 0.24s ease;
@@ -515,6 +521,34 @@
     .modal-image.cambiando {
       opacity: 0.18;
       transform: scale(0.985);
+    }
+
+    .basic-preview {
+      display: none;
+      width: 100%;
+      height: 100%;
+      grid-template-columns: 1fr 1fr;
+      background: #030303;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.24s ease, transform 0.24s ease;
+    }
+
+    .basic-preview.visible {
+      display: grid;
+    }
+
+    .basic-preview.cambiando {
+      opacity: 0.18;
+      transform: scale(0.985);
+    }
+
+    .basic-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: clamp(10px, 2vw, 22px);
+      background: #030303;
     }
 
     .modal-side {
@@ -726,7 +760,7 @@
       }
 
       .mini-card,
-      .modal-image {
+      .modal-preview {
         position: static;
       }
 
@@ -862,7 +896,13 @@
       </div>
 
       <div class="modal-content">
-        <img class="modal-image" id="modalImagen" src="" alt="" />
+        <div class="modal-preview">
+          <img class="modal-image" id="modalImagen" src="" alt="" />
+          <div class="basic-preview" id="basicPreview" aria-label="Preview del pack básico">
+            <img id="basicPreviewPlant" src="" alt="" />
+            <img id="basicPreviewPot" src="" alt="" />
+          </div>
+        </div>
 
         <div class="modal-side">
           <div class="pack-resumen">
@@ -924,7 +964,7 @@
         nombre: "Básico",
         precio: "$14.990",
         descripcion: "Un detalle natural, lindo y accesible para sorprender sin complicarse.",
-        imagen: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85"
+        imagen: "/images/suculenta.png"
       },
       {
         id: "intermedio",
@@ -951,8 +991,8 @@
 
     const opcionesBasicas = {
       planta: [
-        { value: "planta1", label: "Planta 1" },
-        { value: "planta2", label: "Planta 2" }
+        { value: "suculenta", label: "Suculenta" },
+        { value: "violetta", label: "Violetta" }
       ],
       macetero: [
         { value: "macetero1", label: "Macetero 1" },
@@ -961,13 +1001,13 @@
     };
 
     const previewImages = {
-      planta1: {
-        macetero1: "/images/planta1-macetero1.png",
-        macetero2: "/images/planta1-macetero2.png"
+      plantas: {
+        suculenta: "/images/suculenta.png",
+        violetta: "/images/violetta.png"
       },
-      planta2: {
-        macetero1: "/images/planta2-macetero1.png",
-        macetero2: "/images/planta2-macetero2.png"
+      maceteros: {
+        macetero1: "/images/macetero1.png",
+        macetero2: "/images/macetero2.png"
       }
     };
 
@@ -979,6 +1019,9 @@
     const btnCerrarModal = document.getElementById("btnCerrarModal");
     const modalTitulo = document.getElementById("modalTitulo");
     const modalImagen = document.getElementById("modalImagen");
+    const basicPreview = document.getElementById("basicPreview");
+    const basicPreviewPlant = document.getElementById("basicPreviewPlant");
+    const basicPreviewPot = document.getElementById("basicPreviewPot");
     const modalPackNombre = document.getElementById("modalPackNombre");
     const modalPackDescripcion = document.getElementById("modalPackDescripcion");
     const modalPackPrecio = document.getElementById("modalPackPrecio");
@@ -994,7 +1037,7 @@
     const observaciones = document.getElementById("observaciones");
 
     let packSeleccionado = null;
-    let selectedPlant = "planta1";
+    let selectedPlant = "suculenta";
     let selectedPot = "macetero1";
 
     document.title = BRAND_CONFIG.name;
@@ -1091,10 +1134,10 @@
       if (!packSeleccionado) return;
 
       modalTitulo.textContent = `Personaliza el pack ${packSeleccionado.nombre}`;
-      selectedPlant = "planta1";
+      selectedPlant = "suculenta";
       selectedPot = "macetero1";
       renderOpciones();
-      modalImagen.src = getCurrentPreview();
+      setPreviewMode();
       modalImagen.alt = `Pack ${packSeleccionado.nombre}`;
       modalPackNombre.textContent = `Pack ${packSeleccionado.nombre}`;
       modalPackDescripcion.textContent = packSeleccionado.descripcion;
@@ -1139,7 +1182,7 @@
       }
 
       if (packSeleccionado?.id === "basico" && input.matches('input[name="planta"], input[name="macetero"]')) {
-        selectedPlant = getSeleccion("planta") || "planta1";
+        selectedPlant = getSeleccion("planta") || "suculenta";
         selectedPot = getSeleccion("macetero") || "macetero1";
         updateBasicPreview();
       }
@@ -1156,30 +1199,41 @@
       };
     }
 
-    function getCurrentPreview() {
-      if (packSeleccionado?.id !== "basico") {
-        return packSeleccionado?.imagen || "";
+    function setPreviewMode() {
+      if (packSeleccionado?.id === "basico") {
+        modalImagen.style.display = "none";
+        basicPreview.classList.add("visible");
+        updateBasicPreview(true);
+        return;
       }
 
-      return previewImages[selectedPlant]?.[selectedPot] || previewImages.planta1.macetero1;
+      basicPreview.classList.remove("visible");
+      modalImagen.style.display = "block";
+      modalImagen.src = packSeleccionado?.imagen || "";
     }
 
-    function updateBasicPreview() {
+    function updateBasicPreview(skipAnimation = false) {
       if (packSeleccionado?.id !== "basico") return;
 
-      const currentPreview = getCurrentPreview();
-      if (!currentPreview || modalImagen.src.endsWith(currentPreview)) return;
-
-      const nextImage = new Image();
-      nextImage.onload = () => {
-        modalImagen.classList.add("cambiando");
-
-        window.setTimeout(() => {
-          modalImagen.src = currentPreview;
-          modalImagen.classList.remove("cambiando");
-        }, 120);
+      const plantPreview = previewImages.plantas[selectedPlant] || previewImages.plantas.suculenta;
+      const potPreview = previewImages.maceteros[selectedPot] || previewImages.maceteros.macetero1;
+      const applyPreview = () => {
+        basicPreviewPlant.src = plantPreview;
+        basicPreviewPlant.alt = getSeleccionLabel("planta");
+        basicPreviewPot.src = potPreview;
+        basicPreviewPot.alt = getSeleccionLabel("macetero");
       };
-      nextImage.src = currentPreview;
+
+      if (skipAnimation) {
+        applyPreview();
+        return;
+      }
+
+      basicPreview.classList.add("cambiando");
+      window.setTimeout(() => {
+        applyPreview();
+        basicPreview.classList.remove("cambiando");
+      }, 120);
     }
 
     function actualizarResumen() {
