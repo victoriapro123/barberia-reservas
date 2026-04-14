@@ -117,6 +117,7 @@
       display: grid;
       justify-items: center;
       padding-top: 0;
+      transform: translateY(clamp(-22px, -2.8vh, -10px));
     }
 
     .hero-cta {
@@ -744,6 +745,10 @@
         max-height: none;
         padding: 22px 14px;
         grid-template-rows: minmax(84px, 0.48fr) auto minmax(250px, 1.52fr);
+      }
+
+      .hero-intro {
+        transform: translateY(-14px);
       }
 
       h1 {
