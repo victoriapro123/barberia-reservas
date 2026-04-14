@@ -4,20 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <title>Barber Elite</title>
+  <title>Jardín Flor de Loto</title>
 
   <style>
     :root {
-      --bg: #080808;
-      --panel: #131313;
-      --panel-soft: #181818;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(199, 168, 107, 0.34);
-      --text: #f5f1ea;
-      --muted: #b5aea1;
-      --accent: #c7a86b;
-      --accent-soft: rgba(199, 168, 107, 0.18);
-      --shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+      --bg: #fbfaf5;
+      --panel: #ffffff;
+      --panel-soft: #f3f7ef;
+      --text: #223425;
+      --muted: #63705d;
+      --accent: #6f9f68;
+      --accent-dark: #3f6e3b;
+      --accent-soft: #e6f0dd;
+      --cream: #fff7e8;
+      --border: rgba(60, 91, 54, 0.14);
+      --shadow: 0 24px 70px rgba(55, 81, 45, 0.14);
+      --danger: #a84141;
+      --success: #2f7d4a;
     }
 
     * {
@@ -30,2142 +33,1041 @@
     body {
       min-height: 100vh;
       background:
-        radial-gradient(circle at top, rgba(199, 168, 107, 0.12), transparent 26%),
-        linear-gradient(180deg, #050505 0%, #090909 24%, #0c0c0c 100%);
+        radial-gradient(circle at top left, rgba(156, 195, 120, 0.28), transparent 30%),
+        linear-gradient(180deg, #fffdf7 0%, #f3f8ee 48%, #fbfaf5 100%);
       color: var(--text);
       font-family: "Segoe UI", "Trebuchet MS", sans-serif;
     }
 
+    body.modal-abierto {
+      overflow: hidden;
+    }
+
     button,
     input,
-    select {
+    select,
+    textarea {
       font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
     }
 
     .hero {
       min-height: 100vh;
-      background:
-        linear-gradient(rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.76)),
-        var(--hero-image, url("https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?auto=format&fit=crop&w=1400&q=80"));
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 36px 20px;
+      display: grid;
+      place-items: center;
+      padding: 28px 18px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .hero-contenido {
-      max-width: 820px;
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 360px;
+      height: 360px;
+      right: -130px;
+      top: 8%;
+      background: rgba(170, 205, 139, 0.36);
+    }
+
+    .hero::after {
+      width: 260px;
+      height: 260px;
+      left: -90px;
+      bottom: 8%;
+      background: rgba(243, 207, 161, 0.38);
+    }
+
+    .hero-card {
+      width: min(1120px, 100%);
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 34px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      border-radius: 36px;
+      padding: clamp(22px, 4vw, 44px);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      animation: aparecer 0.7s ease both;
     }
 
     .hero-etiqueta {
       display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(8, 8, 8, 0.45);
-      backdrop-filter: blur(12px);
+      width: fit-content;
+      padding: 9px 14px;
       border-radius: 999px;
-      padding: 10px 16px;
-      color: #e9ddc0;
-      font-size: 0.9rem;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 0.86rem;
+      font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-bottom: 18px;
     }
 
-    .hero-titulo {
-      font-size: clamp(3rem, 8vw, 5.2rem);
-      line-height: 0.95;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      margin-bottom: 16px;
+    h1 {
+      font-size: clamp(3rem, 8vw, 6.6rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      margin-bottom: 18px;
+      color: #21351f;
       text-wrap: balance;
     }
 
-    .hero-subtitulo {
-      max-width: 680px;
-      margin: 0 auto 30px;
-      color: #e7e1d5;
-      font-size: 1.12rem;
+    .hero-copy {
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.24rem);
       line-height: 1.65;
+      max-width: 640px;
+      margin-bottom: 28px;
     }
 
-    .hero-btn {
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-principal,
+    .btn-secundario {
+      min-height: 54px;
+      padding: 0 22px;
+      border-radius: 999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 54px;
-      padding: 0 28px;
-      border: none;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #d5b987, #b89451);
-      color: #0d0d0d;
-      text-decoration: none;
-      font-weight: 700;
+      gap: 10px;
       cursor: pointer;
-      box-shadow: 0 16px 30px rgba(172, 133, 64, 0.22);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 900;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
-    .hero-btn:hover {
+    .btn-principal {
+      background: linear-gradient(135deg, #7fb36e, #416f3a);
+      color: #ffffff;
+      box-shadow: 0 18px 34px rgba(68, 112, 57, 0.24);
+    }
+
+    .btn-secundario {
+      background: #ffffff;
+      color: var(--accent-dark);
+      border: 1px solid var(--border);
+    }
+
+    .btn-principal:hover,
+    .btn-secundario:hover {
       transform: translateY(-2px);
-      box-shadow: 0 22px 36px rgba(172, 133, 64, 0.28);
+      box-shadow: 0 20px 40px rgba(68, 112, 57, 0.16);
     }
 
-    .seccion-reservas {
-      padding: 44px 20px 64px;
+    .hero-visual {
+      position: relative;
+      min-height: 480px;
+      display: grid;
+      place-items: center;
     }
 
-    .seccion-reservas.oculto-inicial {
-      display: none;
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: 8%;
+      border-radius: 42% 58% 48% 52%;
+      background: linear-gradient(145deg, #dceecd, #f8eed9);
+      box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.55);
+      animation: flotar 8s ease-in-out infinite;
+    }
+
+    .hero-visual img {
+      width: min(430px, 92%);
+      height: 430px;
+      object-fit: cover;
+      border-radius: 40px;
+      position: relative;
+      box-shadow: 0 28px 70px rgba(47, 91, 45, 0.24);
+      transform: rotate(1.5deg);
+    }
+
+    .mini-card {
+      position: absolute;
+      right: 8px;
+      bottom: 44px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 22px;
+      padding: 16px;
+      width: min(230px, 58%);
+      box-shadow: 0 18px 40px rgba(45, 72, 39, 0.16);
+    }
+
+    .mini-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .mini-card span {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .section {
+      padding: 76px 18px;
     }
 
     .container {
-      max-width: 1140px;
+      width: min(1120px, 100%);
       margin: 0 auto;
     }
 
-    .titulo {
+    .section-head {
+      display: grid;
+      gap: 10px;
       text-align: center;
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      margin-bottom: 10px;
+      margin-bottom: 34px;
     }
 
-    .subtitulo {
-      max-width: 660px;
-      margin: 0 auto 30px;
-      text-align: center;
+    .section-head span {
+      color: var(--accent-dark);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.84rem;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
+    }
+
+    .section-head p {
       color: var(--muted);
-      line-height: 1.6;
+      max-width: 680px;
+      line-height: 1.65;
+      margin: 0 auto;
     }
 
-    .card {
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 100%),
-        var(--panel);
+    .packs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .pack-card {
+      display: grid;
+      gap: 18px;
+      background: var(--panel);
       border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 16px;
+      box-shadow: 0 20px 50px rgba(55, 81, 45, 0.1);
+      transform: translateY(0);
+      transition: transform 0.24s ease, box-shadow 0.24s ease;
+      animation: aparecer 0.7s ease both;
+    }
+
+    .pack-card:nth-child(2) {
+      animation-delay: 0.08s;
+    }
+
+    .pack-card:nth-child(3) {
+      animation-delay: 0.16s;
+    }
+
+    .pack-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 26px 62px rgba(55, 81, 45, 0.15);
+    }
+
+    .pack-img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
       border-radius: 24px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
+      background: var(--accent-soft);
     }
 
-    .card h2 {
-      margin-bottom: 8px;
-      font-size: 1.35rem;
+    .pack-body {
+      display: grid;
+      gap: 10px;
+      padding: 0 4px 4px;
     }
 
-    .card-copy {
+    .pack-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .pack-top h3 {
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
+    }
+
+    .precio {
+      color: var(--accent-dark);
+      font-size: 1.18rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .pack-body p {
       color: var(--muted);
       line-height: 1.55;
-      margin-bottom: 18px;
     }
 
-    .paso-oculto {
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
       display: none;
+      padding: 18px;
+      background: rgba(20, 34, 22, 0.52);
+      backdrop-filter: blur(10px);
+      overflow-y: auto;
+    }
+
+    .modal.visible {
+      display: grid;
+      place-items: center;
+      animation: fade 0.2s ease both;
+    }
+
+    .modal-card {
+      width: min(1040px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 32px;
+      box-shadow: 0 30px 90px rgba(10, 28, 15, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.86);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 2;
+    }
+
+    .modal-head h2 {
+      font-size: clamp(1.4rem, 4vw, 2.15rem);
+      letter-spacing: -0.03em;
+    }
+
+    .cerrar-modal {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.4rem;
+    }
+
+    .modal-content {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      padding: 22px;
+    }
+
+    .modal-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 28px;
+      background: var(--accent-soft);
+      position: sticky;
+      top: 92px;
+    }
+
+    .modal-side {
+      display: grid;
+      gap: 18px;
+    }
+
+    .pack-resumen {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .pack-resumen p {
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+
+    .opciones {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grupo-opciones {
+      display: grid;
+      gap: 10px;
+      background: #fffdf8;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .grupo-opciones legend {
+      font-weight: 950;
+      margin-bottom: 10px;
+      color: var(--accent-dark);
+    }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .radio-option {
+      position: relative;
+    }
+
+    .radio-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .radio-option span {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid rgba(63, 110, 59, 0.18);
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .radio-option input:checked + span {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .formulario-pedido {
+      display: none;
+      gap: 14px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
+      animation: aparecer 0.3s ease both;
+    }
+
+    .formulario-pedido.visible {
+      display: grid;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
 
     .form-grid input,
-    .form-grid select {
+    .form-grid textarea {
       width: 100%;
+      border: 1px solid rgba(63, 110, 59, 0.18);
+      border-radius: 16px;
+      background: #ffffff;
+      color: var(--text);
       min-height: 52px;
       padding: 0 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(199, 168, 107, 0.42);
-      background: #f7f5ef;
-      color: #111111;
       outline: none;
-      transition: border-color 0.2s ease, background 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-grid textarea {
+      min-height: 110px;
+      resize: vertical;
+      padding: 14px;
+      grid-column: 1 / -1;
     }
 
     .form-grid input:focus,
-    .form-grid select:focus {
+    .form-grid textarea:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(111, 159, 104, 0.12);
+    }
+
+    .estado {
+      min-height: 24px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .estado.error {
+      color: var(--danger);
+    }
+
+    .estado.ok {
+      color: var(--success);
+    }
+
+    .resumen-final {
+      color: var(--muted);
+      line-height: 1.55;
       background: #ffffff;
-    }
-
-    .form-grid input::placeholder {
-      color: #5f5a52;
-    }
-
-    .form-grid select option {
-      background: #ffffff;
-      color: #111111;
-    }
-
-    .perfil-grid {
-      display: grid;
-      gap: 16px;
-    }
-
-    .perfil-panel {
-      display: grid;
-      gap: 16px;
-    }
-
-    .perfil-activo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      padding: 18px;
       border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(199, 168, 107, 0.14), rgba(255, 255, 255, 0.03)),
-        #101010;
-      border: 1px solid rgba(199, 168, 107, 0.22);
+      padding: 14px;
+      border: 1px solid rgba(63, 110, 59, 0.12);
     }
 
-    .perfil-activo strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 1.05rem;
-    }
-
-    .perfil-activo p {
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .btn-secundario {
-      min-height: 46px;
-      padding: 0 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: var(--panel-soft);
-      color: var(--text);
-      cursor: pointer;
-      transition: transform 0.2s ease, opacity 0.2s ease;
-    }
-
-    .btn-secundario:hover {
-      transform: translateY(-1px);
-      opacity: 0.96;
-    }
-
-    .auth-actions {
-      align-items: center;
-    }
-
-    .mensaje.error {
-      color: #f0b2b2;
-    }
-
-    .mensaje.success {
-      color: #8fd99b;
-    }
-
-    .mensaje.info {
-      color: #e7d6ae;
-    }
-
-    .reservas-propias-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 14px;
-    }
-
-    .reserva-columna {
-      display: grid;
-      gap: 14px;
-      align-content: start;
-    }
-
-    .reserva-cliente-card {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), #0f0f0f);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 16px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .reserva-cliente-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .reserva-cliente-fecha {
-      font-size: 1.02rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .reserva-cliente-hora {
-      color: var(--accent);
-      font-weight: 700;
-      margin-top: 4px;
-    }
-
-    .reserva-cliente-toggle {
-      width: fit-content;
-      min-height: 40px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: #151515;
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    .reserva-cliente-toggle:hover {
-      opacity: 0.96;
-    }
-
-    .estado-cliente {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .estado-cliente.recibida {
-      background: rgba(199, 168, 107, 0.14);
-      color: #f0d39a;
-      border: 1px solid rgba(199, 168, 107, 0.22);
-    }
-
-    .estado-cliente.confirmada {
-      background: rgba(127, 210, 140, 0.14);
-      color: #9ff0aa;
-      border: 1px solid rgba(127, 210, 140, 0.24);
-    }
-
-    .estado-cliente.cancelada {
-      background: rgba(217, 119, 119, 0.14);
-      color: #f0b2b2;
-      border: 1px solid rgba(217, 119, 119, 0.24);
-    }
-
-    .estado-cliente.completada {
-      background: rgba(120, 171, 233, 0.14);
-      color: #bfd9ff;
-      border: 1px solid rgba(120, 171, 233, 0.24);
-    }
-
-    .reserva-cliente-linea {
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 0.95rem;
-    }
-
-    .reserva-cliente-linea strong {
-      color: #ffffff;
-    }
-
-    .reserva-cliente-detalle {
-      display: grid;
-      gap: 12px;
-    }
-
-    .reserva-cliente-detalle.oculto {
-      display: none;
-    }
-
-    .empty-reservas {
-      padding: 16px;
-      border-radius: 18px;
-      background: #101010;
-      border: 1px dashed rgba(255, 255, 255, 0.08);
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .politica-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    .politica-card {
-      background: #101010;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 18px;
-      padding: 18px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .politica-card strong {
-      font-size: 1rem;
-      color: #ffffff;
-    }
-
-    .ubicacion-grid {
-      display: grid;
-      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
-      gap: 18px;
-      align-items: stretch;
-    }
-
-    .ubicacion-info {
-      display: grid;
-      gap: 14px;
-      align-content: start;
-      justify-items: start;
-      padding: 20px;
-      border-radius: 18px;
-      background: #101010;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .ubicacion-accion {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    .ubicacion-accion .btn-principal {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .ubicacion-direccion {
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .ubicacion-mapa {
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      min-height: 320px;
-      background: #101010;
-    }
-
-    .ubicacion-mapa iframe {
-      width: 100%;
-      height: 100%;
-      min-height: 320px;
-      border: 0;
-      display: block;
-    }
-
-    .calendar-shell {
-      display: grid;
-      gap: 18px;
-    }
-
-    .calendar-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(199, 168, 107, 0.14), rgba(255, 255, 255, 0.02)),
-        #101010;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .calendar-caption {
-      display: grid;
-      gap: 4px;
-    }
-
-    .calendar-caption span {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .calendar-caption strong {
-      font-size: 1.35rem;
-    }
-
-    .calendar-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .calendar-nav button,
-    .btn-principal,
-    .btn-reservar {
-      min-height: 46px;
-      padding: 0 16px;
-      border-radius: 14px;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
-    }
-
-    .calendar-nav button {
-      background: var(--panel-soft);
-      color: var(--text);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .calendar-nav button:hover,
-    .btn-principal:hover,
-    .btn-reservar:hover {
-      transform: translateY(-1px);
-      opacity: 0.96;
-    }
-
-    .calendar-nav button:disabled,
-    .btn-principal:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .calendar-weekday {
-      color: var(--muted);
-      text-align: center;
-      font-size: 0.82rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding-bottom: 4px;
-    }
-
-    .calendar-day {
-      min-height: 92px;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), #0d0d0d);
-      color: var(--text);
-      padding: 14px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      text-align: left;
-    }
-
-    .calendar-day small {
-      color: var(--muted);
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .calendar-day span {
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-
-    .calendar-day:hover {
-      border-color: rgba(199, 168, 107, 0.26);
-      background: linear-gradient(180deg, rgba(199, 168, 107, 0.12), #0f0f0f);
-    }
-
-    .calendar-day.selected {
-      border-color: var(--border-strong);
-      background:
-        linear-gradient(180deg, rgba(199, 168, 107, 0.2), rgba(199, 168, 107, 0.08)),
-        #111111;
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
-    }
-
-    .calendar-day.today {
-      outline: 1px solid rgba(255, 255, 255, 0.12);
-      outline-offset: -1px;
-    }
-
-    .calendar-day.empty,
-    .calendar-day.disabled {
-      cursor: default;
-      pointer-events: none;
-      color: #767676;
-      background: rgba(255, 255, 255, 0.02);
-      border-color: rgba(255, 255, 255, 0.04);
-      box-shadow: none;
-    }
-
-    .calendar-day.disabled small,
-    .calendar-day.disabled span {
-      opacity: 0.45;
-    }
-
-    .calendar-note {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-      padding: 14px 18px;
-      border-radius: 18px;
-      background: #101010;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .calendar-note strong {
-      color: var(--text);
-    }
-
-    .acciones-dia {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 4px;
-    }
-
-    .btn-principal,
-    .btn-reservar {
-      background: linear-gradient(135deg, #d5b987, #b89451);
-      color: #0d0d0d;
-      font-weight: 700;
-    }
-
-    .btn-reservar.btn-bloqueado {
-      background: #2b2b2b;
-      color: #b9b9b9;
-    }
-
-    .dia-seleccionado-texto {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .horas-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .hora-card {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), #0f0f0f);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
-    }
-
-    .hora-card.ocupada {
-      background: linear-gradient(180deg, rgba(217, 119, 119, 0.08), #0f0f0f);
-      border-color: rgba(217, 119, 119, 0.22);
-    }
-
-    .hora-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 10px;
-    }
-
-    .hora-texto {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
-    .estado-disponible {
-      color: #8fd99b;
-      font-size: 0.92rem;
-    }
-
-    .estado-ocupada {
-      color: #f0b2b2;
-      font-size: 0.92rem;
-    }
-
-    .reserva-info {
-      margin-bottom: 12px;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.5;
-    }
-
-    .mensaje {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .slot-resumen {
-      margin-bottom: 16px;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(199, 168, 107, 0.12);
-      border: 1px solid rgba(199, 168, 107, 0.2);
-      color: #efe5d0;
-      line-height: 1.5;
-    }
-
-    .slot-resumen strong {
-      color: #ffffff;
-    }
-
-    .campo-bloqueado {
-      background: #ece4d6 !important;
-      color: #5a5348 !important;
-      cursor: not-allowed;
-    }
-
-    .acciones-formulario {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .aviso-seguridad {
-      line-height: 1.65;
-      color: #ddd6cb;
-    }
-
-    .aviso-seguridad a {
-      color: #dfc490;
-    }
-
-    .oculto {
-      display: none;
-    }
-
-    @media (max-width: 860px) {
-      .calendar-grid {
-        gap: 8px;
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
       }
 
-      .calendar-day {
-        min-height: 82px;
-        border-radius: 16px;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
-    @media (max-width: 720px) {
-      .hero {
-        min-height: 88vh;
+    @keyframes fade {
+      from {
+        opacity: 0;
       }
 
-      .card {
-        padding: 20px;
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes flotar {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
       }
 
-      .calendar-grid {
-        gap: 6px;
+      50% {
+        transform: translateY(-12px) rotate(3deg);
+      }
+    }
+
+    @media (max-width: 880px) {
+      .hero-card,
+      .modal-content {
+        grid-template-columns: 1fr;
       }
 
-      .calendar-day {
-        min-height: 74px;
-        padding: 10px;
-        border-radius: 14px;
+      .hero-visual {
+        min-height: auto;
       }
 
-      .calendar-day small {
-        font-size: 0.7rem;
+      .hero-visual img {
+        height: min(72vw, 420px);
       }
 
-      .calendar-day span {
-        font-size: 1rem;
+      .mini-card,
+      .modal-image {
+        position: static;
       }
 
-      .ubicacion-grid {
+      .packs-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 520px) {
-      .calendar-top,
-      .calendar-note,
-      .acciones-dia {
-        align-items: stretch;
+    @media (max-width: 560px) {
+      .hero {
+        padding: 18px 12px;
       }
 
-      .calendar-nav,
-      .btn-principal {
-        width: 100%;
+      .hero-card,
+      .modal-card {
+        border-radius: 24px;
       }
 
-      .calendar-nav button,
+      .hero-actions,
       .btn-principal,
-      .btn-reservar {
+      .btn-secundario {
         width: 100%;
+      }
+
+      .section {
+        padding: 58px 14px;
+      }
+
+      .modal {
+        padding: 10px;
+      }
+
+      .modal-head,
+      .modal-content {
+        padding: 16px;
+      }
+
+      .radio-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <section class="hero">
-    <div class="hero-contenido">
-      <div class="hero-etiqueta" id="heroLabel">Reservas online</div>
-      <h1 class="hero-titulo" id="heroTitle">Barber Elite</h1>
-      <p class="hero-subtitulo" id="heroSubtitle">
-        Solicita tu hora con una fecha real, visualiza tu semana o tu mes y recibe la respuesta de la barbería.
-      </p>
-      <button type="button" id="btnAbrirReserva" class="hero-btn">Elegir fecha</button>
-    </div>
-  </section>
+  <main>
+    <section class="hero" aria-label="Portada">
+      <div class="hero-card">
+        <div>
+          <div class="hero-etiqueta">Día de la Madre</div>
+          <h1>Jardín Flor de Loto</h1>
+          <p class="hero-copy">
+            Packs naturales, delicados y listos para regalar. Elige una propuesta,
+            personalízala en segundos y agenda la entrega.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="btn-principal" id="btnVerPromocion">Promoción Día de la Madre</button>
+            <a class="btn-secundario" href="#ofertas">Ver packs</a>
+          </div>
+        </div>
 
-  <section class="seccion-reservas oculto-inicial" id="reservas">
-    <div class="container">
-      <div class="titulo" id="bookingTitle">Agenda tu visita</div>
-      <div class="subtitulo" id="bookingSubtitle">
-        Crea tu perfil o inicia sesión, elige una fecha del calendario y solicita tu hora. La barbería revisa cada solicitud antes de gestionarla.
+        <div class="hero-visual" aria-hidden="true">
+          <img
+            src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=85"
+            alt=""
+          />
+          <div class="mini-card">
+            <strong>Regalos con vida</strong>
+            <span>Plantas, maceteros y detalles para entregar un gesto memorable.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ofertas">
+      <div class="container">
+        <div class="section-head">
+          <span>Promoción especial</span>
+          <h2>Packs Día de la Madre</h2>
+          <p>
+            Tres opciones simples para vender rápido: el cliente elige un pack,
+            lo personaliza y envía el pedido en pocos pasos.
+          </p>
+        </div>
+
+        <div class="packs-grid" id="packsGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modalPedido" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+      <div class="modal-head">
+        <h2 id="modalTitulo">Personaliza tu pack</h2>
+        <button type="button" class="cerrar-modal" id="btnCerrarModal" aria-label="Cerrar">×</button>
       </div>
 
-      <div class="card" id="authCard">
-        <h2>Tu perfil de cliente</h2>
-        <p class="card-copy">Usa tu correo y tu clave para reservar. Si olvidas la clave, puedes enviarte un correo de recuperación.</p>
+      <div class="modal-content">
+        <img class="modal-image" id="modalImagen" src="" alt="" />
 
-        <div class="perfil-grid">
-          <div class="perfil-panel" id="authLoggedOut">
+        <div class="modal-side">
+          <div class="pack-resumen">
+            <div>
+              <strong id="modalPackNombre">Pack</strong>
+              <p id="modalPackDescripcion">Personaliza tu regalo.</p>
+            </div>
+            <div class="precio" id="modalPackPrecio">$0</div>
+          </div>
+
+          <form class="opciones" id="opcionesForm">
+            <fieldset class="grupo-opciones">
+              <legend>Planta</legend>
+              <div class="radio-grid" id="opcionesPlanta"></div>
+            </fieldset>
+
+            <fieldset class="grupo-opciones">
+              <legend>Macetero</legend>
+              <div class="radio-grid" id="opcionesMacetero"></div>
+            </fieldset>
+
+            <fieldset class="grupo-opciones">
+              <legend>Globo</legend>
+              <div class="radio-grid" id="opcionesGlobo"></div>
+            </fieldset>
+
+            <fieldset class="grupo-opciones">
+              <legend>Chocolate</legend>
+              <div class="radio-grid" id="opcionesChocolate"></div>
+            </fieldset>
+
+            <button type="button" class="btn-principal" id="btnRealizarPedido">Realizar Pedido</button>
+          </form>
+
+          <form class="formulario-pedido" id="formularioPedido">
+            <div class="resumen-final" id="resumenPedido"></div>
             <div class="form-grid">
-              <input type="email" id="authEmail" placeholder="Tu correo de acceso" maxlength="120" autocomplete="email" />
-              <input type="password" id="authPassword" placeholder="Tu clave" minlength="6" autocomplete="current-password" />
+              <input type="text" id="clienteNombre" placeholder="Nombre" maxlength="60" autocomplete="name" />
+              <input type="email" id="clienteCorreo" placeholder="Correo" maxlength="120" autocomplete="email" />
+              <input type="tel" id="clienteTelefono" placeholder="Teléfono" maxlength="20" autocomplete="tel" />
+              <input type="date" id="fechaEntrega" />
+              <input type="text" id="clienteDireccion" placeholder="Dirección de entrega" maxlength="140" autocomplete="street-address" />
+              <textarea id="observaciones" placeholder="Observaciones: horario ideal, referencia de la dirección o mensaje para la tarjeta" maxlength="360"></textarea>
             </div>
-            <div class="acciones-formulario auth-actions">
-              <button class="btn-principal" id="btnCrearPerfil" type="button">Crear perfil</button>
-              <button class="btn-secundario" id="btnIniciarSesion" type="button">Iniciar sesión</button>
-              <button class="btn-secundario" id="btnRecuperarClave" type="button">Recuperar clave</button>
-            </div>
-          </div>
-
-          <div class="perfil-panel paso-oculto" id="authLoggedIn">
-            <div class="perfil-activo">
-              <div>
-                <strong id="perfilCorreoActivo">Correo</strong>
-                <p>Tu perfil está activo. Ese correo se usará para la reserva y para recuperar tu clave.</p>
-              </div>
-              <button class="btn-secundario" id="btnCerrarSesionCliente" type="button">Cerrar sesión</button>
-            </div>
-          </div>
-
-          <div class="mensaje info" id="authStatus">Inicia sesión o crea tu perfil para reservar de lunes a viernes.</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Selecciona una fecha</h2>
-        <p class="card-copy">Puedes solicitar desde hoy hasta los próximos 90 días. La atención se agenda solo de lunes a viernes y ya considera cupos, descansos y anticipación mínima.</p>
-
-        <div class="calendar-shell">
-          <div class="calendar-top">
-            <div class="calendar-caption">
-              <span>Calendario de reservas</span>
-              <strong id="calendarMonthTitle">Mes</strong>
-            </div>
-            <div class="calendar-nav">
-              <button id="btnPrevMonth" type="button">Mes anterior</button>
-              <button id="btnNextMonth" type="button">Mes siguiente</button>
-            </div>
-          </div>
-
-          <div class="calendar-grid" id="calendarWeekdays"></div>
-          <div class="calendar-grid" id="calendarDays"></div>
-
-          <div class="calendar-note">
-            <strong id="calendarSelectionText">Fecha seleccionada: ninguna</strong>
-            <span>Las horas visibles ya incluyen bloqueos, colación y reglas de agenda.</span>
-          </div>
-        </div>
-
-        <div class="acciones-dia">
-          <button class="btn-principal" id="btnVerHoras" disabled>Ver horarios</button>
-          <div class="dia-seleccionado-texto" id="textoDiaSeleccionado">
-            No has seleccionado ninguna fecha.
-          </div>
-        </div>
-
-        <div id="contenedorHoras" class="oculto">
-          <div class="horas-grid" id="horasGrid"></div>
-        </div>
-
-        <div class="mensaje" id="mensajeHoras"></div>
-      </div>
-
-      <div class="card paso-oculto" id="datosClienteCard">
-        <h2>Completa tus datos</h2>
-        <p class="card-copy">Primero eliges la fecha y la hora. Después envías tu solicitud con los datos de tu reserva.</p>
-        <div class="slot-resumen" id="slotResumen">
-          Aún no has elegido un horario.
-        </div>
-        <div class="form-grid">
-          <input type="text" id="nombreCliente" placeholder="Tu nombre" maxlength="60" autocomplete="name" />
-          <input type="email" id="correoCliente" class="campo-bloqueado" placeholder="Tu correo del perfil" maxlength="120" autocomplete="email" readonly />
-          <input type="tel" id="telefonoCliente" placeholder="Tu teléfono" maxlength="20" autocomplete="tel" />
-          <select id="servicioCliente">
-            <option value="">Selecciona un servicio</option>
-            <option value="corte de pelo">corte de pelo</option>
-            <option value="corte de pelo + barba">corte de pelo + barba</option>
-            <option value="barba">barba</option>
-          </select>
-        </div>
-        <div class="mensaje">El correo se toma desde tu perfil activo.</div>
-        <div class="acciones-formulario">
-          <button class="btn-principal" id="btnEnviarSolicitud" type="button">Enviar solicitud</button>
-        </div>
-        <div class="mensaje" id="mensajeFormulario"></div>
-      </div>
-
-      <div class="card">
-        <h2>Mis reservas</h2>
-        <p class="card-copy">Con tu perfil puedes revisar tus reservas activas y el historial reciente sin exponer datos de otros clientes.</p>
-        <div class="reservas-propias-grid">
-          <div class="reserva-columna">
-            <h3>Activas</h3>
-            <div id="misReservasActivas" class="reserva-columna">
-              <div class="empty-reservas">Inicia sesión para ver tus reservas activas.</div>
-            </div>
-          </div>
-          <div class="reserva-columna">
-            <h3>Historial</h3>
-            <div id="misReservasHistorial" class="reserva-columna">
-              <div class="empty-reservas">Aquí aparecerán tus reservas completadas o canceladas.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Políticas de reserva</h2>
-        <p class="card-copy">La experiencia se siente más clara cuando el cliente sabe exactamente cómo funciona la agenda.</p>
-        <div class="politica-grid">
-          <div class="politica-card">
-            <strong>Respuesta de la barbería</strong>
-            <div class="reserva-cliente-linea">Cada solicitud queda recibida y la barbería la revisa antes de gestionarla.</div>
-          </div>
-          <div class="politica-card">
-            <strong>Cancelaciones</strong>
-            <div class="reserva-cliente-linea">Si necesitas mover tu hora, escribe directo a <a id="brandPolicyEmailLink" href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.</div>
-          </div>
-          <div class="politica-card">
-            <strong>Puntualidad</strong>
-            <div class="reserva-cliente-linea">La agenda funciona por bloques, por eso conviene llegar unos minutos antes de tu hora.</div>
-          </div>
-          <div class="politica-card">
-            <strong>Disponibilidad</strong>
-            <div class="reserva-cliente-linea">La agenda online se abre de lunes a viernes y puede tener cierres especiales por feriados o ajustes internos.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 id="locationTitle">Dónde estamos</h2>
-        <p class="card-copy" id="locationCopy">Si quieres ubicar el local antes de reservar, aquí tienes la dirección y el acceso directo al mapa.</p>
-        <div class="ubicacion-grid">
-          <div class="ubicacion-info">
-            <strong id="locationName">Barber Elite</strong>
-            <div class="ubicacion-direccion" id="locationAddress">
-              Av. Miraflores 1702<br />
-              Peñaflor, Región Metropolitana
-            </div>
-            <div class="ubicacion-accion">
-              <a
-                id="locationDirectionsLink"
-                class="btn-principal"
-                href="https://www.google.com/maps/search/?api=1&query=Av.+Miraflores+1702,+Pe%C3%B1aflor,+Regi%C3%B3n+Metropolitana"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span id="locationDirectionsLabel">Cómo llegar</span>
-              </a>
-            </div>
-          </div>
-          <div class="ubicacion-mapa">
-            <iframe
-              id="locationMap"
-              title="Mapa de Barber Elite"
-              src="https://www.google.com/maps?q=Av.+Miraflores+1702,+Pe%C3%B1aflor,+Regi%C3%B3n+Metropolitana&output=embed"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen>
-            </iframe>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Privacidad y seguridad</h2>
-        <div class="aviso-seguridad">
-          Esta web pública no expone datos personales ni consulta reservas de otros clientes.
-          Las solicitudes de hora quedan en revisión y las cancelaciones se gestionan
-          por contacto directo con la barbería en
-          <a id="brandPrivacyEmailLink" href="mailto:victoriap.rodriguezs@gmail.com">victoriap.rodriguezs@gmail.com</a>.
+            <button type="submit" class="btn-principal">Enviar pedido</button>
+            <div class="estado" id="estadoPedido"></div>
+          </form>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
   <script type="module">
-    import { BRAND_CONFIG, buildGoogleMapsEmbedUrl, buildGoogleMapsSearchUrl } from "./brand-config.mjs";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      createUserWithEmailAndPassword,
-      getAuth,
-      onAuthStateChanged,
-      signInWithEmailAndPassword,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      getDoc,
-      getDocs,
-      query,
-      runTransaction,
-      serverTimestamp,
-      where
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { BRAND_CONFIG } from "./brand-config.mjs";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBc_r_3V9wmqWZpLeoBWZhRHJhy0F_zCIo",
-      authDomain: "barberia-elite-d5912.firebaseapp.com",
-      projectId: "barberia-elite-d5912",
-      storageBucket: "barberia-elite-d5912.firebasestorage.app",
-      messagingSenderId: "571109191013",
-      appId: "1:571109191013:web:11cf4ad1b425e38d14858c"
+    const packs = [
+      {
+        id: "basico",
+        nombre: "Básico",
+        precio: "$14.990",
+        descripcion: "Un detalle natural, lindo y accesible para sorprender sin complicarse.",
+        imagen: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85"
+      },
+      {
+        id: "intermedio",
+        nombre: "Intermedio",
+        precio: "$24.990",
+        descripcion: "El equilibrio perfecto: planta protagonista, macetero bonito y detalle dulce.",
+        imagen: "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=900&q=85"
+      },
+      {
+        id: "premium",
+        nombre: "Premium",
+        precio: "$34.990",
+        descripcion: "Una propuesta más completa y elegante para un regalo de alto impacto.",
+        imagen: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=85"
+      }
+    ];
+
+    const opciones = {
+      planta: ["Loto", "Suculenta", "Lavanda", "Anturio"],
+      macetero: ["Cerámica blanca", "Greda natural", "Fibra vegetal", "Minimal verde"],
+      globo: ["Feliz Día Mamá", "Te quiero mamá", "Con amor", "Sin globo"],
+      chocolate: ["Bombones", "Chocolate artesanal", "Trufas", "Sin chocolate"]
     };
 
-    const RESERVA_COOLDOWN_MS = 60 * 1000;
-    const ULTIMA_RESERVA_KEY = "barber-elite-ultima-reserva";
-    const COLECCION_SOLICITUDES = "solicitudes_reserva";
-    const COLECCION_RESERVAS_CLIENTE = "reservas_cliente";
-    const COLECCION_AGENDA_PUBLICA = "agenda_publica";
-    const COLECCION_CONFIG_PUBLICA = "configuracion_publica";
-    const DOC_CONFIG_AGENDA = "agenda";
-    const COLECCION_FECHAS_BLOQUEADAS = "agenda_fechas_bloqueadas";
-    const COLECCION_FECHAS_ESPECIALES = "agenda_fechas_especiales";
-    const HORAS_BASE = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
-    const SERVICIOS_DISPONIBLES = ["corte de pelo", "corte de pelo + barba", "barba"];
-    const WEEKDAY_HEADERS = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
-    const WEEKDAY_NAMES = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
-    const WEEKDAY_CONFIG_KEYS = ["lunes", "martes", "miercoles", "jueves", "viernes"];
-    const MONTH_NAMES = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre"
-    ];
-    const MAX_BOOKING_DAYS = 90;
+    const packsGrid = document.getElementById("packsGrid");
+    const btnVerPromocion = document.getElementById("btnVerPromocion");
+    const modalPedido = document.getElementById("modalPedido");
+    const btnCerrarModal = document.getElementById("btnCerrarModal");
+    const modalTitulo = document.getElementById("modalTitulo");
+    const modalImagen = document.getElementById("modalImagen");
+    const modalPackNombre = document.getElementById("modalPackNombre");
+    const modalPackDescripcion = document.getElementById("modalPackDescripcion");
+    const modalPackPrecio = document.getElementById("modalPackPrecio");
+    const btnRealizarPedido = document.getElementById("btnRealizarPedido");
+    const formularioPedido = document.getElementById("formularioPedido");
+    const resumenPedido = document.getElementById("resumenPedido");
+    const estadoPedido = document.getElementById("estadoPedido");
+    const clienteNombre = document.getElementById("clienteNombre");
+    const clienteCorreo = document.getElementById("clienteCorreo");
+    const clienteTelefono = document.getElementById("clienteTelefono");
+    const clienteDireccion = document.getElementById("clienteDireccion");
+    const fechaEntrega = document.getElementById("fechaEntrega");
+    const observaciones = document.getElementById("observaciones");
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    auth.languageCode = "es";
-    auth.useDeviceLanguage?.();
+    let packSeleccionado = null;
 
-    let fechaSeleccionada = null;
-    let horarioSeleccionado = null;
-    let reservaEnProceso = false;
-    let cargandoHoras = false;
-    let authEnProceso = false;
-    let currentClientUser = null;
-    let calendarMonth = getMonthStart(getToday());
-    let horariosOcupados = new Map();
-    let agendaConfig = getDefaultAgendaConfig();
-    let fechasBloqueadas = new Map();
-    let fechasEspeciales = new Map();
-    let misReservas = [];
+    document.title = BRAND_CONFIG.name;
+    renderPacks();
+    renderOpciones();
+    setFechaMinima();
 
-    const barberoNombre = BRAND_CONFIG.name;
-    const authCard = document.getElementById("authCard");
-    const authEmail = document.getElementById("authEmail");
-    const authPassword = document.getElementById("authPassword");
-    const authLoggedOut = document.getElementById("authLoggedOut");
-    const authLoggedIn = document.getElementById("authLoggedIn");
-    const perfilCorreoActivo = document.getElementById("perfilCorreoActivo");
-    const authStatus = document.getElementById("authStatus");
-    const btnCrearPerfil = document.getElementById("btnCrearPerfil");
-    const btnIniciarSesion = document.getElementById("btnIniciarSesion");
-    const btnRecuperarClave = document.getElementById("btnRecuperarClave");
-    const btnCerrarSesionCliente = document.getElementById("btnCerrarSesionCliente");
-    const btnPrevMonth = document.getElementById("btnPrevMonth");
-    const btnNextMonth = document.getElementById("btnNextMonth");
-    const btnVerHoras = document.getElementById("btnVerHoras");
-    const btnAbrirReserva = document.getElementById("btnAbrirReserva");
-    const calendarMonthTitle = document.getElementById("calendarMonthTitle");
-    const calendarWeekdays = document.getElementById("calendarWeekdays");
-    const calendarDays = document.getElementById("calendarDays");
-    const calendarSelectionText = document.getElementById("calendarSelectionText");
-    const textoDiaSeleccionado = document.getElementById("textoDiaSeleccionado");
-    const horasGrid = document.getElementById("horasGrid");
-    const contenedorHoras = document.getElementById("contenedorHoras");
-    const mensajeHoras = document.getElementById("mensajeHoras");
-    const datosClienteCard = document.getElementById("datosClienteCard");
-    const correoCliente = document.getElementById("correoCliente");
-    const slotResumen = document.getElementById("slotResumen");
-    const btnEnviarSolicitud = document.getElementById("btnEnviarSolicitud");
-    const mensajeFormulario = document.getElementById("mensajeFormulario");
-    const seccionReservas = document.getElementById("reservas");
-    const misReservasActivas = document.getElementById("misReservasActivas");
-    const misReservasHistorial = document.getElementById("misReservasHistorial");
-    const heroLabel = document.getElementById("heroLabel");
-    const heroTitle = document.getElementById("heroTitle");
-    const heroSubtitle = document.getElementById("heroSubtitle");
-    const bookingTitle = document.getElementById("bookingTitle");
-    const bookingSubtitle = document.getElementById("bookingSubtitle");
-    const brandPolicyEmailLink = document.getElementById("brandPolicyEmailLink");
-    const brandPrivacyEmailLink = document.getElementById("brandPrivacyEmailLink");
-    const locationTitle = document.getElementById("locationTitle");
-    const locationCopy = document.getElementById("locationCopy");
-    const locationName = document.getElementById("locationName");
-    const locationAddress = document.getElementById("locationAddress");
-    const locationDirectionsLink = document.getElementById("locationDirectionsLink");
-    const locationDirectionsLabel = document.getElementById("locationDirectionsLabel");
-    const locationMap = document.getElementById("locationMap");
+    btnVerPromocion.addEventListener("click", () => {
+      document.getElementById("ofertas").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
 
-    applyBrandConfig();
+    btnCerrarModal.addEventListener("click", cerrarModal);
+    modalPedido.addEventListener("click", (event) => {
+      if (event.target === modalPedido) cerrarModal();
+    });
 
-    function applyBrandConfig() {
-      document.title = BRAND_CONFIG.name;
-      document.documentElement.style.setProperty("--hero-image", `url("${BRAND_CONFIG.heroImageUrl}")`);
-
-      const favicon = document.querySelector('link[rel="icon"]');
-      if (favicon && BRAND_CONFIG.faviconPath) {
-        favicon.href = BRAND_CONFIG.faviconPath;
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modalPedido.classList.contains("visible")) {
+        cerrarModal();
       }
+    });
 
-      heroLabel.textContent = BRAND_CONFIG.heroLabel;
-      heroTitle.textContent = BRAND_CONFIG.heroTitle;
-      heroSubtitle.textContent = BRAND_CONFIG.heroSubtitle;
-      bookingTitle.textContent = BRAND_CONFIG.bookingTitle;
-      bookingSubtitle.textContent = BRAND_CONFIG.bookingSubtitle;
+    btnRealizarPedido.addEventListener("click", () => {
+      formularioPedido.classList.add("visible");
+      actualizarResumen();
+      formularioPedido.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
 
-      for (const link of [brandPolicyEmailLink, brandPrivacyEmailLink]) {
-        if (!link) continue;
-        link.textContent = BRAND_CONFIG.contactEmail;
-        link.href = `mailto:${BRAND_CONFIG.contactEmail}`;
-      }
+    document.getElementById("opcionesForm").addEventListener("change", manejarCambioOpciones);
+    formularioPedido.addEventListener("submit", enviarPedido);
 
-      locationTitle.textContent = BRAND_CONFIG.locationTitle;
-      locationCopy.textContent = BRAND_CONFIG.locationCopy;
-      locationName.textContent = BRAND_CONFIG.name;
-      locationAddress.innerHTML = BRAND_CONFIG.mapAddressLines.join("<br />");
-      locationDirectionsLink.href = buildGoogleMapsSearchUrl(BRAND_CONFIG.mapAddressText);
-      locationDirectionsLabel.textContent = BRAND_CONFIG.directionsLabel;
-      locationMap.title = `Mapa de ${BRAND_CONFIG.name}`;
-      locationMap.src = buildGoogleMapsEmbedUrl(BRAND_CONFIG.mapAddressText);
-    }
+    function renderPacks() {
+      packsGrid.innerHTML = "";
 
-    function normalizarTexto(valor) {
-      return valor.replace(/\s+/g, " ").trim();
-    }
+      for (const pack of packs) {
+        const card = document.createElement("article");
+        card.className = "pack-card";
+        card.innerHTML = `
+          <img class="pack-img" src="${pack.imagen}" alt="Pack ${pack.nombre}" />
+          <div class="pack-body">
+            <div class="pack-top">
+              <h3>${pack.nombre}</h3>
+              <div class="precio">${pack.precio}</div>
+            </div>
+            <p>${pack.descripcion}</p>
+            <button type="button" class="btn-principal" data-pack="${pack.id}">Personalizar</button>
+          </div>
+        `;
 
-    function validarCorreo(correo) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
-    }
-
-    function validarTelefono(telefono) {
-      return /^[+\d\s()-]{8,20}$/.test(telefono);
-    }
-
-    function getDefaultAgendaConfig() {
-      return {
-        lunesAbierto: true,
-        lunesHoras: [...HORAS_BASE],
-        martesAbierto: true,
-        martesHoras: [...HORAS_BASE],
-        miercolesAbierto: true,
-        miercolesHoras: [...HORAS_BASE],
-        juevesAbierto: true,
-        juevesHoras: [...HORAS_BASE],
-        viernesAbierto: true,
-        viernesHoras: [...HORAS_BASE],
-        horasDescanso: [],
-        limiteReservasPorDia: HORAS_BASE.length,
-        minutosMinimosAnticipacion: 120
-      };
-    }
-
-    function getWeekdayConfigKey(date) {
-      return WEEKDAY_NAMES[date.getDay()];
-    }
-
-    function getAgendaBreakHours() {
-      const hours = Array.isArray(agendaConfig.horasDescanso) ? agendaConfig.horasDescanso : [];
-      return HORAS_BASE.filter((hour) => hours.includes(hour));
-    }
-
-    function getDailyLimit() {
-      const value = Number(agendaConfig.limiteReservasPorDia);
-      return Number.isInteger(value) && value >= 1 && value <= HORAS_BASE.length ? value : HORAS_BASE.length;
-    }
-
-    function getLeadTimeMinutes() {
-      const value = Number(agendaConfig.minutosMinimosAnticipacion);
-      return Number.isInteger(value) && value >= 0 && value <= 1440 ? value : 120;
-    }
-
-    function buildDateTime(date, hora) {
-      const [hours, minutes] = hora.split(":").map(Number);
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes || 0, 0, 0);
-    }
-
-    function isHourTooClose(date, hora) {
-      return buildDateTime(date, hora).getTime() - Date.now() < getLeadTimeMinutes() * 60 * 1000;
-    }
-
-    function getAgendaHoursForDate(date, options = {}) {
-      const { applyLeadTime = false } = options;
-      const iso = formatISODate(date);
-      let hours = [];
-
-      if (fechasBloqueadas.has(iso)) {
-        return [];
-      }
-
-      if (fechasEspeciales.has(iso)) {
-        hours = [...fechasEspeciales.get(iso).horas];
-      } else {
-        const key = getWeekdayConfigKey(date);
-        if (!WEEKDAY_CONFIG_KEYS.includes(key)) {
-          return [];
-        }
-
-        if (!agendaConfig[`${key}Abierto`]) {
-          return [];
-        }
-
-        hours = [...(agendaConfig[`${key}Horas`] || HORAS_BASE)];
-        const breakHours = getAgendaBreakHours();
-        if (breakHours.length) {
-          hours = hours.filter((hour) => !breakHours.includes(hour));
-        }
-      }
-
-      if (applyLeadTime) {
-        hours = hours.filter((hour) => !isHourTooClose(date, hour));
-      }
-
-      return hours;
-    }
-
-    function getAppointmentDateTime(item) {
-      if (!item?.fechaISO || !item?.hora) {
-        return null;
-      }
-
-      const [year, month, day] = item.fechaISO.split("-").map(Number);
-      return buildDateTime(new Date(year, month - 1, day), item.hora);
-    }
-
-    function getClientStatusInfo(estado) {
-      if (estado === "confirmada") return { label: "Confirmada", className: "confirmada" };
-      if (estado === "cancelada") return { label: "Cancelada", className: "cancelada" };
-      if (estado === "completada") return { label: "Completada", className: "completada" };
-      return { label: "Recibida", className: "recibida" };
-    }
-
-    function setAuthStatus(message, type = "info") {
-      authStatus.textContent = message;
-      authStatus.className = `mensaje ${type}`;
-    }
-
-    function setAuthButtonsDisabled(disabled) {
-      authEnProceso = disabled;
-      btnCrearPerfil.disabled = disabled;
-      btnIniciarSesion.disabled = disabled;
-      btnRecuperarClave.disabled = disabled;
-      btnCerrarSesionCliente.disabled = disabled;
-    }
-
-    function syncClientEmailField() {
-      correoCliente.value = currentClientUser?.email || "";
-    }
-
-    function renderMisReservas() {
-      misReservasActivas.innerHTML = "";
-      misReservasHistorial.innerHTML = "";
-
-      if (!currentClientUser) {
-        misReservasActivas.innerHTML = '<div class="empty-reservas">Inicia sesión para ver tus reservas activas.</div>';
-        misReservasHistorial.innerHTML = '<div class="empty-reservas">Aquí aparecerán tus reservas completadas o canceladas.</div>';
-        return;
-      }
-
-      const activas = misReservas
-        .filter((item) => !["cancelada", "completada"].includes(item.estado || "pendiente"))
-        .sort((a, b) => (getAppointmentDateTime(a)?.getTime() || 0) - (getAppointmentDateTime(b)?.getTime() || 0));
-      const historial = misReservas
-        .filter((item) => ["cancelada", "completada"].includes(item.estado || ""))
-        .sort((a, b) => (getAppointmentDateTime(b)?.getTime() || 0) - (getAppointmentDateTime(a)?.getTime() || 0));
-
-      const renderTarget = (items, target, emptyText) => {
-        if (!items.length) {
-          target.innerHTML = `<div class="empty-reservas">${emptyText}</div>`;
-          return;
-        }
-
-        items.forEach((item) => {
-          const status = getClientStatusInfo(item.estado);
-          const card = document.createElement("article");
-          card.className = "reserva-cliente-card";
-
-          const top = document.createElement("div");
-          top.className = "reserva-cliente-top";
-
-          const titleWrap = document.createElement("div");
-          const fecha = document.createElement("div");
-          fecha.className = "reserva-cliente-fecha";
-          fecha.textContent = item.fecha || "Sin fecha";
-          titleWrap.appendChild(fecha);
-
-          const badge = document.createElement("span");
-          badge.className = `estado-cliente ${status.className}`;
-          badge.textContent = status.label;
-          top.appendChild(titleWrap);
-          top.appendChild(badge);
-          card.appendChild(top);
-
-          const toggleButton = document.createElement("button");
-          toggleButton.type = "button";
-          toggleButton.className = "reserva-cliente-toggle";
-          toggleButton.textContent = "Ver detalle";
-          card.appendChild(toggleButton);
-
-          const detailWrap = document.createElement("div");
-          detailWrap.className = "reserva-cliente-detalle oculto";
-
-          const hora = document.createElement("div");
-          hora.className = "reserva-cliente-hora";
-          hora.textContent = item.hora || "Sin hora";
-          detailWrap.appendChild(hora);
-
-          [["Servicio", item.servicio || "Sin dato"], ["Nombre", item.nombre || "Sin dato"], ["Teléfono", item.telefono || "Sin dato"], ["Correo", item.correo || "Sin dato"]]
-            .forEach(([label, value]) => {
-              const line = document.createElement("div");
-              line.className = "reserva-cliente-linea";
-              line.innerHTML = `<strong>${label}:</strong> ${value}`;
-              detailWrap.appendChild(line);
-            });
-
-          toggleButton.addEventListener("click", () => {
-            const abierto = !detailWrap.classList.contains("oculto");
-            detailWrap.classList.toggle("oculto", abierto);
-            toggleButton.textContent = abierto ? "Ver detalle" : "Ocultar detalle";
-          });
-
-          card.appendChild(detailWrap);
-          target.appendChild(card);
-        });
-      };
-
-      renderTarget(activas, misReservasActivas, "No tienes reservas activas en este momento.");
-      renderTarget(historial, misReservasHistorial, "Todavía no hay reservas canceladas o completadas en tu historial.");
-    }
-
-    async function loadMisReservas() {
-      if (!currentClientUser) {
-        misReservas = [];
-        renderMisReservas();
-        return;
-      }
-
-      try {
-        const reservasQuery = query(
-          collection(db, COLECCION_RESERVAS_CLIENTE),
-          where("clienteUid", "==", currentClientUser.uid)
-        );
-        const snapshot = await getDocs(reservasQuery);
-        misReservas = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
-        renderMisReservas();
-      } catch (error) {
-        console.error("Error al cargar mis reservas:", error);
-        misReservasActivas.innerHTML = '<div class="empty-reservas">No se pudieron cargar tus reservas activas.</div>';
-        misReservasHistorial.innerHTML = '<div class="empty-reservas">No se pudo cargar tu historial.</div>';
+        card.querySelector("button").addEventListener("click", () => abrirPack(pack.id));
+        packsGrid.appendChild(card);
       }
     }
 
-    async function loadAgendaConfig() {
-      try {
-        const configRef = doc(db, COLECCION_CONFIG_PUBLICA, DOC_CONFIG_AGENDA);
-        const [configSnapshot, bloqueadasSnapshot, especialesSnapshot] = await Promise.all([
-          getDoc(configRef),
-          getDocs(query(
-            collection(db, COLECCION_FECHAS_BLOQUEADAS),
-            where("fechaISO", ">=", formatISODate(getToday())),
-            where("fechaISO", "<=", formatISODate(getMaxDate()))
-          )),
-          getDocs(query(
-            collection(db, COLECCION_FECHAS_ESPECIALES),
-            where("fechaISO", ">=", formatISODate(getToday())),
-            where("fechaISO", "<=", formatISODate(getMaxDate()))
-          ))
-        ]);
-
-        agendaConfig = configSnapshot.exists()
-          ? { ...getDefaultAgendaConfig(), ...configSnapshot.data() }
-          : getDefaultAgendaConfig();
-        fechasBloqueadas = new Map(bloqueadasSnapshot.docs.map((item) => [item.id, item.data()]));
-        fechasEspeciales = new Map(especialesSnapshot.docs.map((item) => [item.id, item.data()]));
-      } catch (error) {
-        console.error("Error al cargar configuración de agenda:", error);
-        agendaConfig = getDefaultAgendaConfig();
-        fechasBloqueadas = new Map();
-        fechasEspeciales = new Map();
-      }
-
-      if (fechaSeleccionada) {
-        const currentDate = new Date(`${fechaSeleccionada.iso}T00:00:00`);
-        if (!isSelectableDate(currentDate)) {
-          fechaSeleccionada = null;
-          horarioSeleccionado = null;
-          horariosOcupados = new Map();
-          btnVerHoras.disabled = true;
-          contenedorHoras.classList.add("oculto");
-          horasGrid.innerHTML = "";
-          calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
-          textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
-          slotResumen.innerHTML = "Aún no has elegido un horario.";
-          datosClienteCard.classList.add("paso-oculto");
-        }
-      }
-
-      renderCalendar();
+    function renderOpciones() {
+      renderGrupo("opcionesPlanta", "planta", opciones.planta);
+      renderGrupo("opcionesMacetero", "macetero", opciones.macetero);
+      renderGrupo("opcionesGlobo", "globo", opciones.globo);
+      renderGrupo("opcionesChocolate", "chocolate", opciones.chocolate);
     }
 
-    function updateAuthUI() {
-      const hasSession = Boolean(currentClientUser);
-      authLoggedOut.classList.toggle("paso-oculto", hasSession);
-      authLoggedIn.classList.toggle("paso-oculto", !hasSession);
-      perfilCorreoActivo.textContent = currentClientUser?.email || "Correo";
-      syncClientEmailField();
-
-      if (hasSession) {
-        authEmail.value = currentClientUser.email || authEmail.value;
-        authPassword.value = "";
-        setAuthStatus("Perfil activo. Ya puedes elegir una fecha, una hora y enviar tu solicitud.", "success");
-      } else {
-        setAuthStatus("Inicia sesión o crea tu perfil para reservar de lunes a viernes.", "info");
-        datosClienteCard.classList.add("paso-oculto");
-        mensajeFormulario.textContent = "Debes iniciar sesión para completar la reserva.";
-      }
-
-      renderMisReservas();
+    function renderGrupo(containerId, name, values) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = values.map((value, index) => `
+        <label class="radio-option">
+          <input type="checkbox" name="${name}" value="${value}" ${index === 0 ? "checked" : ""} />
+          <span>${value}</span>
+        </label>
+      `).join("");
     }
 
-    function asegurarSesionCliente() {
-      if (currentClientUser) {
-        return true;
-      }
+    function abrirPack(packId) {
+      packSeleccionado = packs.find((pack) => pack.id === packId);
+      if (!packSeleccionado) return;
 
-      setAuthStatus("Inicia sesión o crea tu perfil para continuar con la reserva.", "error");
-      authCard.scrollIntoView({ behavior: "smooth", block: "start" });
-      return false;
+      modalTitulo.textContent = `Personaliza el pack ${packSeleccionado.nombre}`;
+      modalImagen.src = packSeleccionado.imagen;
+      modalImagen.alt = `Pack ${packSeleccionado.nombre}`;
+      modalPackNombre.textContent = `Pack ${packSeleccionado.nombre}`;
+      modalPackDescripcion.textContent = packSeleccionado.descripcion;
+      modalPackPrecio.textContent = packSeleccionado.precio;
+      formularioPedido.classList.remove("visible");
+      estadoPedido.textContent = "";
+      estadoPedido.className = "estado";
+      actualizarResumen();
+      modalPedido.classList.add("visible");
+      modalPedido.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-abierto");
     }
 
-    function getToday() {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return today;
+    function cerrarModal() {
+      modalPedido.classList.remove("visible");
+      modalPedido.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modal-abierto");
     }
 
-    function getMonthStart(date) {
-      return new Date(date.getFullYear(), date.getMonth(), 1);
+    function getSeleccion(name) {
+      return document.querySelector(`input[name="${name}"]:checked`)?.value || "";
     }
 
-    function getMaxDate() {
-      const max = getToday();
-      max.setDate(max.getDate() + MAX_BOOKING_DAYS);
-      return max;
-    }
+    function manejarCambioOpciones(event) {
+      const input = event.target;
 
-    function formatMonthTitle(date) {
-      const month = MONTH_NAMES[date.getMonth()];
-      return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`;
-    }
+      if (input.matches('input[type="checkbox"][name]')) {
+        const grupo = [...document.querySelectorAll(`input[name="${input.name}"]`)];
 
-    function pad(value) {
-      return String(value).padStart(2, "0");
-    }
-
-    function formatISODate(date) {
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-    }
-
-    function formatDisplayDate(date) {
-      return `${WEEKDAY_NAMES[date.getDay()]} ${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
-    }
-
-    function isSameDate(a, b) {
-      return a.getFullYear() === b.getFullYear()
-        && a.getMonth() === b.getMonth()
-        && a.getDate() === b.getDate();
-    }
-
-    function isSelectableDate(date) {
-      const today = getToday();
-      const maxDate = getMaxDate();
-      return date >= today && date <= maxDate && getAgendaHoursForDate(date, { applyLeadTime: true }).length > 0;
-    }
-
-    function getSelectedDateData(date) {
-      return {
-        iso: formatISODate(date),
-        label: formatDisplayDate(date)
-      };
-    }
-
-    function getSlotId(fechaISO, hora) {
-      return `${fechaISO}_${hora.replace(":", "-")}`;
-    }
-
-    function canMoveMonth(offset) {
-      const nextMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + offset, 1);
-      const firstAllowedMonth = getMonthStart(getToday());
-      const lastAllowedMonth = getMonthStart(getMaxDate());
-      return nextMonth >= firstAllowedMonth && nextMonth <= lastAllowedMonth;
-    }
-
-    function createWeekdayHeaders() {
-      calendarWeekdays.innerHTML = "";
-      WEEKDAY_HEADERS.forEach((label) => {
-        const node = document.createElement("div");
-        node.className = "calendar-weekday";
-        node.textContent = label;
-        calendarWeekdays.appendChild(node);
-      });
-    }
-
-    function setSelectedDate(date) {
-      fechaSeleccionada = getSelectedDateData(date);
-      horarioSeleccionado = null;
-      horariosOcupados = new Map();
-      calendarSelectionText.textContent = `Fecha seleccionada: ${fechaSeleccionada.label}`;
-      textoDiaSeleccionado.textContent = `Fecha elegida: ${fechaSeleccionada.label}`;
-      btnVerHoras.disabled = false;
-      contenedorHoras.classList.add("oculto");
-      horasGrid.innerHTML = "";
-      mensajeHoras.textContent = 'Presiona "Ver horarios" para elegir una hora.';
-      mensajeFormulario.textContent = "";
-      slotResumen.innerHTML = "Aun no has elegido un horario.";
-      datosClienteCard.classList.add("paso-oculto");
-      renderCalendar();
-    }
-
-    function abrirPasoDatos(fechaData, hora) {
-      if (!asegurarSesionCliente()) {
-        return;
-      }
-
-      horarioSeleccionado = { fecha: fechaData.label, fechaISO: fechaData.iso, hora };
-      slotResumen.innerHTML = `<strong>Hora elegida:</strong> ${fechaData.label} a las ${hora}`;
-      mensajeFormulario.textContent = "Completa tus datos para enviar la solicitud.";
-      syncClientEmailField();
-      datosClienteCard.classList.remove("paso-oculto");
-      datosClienteCard.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    function createCalendarDayNode(date) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "calendar-day";
-
-      const shortWeekday = WEEKDAY_HEADERS[(date.getDay() + 6) % 7];
-      const weekdayLabel = document.createElement("small");
-      weekdayLabel.textContent = shortWeekday;
-
-      const dayNumber = document.createElement("span");
-      dayNumber.textContent = pad(date.getDate());
-
-      button.appendChild(weekdayLabel);
-      button.appendChild(dayNumber);
-
-      if (isSameDate(date, getToday())) {
-        button.classList.add("today");
-      }
-
-      if (!isSelectableDate(date)) {
-        button.classList.add("disabled");
-        return button;
-      }
-
-      if (fechaSeleccionada && fechaSeleccionada.iso === formatISODate(date)) {
-        button.classList.add("selected");
-      }
-
-      button.addEventListener("click", () => {
-        setSelectedDate(date);
-      });
-
-      return button;
-    }
-
-    function renderCalendar() {
-      calendarMonthTitle.textContent = formatMonthTitle(calendarMonth);
-      calendarDays.innerHTML = "";
-
-      const firstDayIndex = (calendarMonth.getDay() + 6) % 7;
-      const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate();
-
-      for (let index = 0; index < firstDayIndex; index += 1) {
-        const empty = document.createElement("div");
-        empty.className = "calendar-day empty";
-        calendarDays.appendChild(empty);
-      }
-
-      for (let day = 1; day <= daysInMonth; day += 1) {
-        const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
-        calendarDays.appendChild(createCalendarDayNode(date));
-      }
-
-      btnPrevMonth.disabled = !canMoveMonth(-1);
-      btnNextMonth.disabled = !canMoveMonth(1);
-    }
-
-    function obtenerDatosCliente() {
-      const nombre = normalizarTexto(document.getElementById("nombreCliente").value);
-      const correo = normalizarTexto(correoCliente.value).toLowerCase();
-      const telefono = normalizarTexto(document.getElementById("telefonoCliente").value);
-      const servicio = normalizarTexto(document.getElementById("servicioCliente").value);
-
-      if (!currentClientUser?.email) {
-        alert("Primero inicia sesión o crea tu perfil.");
-        return null;
-      }
-
-      if (!nombre || !correo || !telefono || !servicio) {
-        alert("Completa todos los datos antes de solicitar la hora.");
-        return null;
-      }
-
-      if (nombre.length < 3 || nombre.length > 60) {
-        alert("Escribe un nombre válido.");
-        return null;
-      }
-
-      if (!validarCorreo(correo)) {
-        alert("Escribe un correo válido.");
-        return null;
-      }
-
-      if (correo !== currentClientUser.email.toLowerCase()) {
-        alert("El correo de la reserva debe coincidir con tu perfil activo.");
-        syncClientEmailField();
-        return null;
-      }
-
-      if (!validarTelefono(telefono)) {
-        alert("Escribe un teléfono válido.");
-        return null;
-      }
-
-      if (!SERVICIOS_DISPONIBLES.includes(servicio)) {
-        alert("Selecciona un servicio valido.");
-        return null;
-      }
-
-      return { nombre, correo, telefono, servicio };
-    }
-
-    function limpiarFormulario() {
-      document.getElementById("nombreCliente").value = "";
-      document.getElementById("telefonoCliente").value = "";
-      document.getElementById("servicioCliente").value = "";
-      syncClientEmailField();
-    }
-
-    function puedeReservarAhora() {
-      const ultimaReserva = Number(localStorage.getItem(ULTIMA_RESERVA_KEY) || "0");
-      const restante = RESERVA_COOLDOWN_MS - (Date.now() - ultimaReserva);
-
-      if (restante > 0) {
-        const segundos = Math.ceil(restante / 1000);
-        alert(`Espera ${segundos} segundos antes de intentar otra solicitud.`);
-        return false;
-      }
-
-      return true;
-    }
-
-    function registrarReservaLocal() {
-      localStorage.setItem(ULTIMA_RESERVA_KEY, String(Date.now()));
-    }
-
-    function crearTextoReserva(card, texto) {
-      const info = document.createElement("div");
-      info.className = "reserva-info";
-      info.textContent = texto;
-      card.appendChild(info);
-    }
-
-    async function enviarCorreoReserva(datosReserva) {
-      const response = await fetch("/api/send-booking-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(datosReserva)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Email endpoint error: ${response.status}`);
-      }
-    }
-
-    async function cargarHorariosOcupados(fechaISO) {
-      const disponibilidadQuery = query(
-        collection(db, COLECCION_AGENDA_PUBLICA),
-        where("fechaISO", "==", fechaISO)
-      );
-      const snapshot = await getDocs(disponibilidadQuery);
-      horariosOcupados = new Map(
-        snapshot.docs.map((item) => [item.id, item.data().estado || "pendiente"])
-      );
-    }
-
-    async function solicitarHora() {
-      if (reservaEnProceso) {
-        return;
-      }
-
-      if (!asegurarSesionCliente()) {
-        return;
-      }
-
-      if (!horarioSeleccionado) {
-        alert("Primero elige una fecha y una hora.");
-        return;
-      }
-
-      const datosCliente = obtenerDatosCliente();
-      if (!datosCliente || !puedeReservarAhora()) {
-        return;
-      }
-
-      reservaEnProceso = true;
-
-      const solicitud = {
-        barbero: barberoNombre,
-        fecha: horarioSeleccionado.fecha,
-        fechaISO: horarioSeleccionado.fechaISO,
-        hora: horarioSeleccionado.hora,
-        nombre: datosCliente.nombre,
-        correo: datosCliente.correo,
-        clienteUid: currentClientUser.uid,
-        telefono: datosCliente.telefono,
-        servicio: datosCliente.servicio,
-        estado: "pendiente",
-        creadoEn: serverTimestamp()
-      };
-
-      const disponibilidadRef = doc(db, COLECCION_AGENDA_PUBLICA, getSlotId(horarioSeleccionado.fechaISO, horarioSeleccionado.hora));
-      const solicitudRef = doc(collection(db, COLECCION_SOLICITUDES));
-      const reservaClienteRef = doc(collection(db, COLECCION_RESERVAS_CLIENTE), solicitudRef.id);
-      const disponibilidadPayload = {
-        barbero: barberoNombre,
-        fecha: horarioSeleccionado.fecha,
-        fechaISO: horarioSeleccionado.fechaISO,
-        hora: horarioSeleccionado.hora,
-        estado: "pendiente",
-        creadoEn: serverTimestamp()
-      };
-
-      try {
-        const selectedDate = new Date(`${horarioSeleccionado.fechaISO}T00:00:00`);
-        const horasVigentes = getAgendaHoursForDate(selectedDate, { applyLeadTime: true });
-        await cargarHorariosOcupados(horarioSeleccionado.fechaISO);
-
-        if (!horasVigentes.includes(horarioSeleccionado.hora)) {
-          throw new Error("slot_unavailable");
-        }
-
-        if (horariosOcupados.has(getSlotId(horarioSeleccionado.fechaISO, horarioSeleccionado.hora))) {
-          throw new Error("slot_taken");
-        }
-
-        if (horariosOcupados.size >= getDailyLimit()) {
-          throw new Error("daily_limit");
-        }
-
-        await runTransaction(db, async (transaction) => {
-          const disponibilidadSnapshot = await transaction.get(disponibilidadRef);
-
-          if (disponibilidadSnapshot.exists()) {
-            throw new Error("slot_taken");
+        if (input.checked) {
+          for (const other of grupo) {
+            if (other !== input) other.checked = false;
           }
-
-          transaction.set(solicitudRef, solicitud);
-          transaction.set(reservaClienteRef, solicitud);
-          transaction.set(disponibilidadRef, disponibilidadPayload);
-        });
-
-        registrarReservaLocal();
-        limpiarFormulario();
-        horarioSeleccionado = null;
-        datosClienteCard.classList.add("paso-oculto");
-        slotResumen.innerHTML = "Aún no has elegido un horario.";
-        mensajeFormulario.textContent = "";
-        await renderHoras();
-        await loadMisReservas();
-        mensajeHoras.textContent = `Solicitud enviada para ${solicitud.fecha} a las ${solicitud.hora}. La barbería revisará tu reserva.`;
-        alert("Solicitud enviada con éxito.");
-
-        Promise.allSettled([
-          enviarCorreoReserva({ ...solicitud, notificationType: "new_request", estado: "Pendiente" }),
-          enviarCorreoReserva({ ...solicitud, notificationType: "customer_received", estado: "Pendiente" })
-        ]).then((results) => {
-          results
-            .filter((result) => result.status === "rejected")
-            .forEach((result) => console.error("Error al enviar correo de solicitud:", result.reason));
-        });
-      } catch (error) {
-        console.error("Error al enviar la solicitud:", error);
-        if (error.message === "slot_taken") {
-          await renderHoras();
-          datosClienteCard.classList.add("paso-oculto");
-          horarioSeleccionado = null;
-          slotResumen.innerHTML = "Aún no has elegido un horario.";
-          mensajeFormulario.textContent = "";
-          alert("Esa hora ya no esta disponible. Elige otra.");
-        } else if (error.message === "daily_limit") {
-          await renderHoras();
-          datosClienteCard.classList.add("paso-oculto");
-          horarioSeleccionado = null;
-          slotResumen.innerHTML = "Aún no has elegido un horario.";
-          mensajeFormulario.textContent = "";
-          alert("Ese día ya alcanzó el cupo máximo. Elige otro horario o una fecha distinta.");
-        } else if (error.message === "slot_unavailable") {
-          await renderHoras();
-          datosClienteCard.classList.add("paso-oculto");
-          horarioSeleccionado = null;
-          slotResumen.innerHTML = "Aún no has elegido un horario.";
-          mensajeFormulario.textContent = "";
-          alert("Esa hora dejó de estar disponible por las reglas actuales de agenda. Elige otra.");
-        } else {
-          alert("Hubo un error al registrar la solicitud.");
+        } else if (!grupo.some((option) => option.checked)) {
+          input.checked = true;
         }
-      } finally {
-        reservaEnProceso = false;
       }
+
+      actualizarResumen();
     }
 
-    async function renderHoras() {
-      if (!fechaSeleccionada) {
-        alert("Primero selecciona una fecha.");
-        return;
-      }
-
-      if (cargandoHoras) {
-        return;
-      }
-
-      cargandoHoras = true;
-      btnVerHoras.disabled = true;
-      mensajeHoras.textContent = `Cargando horarios para ${fechaSeleccionada.label}...`;
-
-      try {
-        await cargarHorariosOcupados(fechaSeleccionada.iso);
-      } catch (error) {
-        console.error("Error al cargar horarios ocupados:", error);
-        mensajeHoras.textContent = "No se pudieron cargar los horarios. Intenta nuevamente.";
-        btnVerHoras.disabled = false;
-        cargandoHoras = false;
-        return;
-      }
-
-      contenedorHoras.classList.remove("oculto");
-      horasGrid.innerHTML = "";
-      const selectedDate = new Date(`${fechaSeleccionada.iso}T00:00:00`);
-      const horasBase = getAgendaHoursForDate(selectedDate);
-      const horasDisponibles = getAgendaHoursForDate(selectedDate, { applyLeadTime: true });
-      const dailyLimit = getDailyLimit();
-      const dailyLimitReached = horariosOcupados.size >= dailyLimit;
-
-      if (!horasDisponibles.length) {
-        mensajeHoras.textContent = horasBase.length
-          ? `Ya no quedan horas reservables para ${fechaSeleccionada.label} con la anticipación mínima configurada.`
-          : `No hay horarios configurados para ${fechaSeleccionada.label}.`;
-        contenedorHoras.classList.add("oculto");
-        btnVerHoras.disabled = false;
-        cargandoHoras = false;
-        return;
-      }
-
-      mensajeHoras.textContent = dailyLimitReached
-        ? `El día ${fechaSeleccionada.label} ya alcanzó el cupo máximo configurado.`
-        : `Horarios disponibles para ${fechaSeleccionada.label}.`;
-
-      horasDisponibles.forEach((hora) => {
-        const estadoOcupacion = horariosOcupados.get(getSlotId(fechaSeleccionada.iso, hora)) || null;
-        const cupoCerrado = dailyLimitReached && !estadoOcupacion;
-        const card = document.createElement("div");
-        card.className = "hora-card";
-        if (estadoOcupacion || cupoCerrado) {
-          card.classList.add("ocupada");
-        }
-
-        const top = document.createElement("div");
-        top.className = "hora-top";
-
-        const textoHora = document.createElement("div");
-        textoHora.className = "hora-texto";
-        textoHora.textContent = hora;
-
-        const estado = document.createElement("div");
-        estado.className = estadoOcupacion || cupoCerrado ? "estado-ocupada" : "estado-disponible";
-        estado.textContent = estadoOcupacion === "confirmada"
-          ? "Confirmada"
-          : estadoOcupacion
-            ? "Bloqueada"
-            : cupoCerrado
-              ? "Cupo completo"
-              : "Disponible";
-
-        top.appendChild(textoHora);
-        top.appendChild(estado);
-        card.appendChild(top);
-
-        if (estadoOcupacion) {
-          crearTextoReserva(card, "Esta hora ya está tomada o en revisión. Elige otro horario.");
-        } else if (cupoCerrado) {
-          crearTextoReserva(card, `La agenda de ${fechaSeleccionada.label} ya alcanzó su cupo máximo. Elige otro día.`);
-        } else {
-          crearTextoReserva(card, `La hora quedará en revisión para ${fechaSeleccionada.label} hasta que la barbería la gestione.`);
-        }
-
-        const btnReservar = document.createElement("button");
-        btnReservar.className = "btn-reservar";
-        btnReservar.textContent = estadoOcupacion || cupoCerrado ? "No disponible" : "Elegir hora";
-        btnReservar.disabled = Boolean(estadoOcupacion || cupoCerrado);
-        if (estadoOcupacion || cupoCerrado) {
-          btnReservar.classList.add("btn-bloqueado");
-        } else {
-          btnReservar.addEventListener("click", () => {
-            abrirPasoDatos(fechaSeleccionada, hora);
-          });
-        }
-
-        card.appendChild(btnReservar);
-        horasGrid.appendChild(card);
-      });
-
-      btnVerHoras.disabled = false;
-      cargandoHoras = false;
+    function getPersonalizacion() {
+      return {
+        planta: getSeleccion("planta"),
+        macetero: getSeleccion("macetero"),
+        globo: getSeleccion("globo"),
+        chocolate: getSeleccion("chocolate")
+      };
     }
 
-    async function crearPerfilCliente() {
-      if (authEnProceso) {
-        return;
-      }
-
-      const email = normalizarTexto(authEmail.value).toLowerCase();
-      const password = authPassword.value;
-
-      if (!validarCorreo(email)) {
-        setAuthStatus("Escribe un correo válido para crear tu perfil.", "error");
-        return;
-      }
-
-      if (password.length < 6) {
-        setAuthStatus("La clave debe tener al menos 6 caracteres.", "error");
-        return;
-      }
-
-      setAuthButtonsDisabled(true);
-      setAuthStatus("Creando tu perfil...", "info");
-
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        setAuthStatus("Perfil creado. Ya puedes reservar con tu cuenta.", "success");
-      } catch (error) {
-        console.error("Error al crear perfil:", error);
-        if (error.code === "auth/email-already-in-use") {
-          setAuthStatus("Ese correo ya existe. Prueba iniciar sesión.", "error");
-        } else {
-          setAuthStatus("No se pudo crear el perfil.", "error");
-        }
-      } finally {
-        setAuthButtonsDisabled(false);
-      }
+    function actualizarResumen() {
+      if (!packSeleccionado) return;
+      const personalizacion = getPersonalizacion();
+      resumenPedido.innerHTML = `
+        <strong>${packSeleccionado.nombre} · ${packSeleccionado.precio}</strong><br />
+        Planta: ${personalizacion.planta}<br />
+        Macetero: ${personalizacion.macetero}<br />
+        Globo: ${personalizacion.globo}<br />
+        Chocolate: ${personalizacion.chocolate}
+      `;
     }
 
-    async function iniciarSesionCliente() {
-      if (authEnProceso) {
-        return;
-      }
-
-      const email = normalizarTexto(authEmail.value).toLowerCase();
-      const password = authPassword.value;
-
-      if (!validarCorreo(email) || !password) {
-        setAuthStatus("Completa tu correo y tu clave para iniciar sesión.", "error");
-        return;
-      }
-
-      setAuthButtonsDisabled(true);
-      setAuthStatus("Iniciando sesión...", "info");
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        console.error("Error al iniciar sesión de cliente:", error);
-        setAuthStatus("No se pudo iniciar sesión. Revisa tu correo o tu clave.", "error");
-      } finally {
-        setAuthButtonsDisabled(false);
-      }
+    function setFechaMinima() {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      fechaEntrega.min = hoy.toISOString().slice(0, 10);
     }
 
-    async function recuperarClaveCliente() {
-      if (authEnProceso) {
+    function validarEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function limpiarTexto(value) {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function formatearFecha(fechaISO) {
+      if (!fechaISO) return "";
+      const [year, month, day] = fechaISO.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+      return new Intl.DateTimeFormat("es-CL", {
+        weekday: "short",
+        day: "2-digit",
+        month: "2-digit"
+      }).format(date);
+    }
+
+    async function enviarPedido(event) {
+      event.preventDefault();
+      if (!packSeleccionado) return;
+
+      const nombre = limpiarTexto(clienteNombre.value);
+      const correo = limpiarTexto(clienteCorreo.value).toLowerCase();
+      const telefono = limpiarTexto(clienteTelefono.value);
+      const direccion = limpiarTexto(clienteDireccion.value);
+      const fecha = fechaEntrega.value;
+      const nota = limpiarTexto(observaciones.value);
+      const personalizacion = getPersonalizacion();
+
+      if (nombre.length < 3) {
+        setEstado("Ingresa un nombre válido.", true);
         return;
       }
 
-      const email = normalizarTexto(authEmail.value).toLowerCase();
-
-      if (!validarCorreo(email)) {
-        setAuthStatus("Escribe tu correo para enviarte el enlace de recuperación.", "error");
+      if (!validarEmail(correo)) {
+        setEstado("Ingresa un correo válido.", true);
         return;
       }
 
-      setAuthButtonsDisabled(true);
-      setAuthStatus("Enviando correo de recuperación...", "info");
+      if (!/^[+\d\s()-]{8,20}$/.test(telefono)) {
+        setEstado("Ingresa un teléfono válido.", true);
+        return;
+      }
+
+      if (direccion.length < 6) {
+        setEstado("Ingresa una dirección de entrega.", true);
+        return;
+      }
+
+      if (!fecha) {
+        setEstado("Selecciona una fecha de entrega.", true);
+        return;
+      }
+
+      const servicio = `Pack ${packSeleccionado.nombre}: ${personalizacion.planta}`;
+      const notaInterna = [
+        `Pedido vivero: Pack ${packSeleccionado.nombre} (${packSeleccionado.precio})`,
+        `Planta: ${personalizacion.planta}`,
+        `Macetero: ${personalizacion.macetero}`,
+        `Globo: ${personalizacion.globo}`,
+        `Chocolate: ${personalizacion.chocolate}`,
+        `Dirección: ${direccion}`,
+        nota ? `Observaciones: ${nota}` : ""
+      ].filter(Boolean).join("\n").slice(0, 500);
+
+      setEstado("Enviando pedido...", false);
 
       try {
-        const response = await fetch("/api/send-password-reset-email", {
+        const response = await fetch("/api/send-booking-email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            email
+            notificationType: "new_request",
+            barbero: BRAND_CONFIG.name,
+            nombre,
+            correo,
+            telefono,
+            servicio,
+            fecha: formatearFecha(fecha),
+            hora: "10:00",
+            estado: "Pendiente",
+            notaInterna
           })
         });
-        const payload = await response.json().catch(() => ({}));
+
         if (!response.ok) {
-          throw new Error(payload?.error?.message || "PASSWORD_RESET_FAILED");
+          throw new Error("No se pudo enviar el pedido.");
         }
-        setAuthStatus("Te enviamos un correo para recuperar tu clave. Revisa también spam.", "success");
+
+        formularioPedido.reset();
+        setFechaMinima();
+        renderOpciones();
+        actualizarResumen();
+        setEstado("Pedido enviado. Te contactaremos para confirmar la entrega.", false, true);
       } catch (error) {
-        console.error("Error al enviar recuperación de clave:", error);
-        setAuthStatus("No se pudo enviar el correo de recuperación.", "error");
-      } finally {
-        setAuthButtonsDisabled(false);
+        console.error(error);
+        setEstado("No se pudo enviar el pedido. Intenta nuevamente.", true);
       }
     }
 
-    async function cerrarSesionCliente() {
-      if (authEnProceso) {
-        return;
-      }
-
-      setAuthButtonsDisabled(true);
-
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error("Error al cerrar sesión de cliente:", error);
-        setAuthStatus("No se pudo cerrar sesión.", "error");
-      } finally {
-        setAuthButtonsDisabled(false);
-      }
+    function setEstado(message, isError = false, isOk = false) {
+      estadoPedido.textContent = message;
+      estadoPedido.className = `estado${isError ? " error" : ""}${isOk ? " ok" : ""}`;
     }
-
-    btnPrevMonth.addEventListener("click", () => {
-      if (!canMoveMonth(-1)) {
-        return;
-      }
-
-      calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
-      renderCalendar();
-    });
-
-    btnNextMonth.addEventListener("click", () => {
-      if (!canMoveMonth(1)) {
-        return;
-      }
-
-      calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1);
-      renderCalendar();
-    });
-
-    btnVerHoras.addEventListener("click", () => {
-      if (!fechaSeleccionada) {
-        alert("Primero selecciona una fecha.");
-        return;
-      }
-
-      renderHoras();
-    });
-
-    btnEnviarSolicitud.addEventListener("click", () => {
-      solicitarHora();
-    });
-
-    btnCrearPerfil.addEventListener("click", () => {
-      crearPerfilCliente();
-    });
-
-    btnIniciarSesion.addEventListener("click", () => {
-      iniciarSesionCliente();
-    });
-
-    btnRecuperarClave.addEventListener("click", () => {
-      recuperarClaveCliente();
-    });
-
-    btnCerrarSesionCliente.addEventListener("click", () => {
-      cerrarSesionCliente();
-    });
-
-    authPassword.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        iniciarSesionCliente();
-      }
-    });
-
-    btnAbrirReserva.addEventListener("click", () => {
-      seccionReservas.classList.remove("oculto-inicial");
-      seccionReservas.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-
-    onAuthStateChanged(auth, async (user) => {
-      currentClientUser = user;
-      updateAuthUI();
-      await loadMisReservas();
-    });
-
-    async function iniciar() {
-      createWeekdayHeaders();
-      await loadAgendaConfig();
-      renderCalendar();
-      syncClientEmailField();
-      renderMisReservas();
-      textoDiaSeleccionado.textContent = "No has seleccionado ninguna fecha.";
-      calendarSelectionText.textContent = "Fecha seleccionada: ninguna";
-      mensajeHoras.textContent = "Las solicitudes se registran sin exponer datos de otros clientes.";
-      mensajeFormulario.textContent = "Debes iniciar sesion para completar la reserva.";
-
-      if (window.location.hash === "#reservas") {
-        seccionReservas.classList.remove("oculto-inicial");
-      }
-    }
-
-    iniciar();
   </script>
 </body>
 </html>
