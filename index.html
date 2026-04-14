@@ -31,7 +31,10 @@
     }
 
     body {
-      min-height: 100vh;
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
       background:
         radial-gradient(circle at top left, rgba(156, 195, 120, 0.28), transparent 30%),
         linear-gradient(180deg, #fffdf7 0%, #f3f8ee 48%, #fbfaf5 100%);
@@ -59,8 +62,17 @@
       max-width: 100%;
     }
 
+    main {
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+    }
+
     .hero {
-      min-height: 100vh;
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
       display: grid;
       place-items: center;
       padding: 28px 18px;
@@ -95,17 +107,17 @@
     }
 
     .hero-card {
-      width: min(1120px, 100%);
+      width: min(980px, 100%);
       display: grid;
-      grid-template-columns: 1.02fr 0.98fr;
-      gap: 34px;
-      align-items: center;
+      gap: 24px;
+      justify-items: center;
+      text-align: center;
       position: relative;
       z-index: 1;
-      background: rgba(255, 255, 255, 0.74);
+      background: rgba(255, 255, 255, 0.70);
       border: 1px solid rgba(255, 255, 255, 0.86);
       border-radius: 36px;
-      padding: clamp(22px, 4vw, 44px);
+      padding: clamp(22px, 4vw, 42px);
       box-shadow: var(--shadow);
       backdrop-filter: blur(18px);
       animation: aparecer 0.7s ease both;
@@ -138,8 +150,8 @@
       color: var(--muted);
       font-size: clamp(1.05rem, 2vw, 1.24rem);
       line-height: 1.65;
-      max-width: 640px;
-      margin-bottom: 28px;
+      max-width: 620px;
+      margin: 0 auto 26px;
     }
 
     .hero-actions {
@@ -147,6 +159,7 @@
       gap: 12px;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
     }
 
     .btn-principal,
@@ -170,6 +183,12 @@
       box-shadow: 0 18px 34px rgba(68, 112, 57, 0.24);
     }
 
+    .hero .btn-principal {
+      min-height: 64px;
+      padding: 0 34px;
+      font-size: 1.08rem;
+    }
+
     .btn-secundario {
       background: #ffffff;
       color: var(--accent-dark);
@@ -184,9 +203,10 @@
 
     .hero-visual {
       position: relative;
-      min-height: 480px;
+      min-height: 0;
       display: grid;
       place-items: center;
+      order: -1;
     }
 
     .hero-visual::before {
@@ -200,16 +220,17 @@
     }
 
     .hero-visual img {
-      width: min(430px, 92%);
-      height: 430px;
+      width: min(520px, 86vw);
+      height: min(320px, 42vh);
       object-fit: cover;
-      border-radius: 40px;
+      border-radius: 34px;
       position: relative;
       box-shadow: 0 28px 70px rgba(47, 91, 45, 0.24);
-      transform: rotate(1.5deg);
+      transform: none;
     }
 
     .mini-card {
+      display: none;
       position: absolute;
       right: 8px;
       bottom: 44px;
@@ -233,7 +254,27 @@
     }
 
     .section {
-      padding: 76px 18px;
+      position: fixed;
+      inset: 0;
+      z-index: 8;
+      padding: clamp(18px, 4vw, 44px) 18px;
+      display: grid;
+      align-items: center;
+      background:
+        radial-gradient(circle at top right, rgba(111, 159, 104, 0.24), transparent 34%),
+        rgba(251, 250, 245, 0.92);
+      backdrop-filter: blur(18px);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(14px) scale(0.985);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      overflow-y: auto;
+    }
+
+    .section.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
     }
 
     .container {
@@ -245,7 +286,26 @@
       display: grid;
       gap: 10px;
       text-align: center;
-      margin-bottom: 34px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .cerrar-ofertas {
+      justify-self: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid var(--border);
+      color: var(--accent-dark);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .cerrar-ofertas:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
     }
 
     .section-head span {
@@ -620,12 +680,42 @@
 
     @media (max-width: 560px) {
       .hero {
-        padding: 18px 12px;
+        padding: 12px;
       }
 
       .hero-card,
       .modal-card {
         border-radius: 24px;
+      }
+
+      .hero-card {
+        max-height: calc(100svh - 24px);
+        gap: 14px;
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: clamp(2.45rem, 13vw, 3.65rem);
+        margin-bottom: 12px;
+      }
+
+      .hero-etiqueta {
+        margin-bottom: 12px;
+      }
+
+      .hero-copy {
+        font-size: 0.98rem;
+        line-height: 1.5;
+        margin-bottom: 18px;
+      }
+
+      .hero-visual img {
+        height: min(38vh, 280px);
+        border-radius: 24px;
+      }
+
+      .hero .btn-principal {
+        min-height: 58px;
       }
 
       .hero-actions,
@@ -666,14 +756,13 @@
             personalízala en segundos y agenda la entrega.
           </p>
           <div class="hero-actions">
-            <button type="button" class="btn-principal" id="btnVerPromocion">Promoción Día de la Madre</button>
-            <a class="btn-secundario" href="#ofertas">Ver packs</a>
+            <button type="button" class="btn-principal" id="btnVerPromocion">Ver Promoción</button>
           </div>
         </div>
 
         <div class="hero-visual" aria-hidden="true">
           <img
-            src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=85"
+            src="/assets/flor-de-loto-portada.png"
             alt=""
           />
           <div class="mini-card">
@@ -684,7 +773,7 @@
       </div>
     </section>
 
-    <section class="section" id="ofertas">
+    <section class="section" id="ofertas" aria-hidden="true">
       <div class="container">
         <div class="section-head">
           <span>Promoción especial</span>
@@ -693,6 +782,7 @@
             Tres opciones simples para vender rápido: el cliente elige un pack,
             lo personaliza y envía el pedido en pocos pasos.
           </p>
+          <button type="button" class="cerrar-ofertas" id="btnCerrarOfertas">Volver a portada</button>
         </div>
 
         <div class="packs-grid" id="packsGrid"></div>
@@ -796,7 +886,9 @@
     };
 
     const packsGrid = document.getElementById("packsGrid");
+    const ofertasPanel = document.getElementById("ofertas");
     const btnVerPromocion = document.getElementById("btnVerPromocion");
+    const btnCerrarOfertas = document.getElementById("btnCerrarOfertas");
     const modalPedido = document.getElementById("modalPedido");
     const btnCerrarModal = document.getElementById("btnCerrarModal");
     const modalTitulo = document.getElementById("modalTitulo");
@@ -823,7 +915,13 @@
     setFechaMinima();
 
     btnVerPromocion.addEventListener("click", () => {
-      document.getElementById("ofertas").scrollIntoView({ behavior: "smooth", block: "start" });
+      ofertasPanel.classList.add("visible");
+      ofertasPanel.setAttribute("aria-hidden", "false");
+    });
+
+    btnCerrarOfertas.addEventListener("click", () => {
+      ofertasPanel.classList.remove("visible");
+      ofertasPanel.setAttribute("aria-hidden", "true");
     });
 
     btnCerrarModal.addEventListener("click", cerrarModal);
@@ -834,6 +932,9 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && modalPedido.classList.contains("visible")) {
         cerrarModal();
+      } else if (event.key === "Escape" && ofertasPanel.classList.contains("visible")) {
+        ofertasPanel.classList.remove("visible");
+        ofertasPanel.setAttribute("aria-hidden", "true");
       }
     });
 

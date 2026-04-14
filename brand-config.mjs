@@ -6,7 +6,7 @@ export const BRAND_CONFIG = {
   bookingTitle: "Promoción Día de la Madre",
   bookingSubtitle: "Elige un pack, personalízalo y envía tu pedido en pocos pasos.",
   contactEmail: "victoriap.rodriguezs@gmail.com",
-  heroImageUrl: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1400&q=85",
+  heroImageUrl: "/assets/flor-de-loto-portada.png",
   faviconPath: "/favicon.svg",
   mapAddressText: "Av. Miraflores 1702, Peñaflor, Región Metropolitana",
   mapAddressLines: ["Av. Miraflores 1702", "Peñaflor, Región Metropolitana"],
