@@ -97,7 +97,7 @@
       width: 100%;
       height: 100%;
       display: grid;
-      grid-template-rows: minmax(130px, 0.78fr) auto minmax(220px, 1.22fr);
+      grid-template-rows: minmax(92px, 0.55fr) auto minmax(280px, 1.45fr);
       gap: 0;
       justify-items: center;
       text-align: center;
@@ -116,7 +116,7 @@
       align-self: start;
       display: grid;
       justify-items: center;
-      padding-top: clamp(4px, 2.5vh, 22px);
+      padding-top: 0;
     }
 
     .hero-etiqueta {
@@ -161,7 +161,7 @@
       align-items: center;
       justify-content: center;
       align-self: end;
-      padding-bottom: clamp(10px, 2.4vh, 28px);
+      padding-bottom: clamp(0px, 0.8vh, 10px);
     }
 
     .btn-principal,
@@ -180,16 +180,19 @@
     }
 
     .btn-principal {
-      background: linear-gradient(135deg, #f2df82, #b59b3f);
-      color: #061715;
-      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
+      background: rgba(255, 248, 216, 0.12);
+      color: #fff8d8;
+      border: 1px solid rgba(255, 248, 216, 0.38);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(10px);
     }
 
     .hero .btn-principal {
       min-height: 68px;
       padding: 0 38px;
       font-size: 1.12rem;
-      border: 1px solid rgba(255, 248, 216, 0.42);
+      background: rgba(3, 24, 20, 0.26);
+      border-color: rgba(255, 248, 216, 0.46);
     }
 
     .btn-secundario {
@@ -202,6 +205,10 @@
     .btn-secundario:hover {
       transform: translateY(-2px);
       box-shadow: 0 24px 44px rgba(0, 0, 0, 0.38);
+    }
+
+    .hero .btn-principal:hover {
+      background: rgba(255, 248, 216, 0.2);
     }
 
     .hero-visual {
@@ -336,7 +343,7 @@
       display: grid;
       grid-template-rows: auto 1fr;
       gap: 0;
-      background: rgba(255, 250, 240, 0.92);
+      background: #f4ecdc;
       border: 1px solid rgba(255, 248, 216, 0.24);
       border-radius: 2px;
       padding: 0;
@@ -374,7 +381,8 @@
       display: grid;
       gap: 14px;
       align-content: start;
-      padding: 22px;
+      padding: 24px 24px 26px;
+      background: #f4ecdc;
     }
 
     .pack-top {
@@ -729,7 +737,7 @@
       .hero-card {
         max-height: none;
         padding: 22px 14px;
-        grid-template-rows: minmax(118px, 0.72fr) auto minmax(210px, 1.28fr);
+        grid-template-rows: minmax(84px, 0.48fr) auto minmax(250px, 1.52fr);
       }
 
       h1 {
@@ -749,6 +757,7 @@
 
       .hero .btn-principal {
         min-height: 62px;
+        background: rgba(3, 24, 20, 0.3);
       }
 
       .hero-actions,
@@ -810,10 +819,6 @@
         <div class="section-head">
           <span>Promoción especial</span>
           <h2>Packs Día de la Madre</h2>
-          <p>
-            Tres opciones simples para vender rápido: el cliente elige un pack,
-            lo personaliza y envía el pedido en pocos pasos.
-          </p>
           <button type="button" class="cerrar-ofertas" id="btnCerrarOfertas">Volver a portada</button>
         </div>
 
