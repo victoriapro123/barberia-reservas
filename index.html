@@ -579,6 +579,19 @@
       transform: translateX(-50%) rotate(-6deg);
     }
 
+    .basic-preview[data-mode="balloon"] #basicPreviewPlant,
+    .basic-preview[data-mode="balloon"] #basicPreviewPot {
+      display: none;
+    }
+
+    .basic-preview[data-mode="balloon"] #basicPreviewBalloon {
+      top: 6%;
+      left: 50%;
+      width: 54%;
+      height: 54%;
+      transform: translateX(-50%) rotate(-4deg);
+    }
+
     .basic-preview[data-plant="suculenta"] #basicPreviewPlant {
       top: 14%;
       width: 62%;
@@ -1054,11 +1067,6 @@
               <div class="radio-grid" id="opcionesGlobo"></div>
             </fieldset>
 
-            <fieldset class="grupo-opciones">
-              <legend>Chocolate</legend>
-              <div class="radio-grid" id="opcionesChocolate"></div>
-            </fieldset>
-
             <button type="button" class="btn-principal" id="btnRealizarPedido">Realizar Pedido</button>
           </form>
 
@@ -1110,8 +1118,7 @@
     const opciones = {
       planta: ["Loto", "Suculenta", "Lavanda", "Anturio"],
       macetero: ["Cerámica blanca", "Greda natural", "Fibra vegetal", "Minimal verde"],
-      globo: ["Feliz Día Mamá", "Te quiero mamá", "Con amor", "Sin globo"],
-      chocolate: ["Bombones", "Chocolate artesanal", "Trufas", "Sin chocolate"]
+      globo: ["Feliz Día Mamá", "Te quiero mamá", "Con amor", "Sin globo"]
     };
 
     const opcionesBasicas = {
@@ -1254,6 +1261,7 @@
     let selectedPlant = "suculenta";
     let selectedPot = "macetero1";
     let selectedBalloon = "globo1";
+    let previewMode = "arrangement";
 
     document.title = BRAND_CONFIG.name;
     renderPacks();
@@ -1336,7 +1344,6 @@
       } else {
         renderGrupo("opcionesGlobo", "globo", opciones.globo);
       }
-      renderGrupo("opcionesChocolate", "chocolate", opciones.chocolate);
     }
 
     function renderGrupo(containerId, name, values) {
@@ -1362,6 +1369,7 @@
       selectedPlant = getPreviewConfig()?.fallback.planta || "suculenta";
       selectedPot = getPreviewConfig()?.fallback.macetero || "macetero1";
       selectedBalloon = getPreviewConfig()?.fallback.globo || "globo1";
+      previewMode = "arrangement";
       renderOpciones();
       setPreviewMode();
       modalImagen.alt = `Pack ${packSeleccionado.nombre}`;
@@ -1412,6 +1420,7 @@
         selectedPlant = getSeleccion("planta") || fallback.planta;
         selectedPot = getSeleccion("macetero") || fallback.macetero;
         selectedBalloon = getSeleccion("globo") || fallback.globo || "globo1";
+        previewMode = input.name === "globo" ? "balloon" : "arrangement";
         updateBasicPreview();
       }
 
@@ -1422,8 +1431,7 @@
       return {
         planta: getSeleccionLabel("planta"),
         macetero: getSeleccionLabel("macetero"),
-        globo: getSeleccionLabel("globo"),
-        chocolate: getSeleccionLabel("chocolate")
+        globo: getSeleccionLabel("globo")
       };
     }
 
@@ -1440,8 +1448,10 @@
       delete basicPreview.dataset.plant;
       delete basicPreview.dataset.pot;
       delete basicPreview.dataset.balloon;
+      delete basicPreview.dataset.mode;
       basicPreviewBalloon.src = "";
       basicPreviewBalloon.alt = "";
+      basicPreviewBalloon.style.display = "none";
       modalImagen.style.display = "block";
       modalImagen.src = packSeleccionado?.imagen || "";
     }
@@ -1462,6 +1472,7 @@
         basicPreview.dataset.plant = selectedPlant;
         basicPreview.dataset.pot = selectedPot;
         basicPreview.dataset.balloon = selectedBalloon;
+        basicPreview.dataset.mode = previewMode;
         basicPreviewBalloon.src = balloonPreview || "";
         basicPreviewBalloon.alt = getSeleccionLabel("globo");
         basicPreviewBalloon.style.display = balloonPreview ? "block" : "none";
@@ -1490,8 +1501,7 @@
         <strong>${packSeleccionado.nombre} · ${packSeleccionado.precio}</strong><br />
         Planta: ${personalizacion.planta}<br />
         Macetero: ${personalizacion.macetero}<br />
-        Globo: ${personalizacion.globo}<br />
-        Chocolate: ${personalizacion.chocolate}
+        Globo: ${personalizacion.globo}
       `;
     }
 
@@ -1563,7 +1573,6 @@
         `Planta: ${personalizacion.planta}`,
         `Macetero: ${personalizacion.macetero}`,
         `Globo: ${personalizacion.globo}`,
-        `Chocolate: ${personalizacion.chocolate}`,
         `Dirección: ${direccion}`,
         nota ? `Observaciones: ${nota}` : ""
       ].filter(Boolean).join("\n").slice(0, 500);
@@ -1597,6 +1606,14 @@
         formularioPedido.reset();
         setFechaMinima();
         renderOpciones();
+        if (getPreviewConfig()) {
+          const fallback = getPreviewConfig().fallback;
+          selectedPlant = fallback.planta;
+          selectedPot = fallback.macetero;
+          selectedBalloon = fallback.globo || "globo1";
+          previewMode = "arrangement";
+          updateBasicPreview(true);
+        }
         actualizarResumen();
         setEstado("Pedido enviado. Te contactaremos para confirmar la entrega.", false, true);
       } catch (error) {
