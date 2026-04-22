@@ -480,6 +480,7 @@
     .modal-head h2 {
       font-size: clamp(1.4rem, 4vw, 2.15rem);
       letter-spacing: -0.03em;
+      color: var(--accent-dark);
     }
 
     .cerrar-modal {
@@ -729,6 +730,28 @@
       border-color: var(--accent);
       color: var(--accent-dark);
       transform: translateY(-1px);
+    }
+
+    .radio-option--visual span {
+      min-height: 186px;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 12px;
+    }
+
+    .radio-option--visual img {
+      width: min(100%, 132px);
+      height: 118px;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .radio-option--visual strong {
+      font-size: 1rem;
+      line-height: 1.2;
+      color: inherit;
     }
 
     .formulario-pedido {
@@ -1120,9 +1143,9 @@
     };
 
     const opcionesGlobosVisuales = [
-      { value: "globo1", label: "Globo 1" },
-      { value: "globo2", label: "Globo 2" },
-      { value: "globo3", label: "Globo 3" }
+      { value: "globo1", label: "Globo 1", image: "/images/globo1.png" },
+      { value: "globo2", label: "Globo 2", image: "/images/globo2.png" },
+      { value: "globo3", label: "Globo 3", image: "/images/globo3.png" }
     ];
 
     const previewImages = {
@@ -1287,11 +1310,21 @@
       container.innerHTML = values.map((option, index) => {
         const value = typeof option === "string" ? option : option.value;
         const label = typeof option === "string" ? option : option.label;
+        const image = typeof option === "string" ? "" : option.image || "";
+        const optionClass = image ? "radio-option radio-option--visual" : "radio-option";
+        const content = image
+          ? `
+            <span>
+              <img src="${image}" alt="${label}" />
+              <strong>${label}</strong>
+            </span>
+          `
+          : `<span>${label}</span>`;
 
         return `
-        <label class="radio-option">
+        <label class="${optionClass}">
           <input type="checkbox" name="${name}" value="${value}" data-label="${label}" ${index === 0 ? "checked" : ""} />
-          <span>${label}</span>
+          ${content}
         </label>
       `;
       }).join("");
