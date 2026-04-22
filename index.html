@@ -570,6 +570,15 @@
       transform: translateX(-50%);
     }
 
+    #basicPreviewBalloon {
+      z-index: 6;
+      top: 2%;
+      left: 74%;
+      width: 28%;
+      height: 28%;
+      transform: translateX(-50%);
+    }
+
     .basic-preview[data-plant="suculenta"] #basicPreviewPlant {
       top: 14%;
       width: 62%;
@@ -618,6 +627,40 @@
       width: 70%;
       height: 58%;
       transform: translateX(-56%);
+    }
+
+    .basic-preview[data-pack="premium"] #basicPreviewPot {
+      bottom: 7%;
+      width: 42%;
+      height: 36%;
+    }
+
+    .basic-preview[data-pack="premium"] #basicPreviewPlant {
+      top: 8%;
+      width: 56%;
+      height: 64%;
+    }
+
+    .basic-preview[data-pack="premium"] #basicPreviewBalloon {
+      top: 1%;
+      left: 76%;
+      width: 30%;
+      height: 30%;
+    }
+
+    .basic-preview[data-pack="premium"][data-pot="premiumMacetero1"] #basicPreviewPot {
+      width: 46%;
+      height: 38%;
+    }
+
+    .basic-preview[data-pack="premium"][data-pot="premiumMacetero2"] #basicPreviewPot {
+      width: 40%;
+      height: 34%;
+    }
+
+    .basic-preview[data-pack="premium"][data-pot="premiumMacetero3"] #basicPreviewPot {
+      width: 40%;
+      height: 34%;
     }
 
     .modal-side {
@@ -968,6 +1011,7 @@
         <div class="modal-preview">
           <img class="modal-image" id="modalImagen" src="" alt="" />
           <div class="basic-preview" id="basicPreview" aria-label="Preview del pack seleccionado">
+            <img id="basicPreviewBalloon" src="" alt="" />
             <img id="basicPreviewPlant" src="" alt="" />
             <img id="basicPreviewPot" src="" alt="" />
           </div>
@@ -1047,7 +1091,7 @@
         nombre: "Premium",
         precio: "$34.990",
         descripcion: "Una propuesta más completa y elegante para un regalo de alto impacto.",
-        imagen: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=85"
+        imagen: "/images/premium-planta1.png"
       }
     ];
 
@@ -1084,6 +1128,23 @@
       ]
     };
 
+    const opcionesPremium = {
+      planta: [
+        { value: "premiumPlanta1", label: "Planta exclusiva" }
+      ],
+      macetero: [
+        { value: "premiumMacetero1", label: "Macetero 1" },
+        { value: "premiumMacetero2", label: "Macetero 2" },
+        { value: "premiumMacetero3", label: "Macetero 3" }
+      ]
+    };
+
+    const opcionesGlobosVisuales = [
+      { value: "globo1", label: "Globo 1" },
+      { value: "globo2", label: "Globo 2" },
+      { value: "globo3", label: "Globo 3" }
+    ];
+
     const previewImages = {
       basico: {
         plantas: {
@@ -1096,9 +1157,15 @@
           macetero2: "/images/macetero2.png",
           macetero3: "/images/macetero3.png"
         },
+        globos: {
+          globo1: "/images/globo1.png",
+          globo2: "/images/globo2.png",
+          globo3: "/images/globo3.png"
+        },
         fallback: {
           planta: "suculenta",
-          macetero: "macetero1"
+          macetero: "macetero1",
+          globo: "globo1"
         }
       },
       intermedio: {
@@ -1112,9 +1179,35 @@
           intermedioMacetero2: "/images/intermedio-macetero2.png",
           intermedioMacetero3: "/images/intermedio-macetero3.png"
         },
+        globos: {
+          globo1: "/images/globo1.png",
+          globo2: "/images/globo2.png",
+          globo3: "/images/globo3.png"
+        },
         fallback: {
           planta: "intermedioPlanta1",
-          macetero: "intermedioMacetero1"
+          macetero: "intermedioMacetero1",
+          globo: "globo1"
+        }
+      },
+      premium: {
+        plantas: {
+          premiumPlanta1: "/images/premium-planta1.png"
+        },
+        maceteros: {
+          premiumMacetero1: "/images/premium-macetero1.png",
+          premiumMacetero2: "/images/premium-macetero2.png",
+          premiumMacetero3: "/images/premium-macetero3.png"
+        },
+        globos: {
+          globo1: "/images/globo1.png",
+          globo2: "/images/globo2.png",
+          globo3: "/images/globo3.png"
+        },
+        fallback: {
+          planta: "premiumPlanta1",
+          macetero: "premiumMacetero1",
+          globo: "globo1"
         }
       }
     };
@@ -1128,6 +1221,7 @@
     const modalTitulo = document.getElementById("modalTitulo");
     const modalImagen = document.getElementById("modalImagen");
     const basicPreview = document.getElementById("basicPreview");
+    const basicPreviewBalloon = document.getElementById("basicPreviewBalloon");
     const basicPreviewPlant = document.getElementById("basicPreviewPlant");
     const basicPreviewPot = document.getElementById("basicPreviewPot");
     const modalPackNombre = document.getElementById("modalPackNombre");
@@ -1147,6 +1241,7 @@
     let packSeleccionado = null;
     let selectedPlant = "suculenta";
     let selectedPot = "macetero1";
+    let selectedBalloon = "globo1";
 
     document.title = BRAND_CONFIG.name;
     renderPacks();
@@ -1216,12 +1311,19 @@
       } else if (packSeleccionado?.id === "intermedio") {
         renderGrupo("opcionesPlanta", "planta", opcionesIntermedias.planta);
         renderGrupo("opcionesMacetero", "macetero", opcionesIntermedias.macetero);
+      } else if (packSeleccionado?.id === "premium") {
+        renderGrupo("opcionesPlanta", "planta", opcionesPremium.planta);
+        renderGrupo("opcionesMacetero", "macetero", opcionesPremium.macetero);
       } else {
         renderGrupo("opcionesPlanta", "planta", opciones.planta);
         renderGrupo("opcionesMacetero", "macetero", opciones.macetero);
       }
 
-      renderGrupo("opcionesGlobo", "globo", opciones.globo);
+      if (getPreviewConfig()?.globos) {
+        renderGrupo("opcionesGlobo", "globo", opcionesGlobosVisuales);
+      } else {
+        renderGrupo("opcionesGlobo", "globo", opciones.globo);
+      }
       renderGrupo("opcionesChocolate", "chocolate", opciones.chocolate);
     }
 
@@ -1247,6 +1349,7 @@
       modalTitulo.textContent = `Personaliza el pack ${packSeleccionado.nombre}`;
       selectedPlant = getPreviewConfig()?.fallback.planta || "suculenta";
       selectedPot = getPreviewConfig()?.fallback.macetero || "macetero1";
+      selectedBalloon = getPreviewConfig()?.fallback.globo || "globo1";
       renderOpciones();
       setPreviewMode();
       modalImagen.alt = `Pack ${packSeleccionado.nombre}`;
@@ -1292,10 +1395,11 @@
         }
       }
 
-      if (getPreviewConfig() && input.matches('input[name="planta"], input[name="macetero"]')) {
+      if (getPreviewConfig() && input.matches('input[name="planta"], input[name="macetero"], input[name="globo"]')) {
         const fallback = getPreviewConfig().fallback;
         selectedPlant = getSeleccion("planta") || fallback.planta;
         selectedPot = getSeleccion("macetero") || fallback.macetero;
+        selectedBalloon = getSeleccion("globo") || fallback.globo || "globo1";
         updateBasicPreview();
       }
 
@@ -1323,6 +1427,7 @@
       delete basicPreview.dataset.pack;
       delete basicPreview.dataset.plant;
       delete basicPreview.dataset.pot;
+      delete basicPreview.dataset.balloon;
       modalImagen.style.display = "block";
       modalImagen.src = packSeleccionado?.imagen || "";
     }
@@ -1337,10 +1442,14 @@
 
       const plantPreview = previewConfig.plantas[selectedPlant] || previewConfig.plantas[previewConfig.fallback.planta];
       const potPreview = previewConfig.maceteros[selectedPot] || previewConfig.maceteros[previewConfig.fallback.macetero];
+      const balloonPreview = previewConfig.globos?.[selectedBalloon] || previewConfig.globos?.[previewConfig.fallback.globo];
       const applyPreview = () => {
         basicPreview.dataset.pack = packSeleccionado.id;
         basicPreview.dataset.plant = selectedPlant;
         basicPreview.dataset.pot = selectedPot;
+        basicPreview.dataset.balloon = selectedBalloon;
+        basicPreviewBalloon.src = balloonPreview || "";
+        basicPreviewBalloon.alt = getSeleccionLabel("globo");
         basicPreviewPlant.src = plantPreview;
         basicPreviewPlant.alt = getSeleccionLabel("planta");
         basicPreviewPot.src = potPreview;
