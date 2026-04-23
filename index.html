@@ -584,9 +584,9 @@
     }
 
     .basic-preview[data-plant="planta3"] #basicPreviewPlant {
-      top: 12%;
-      width: 66%;
-      height: 52%;
+      top: 8%;
+      width: 72%;
+      height: 48%;
     }
 
     .basic-preview[data-pack="intermedio"] #basicPreviewPot {
@@ -628,10 +628,10 @@
     }
 
     .basic-preview[data-pack="premium"] #basicPreviewPlant {
-      top: 2%;
-      width: 48%;
-      height: 56%;
-      transform: translateX(-48%);
+      top: -1%;
+      width: 54%;
+      height: 58%;
+      transform: translateX(-50%);
     }
 
     .basic-preview[data-pack="premium"][data-pot="premiumMacetero1"] #basicPreviewPot {
@@ -909,11 +909,16 @@
 
     .post-compra {
       display: none;
-      gap: 12px;
-      background: #ffffff;
-      border: 1px solid rgba(63, 110, 59, 0.12);
+      gap: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 249, 238, 0.98));
+      border: 1px solid rgba(63, 110, 59, 0.16);
       border-radius: 2px;
-      padding: 16px;
+      padding: clamp(28px, 5vw, 44px);
+      min-height: 260px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
       animation: aparecer 0.24s ease both;
     }
 
@@ -923,12 +928,24 @@
 
     .post-compra strong {
       color: var(--accent-dark);
-      font-size: 1.1rem;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      max-width: 12ch;
     }
 
     .post-compra p {
       color: var(--muted);
-      line-height: 1.55;
+      line-height: 1.65;
+      max-width: 42ch;
+      font-size: 1.02rem;
+    }
+
+    .post-compra .btn-principal {
+      min-width: min(100%, 320px);
+      min-height: 58px;
+      justify-self: center;
+      font-size: 1rem;
     }
 
     .modal .btn-principal {
@@ -1206,21 +1223,21 @@
       {
         id: "basico",
         nombre: "Básico",
-        precio: "$14.990",
+        precio: "$15.000",
         descripcion: "Un detalle natural, lindo y accesible para sorprender sin complicarse.",
         imagen: "/images/suculenta.png"
       },
       {
         id: "intermedio",
         nombre: "Intermedio",
-        precio: "$24.990",
+        precio: "$25.000",
         descripcion: "El equilibrio perfecto: planta protagonista, macetero bonito y detalle dulce.",
         imagen: "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=900&q=85"
       },
       {
         id: "premium",
         nombre: "Premium",
-        precio: "$34.990",
+        precio: "$55.000",
         descripcion: "Una propuesta más completa y elegante para un regalo de alto impacto.",
         imagen: "/images/premium-planta1.png"
       }
