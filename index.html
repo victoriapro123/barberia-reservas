@@ -1231,7 +1231,7 @@
             <div class="estado" id="estadoPedido"></div>
             <div class="post-compra" id="postCompra">
               <strong>¡Gracias por su compra!</strong>
-              <p>Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.</p>
+              <p id="postCompraTexto">Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.</p>
               <a
                 class="btn-principal"
                 id="btnWhatsapp"
@@ -1391,6 +1391,7 @@
     const estadoPedido = document.getElementById("estadoPedido");
     const incluyeDelivery = document.getElementById("incluyeDelivery");
     const postCompra = document.getElementById("postCompra");
+    const postCompraTexto = document.getElementById("postCompraTexto");
     const btnWhatsapp = document.getElementById("btnWhatsapp");
     const clienteNombre = document.getElementById("clienteNombre");
     const clienteCorreo = document.getElementById("clienteCorreo");
@@ -1607,6 +1608,22 @@
       return getBasePrice() + getDeliveryExtra();
     }
 
+    function buildWhatsappOrderMessage({ nombre, correo, telefono, direccion, nota, personalizacion, conDelivery, total }) {
+      return [
+        `Hola, quiero confirmar este pedido de ${packSeleccionado.nombre} en Jardín Flor de Loto:`,
+        `Nombre: ${nombre}`,
+        `Correo: ${correo}`,
+        `Teléfono: ${telefono}`,
+        `Planta: ${personalizacion.planta}`,
+        `Macetero: ${personalizacion.macetero}`,
+        `Globo: ${personalizacion.globo}`,
+        `Delivery: ${conDelivery ? `Sí (+${formatCurrency(getDeliveryExtra())})` : "No"}`,
+        conDelivery ? `Dirección: ${direccion}` : "Entrega: Retiro o coordinación directa",
+        nota ? `Observaciones: ${nota}` : "",
+        `Total: ${formatCurrency(total)}`
+      ].filter(Boolean).join("\n");
+    }
+
     function syncDeliveryField() {
       const active = incluyeDelivery.checked;
       clienteDireccion.disabled = !active;
@@ -1707,6 +1724,16 @@
       const conDelivery = incluyeDelivery.checked;
       const deliveryExtra = getDeliveryExtra();
       const total = getTotalPrice();
+      const whatsappMessage = buildWhatsappOrderMessage({
+        nombre,
+        correo,
+        telefono,
+        direccion,
+        nota,
+        personalizacion,
+        conDelivery,
+        total
+      });
 
       if (nombre.length < 3) {
         setEstado("Ingresa un nombre válido.", true);
@@ -1778,12 +1805,20 @@
         actualizarResumen();
         formularioPedido.classList.add("gracias-mode");
         postCompra.classList.add("visible");
+        postCompraTexto.textContent = "Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.";
+        btnWhatsapp.textContent = "Hablar por WhatsApp";
         btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(`Hola, acabo de realizar un pedido de ${packSeleccionado.nombre} en Jardín Flor de Loto y quiero confirmar los detalles.`)}`;
         postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
         setEstado("¡Gracias por su compra! Tu pedido fue enviado correctamente.", false, true);
       } catch (error) {
         console.error(error);
-        setEstado("No se pudo enviar el pedido. Intenta nuevamente.", true);
+        formularioPedido.classList.add("gracias-mode");
+        postCompra.classList.add("visible");
+        postCompraTexto.textContent = "No pudimos enviar el pedido automáticamente. Termínalo por WhatsApp con el mensaje ya preparado.";
+        btnWhatsapp.textContent = "Enviar pedido por WhatsApp";
+        btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(whatsappMessage)}`;
+        postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
+        setEstado("No se pudo enviar el pedido automático. Continúa por WhatsApp.", true);
       }
     }
 
