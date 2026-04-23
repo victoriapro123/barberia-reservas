@@ -800,6 +800,71 @@
       box-shadow: 0 0 0 4px rgba(111, 159, 104, 0.12);
     }
 
+    .form-grid input:disabled {
+      background: #f2f0e8;
+      color: #8f9488;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .delivery-option {
+      display: grid;
+      gap: 10px;
+      background: #fffdf8;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+    }
+
+    .delivery-option label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      cursor: pointer;
+    }
+
+    .delivery-option input {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      border: 1px solid rgba(63, 110, 59, 0.34);
+      background: #ffffff;
+      display: grid;
+      place-items: center;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .delivery-option input::after {
+      content: "✓";
+      color: #fff8d8;
+      font-size: 0.9rem;
+      font-weight: 900;
+      transform: scale(0);
+      transition: transform 0.18s ease;
+    }
+
+    .delivery-option input:checked {
+      background: #173f31;
+      border-color: #173f31;
+    }
+
+    .delivery-option input:checked::after {
+      transform: scale(1);
+    }
+
+    .delivery-option strong {
+      color: var(--accent-dark);
+      font-size: 1rem;
+    }
+
+    .delivery-option p {
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 3px;
+    }
+
     .estado {
       min-height: 24px;
       font-weight: 800;
@@ -821,6 +886,49 @@
       border-radius: 2px;
       padding: 14px;
       border: 1px solid rgba(63, 110, 59, 0.12);
+    }
+
+    .resumen-final strong {
+      color: var(--accent-dark);
+    }
+
+    .resumen-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 0;
+    }
+
+    .resumen-line--total {
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(63, 110, 59, 0.12);
+      font-weight: 900;
+      color: var(--accent-dark);
+    }
+
+    .post-compra {
+      display: none;
+      gap: 12px;
+      background: #ffffff;
+      border: 1px solid rgba(63, 110, 59, 0.12);
+      border-radius: 2px;
+      padding: 16px;
+      animation: aparecer 0.24s ease both;
+    }
+
+    .post-compra.visible {
+      display: grid;
+    }
+
+    .post-compra strong {
+      color: var(--accent-dark);
+      font-size: 1.1rem;
+    }
+
+    .post-compra p {
+      color: var(--muted);
+      line-height: 1.55;
     }
 
     .modal .btn-principal {
@@ -1056,16 +1164,35 @@
 
           <form class="formulario-pedido" id="formularioPedido">
             <div class="resumen-final" id="resumenPedido"></div>
+            <div class="delivery-option">
+              <label for="incluyeDelivery">
+                <input type="checkbox" id="incluyeDelivery" />
+                <span>
+                  <strong>Agregar delivery +$2.000</strong>
+                  <p>Marca esta opción si quieres despacho a domicilio. El total se actualizará automáticamente.</p>
+                </span>
+              </label>
+            </div>
             <div class="form-grid">
               <input type="text" id="clienteNombre" placeholder="Nombre" maxlength="60" autocomplete="name" />
               <input type="email" id="clienteCorreo" placeholder="Correo" maxlength="120" autocomplete="email" />
               <input type="tel" id="clienteTelefono" placeholder="Teléfono" maxlength="20" autocomplete="tel" />
-              <input type="date" id="fechaEntrega" />
-              <input type="text" id="clienteDireccion" placeholder="Dirección de entrega" maxlength="140" autocomplete="street-address" />
+              <input type="text" id="clienteDireccion" placeholder="Dirección de entrega (solo si eliges delivery)" maxlength="140" autocomplete="street-address" />
               <textarea id="observaciones" placeholder="Observaciones: horario ideal, referencia de la dirección o mensaje para la tarjeta" maxlength="360"></textarea>
             </div>
             <button type="submit" class="btn-principal">Enviar pedido</button>
             <div class="estado" id="estadoPedido"></div>
+            <div class="post-compra" id="postCompra">
+              <strong>¡Gracias por su compra!</strong>
+              <p>Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.</p>
+              <a
+                class="btn-principal"
+                id="btnWhatsapp"
+                href="https://wa.me/56998462648"
+                target="_blank"
+                rel="noreferrer"
+              >Hablar por WhatsApp</a>
+            </div>
           </form>
         </div>
       </div>
@@ -1215,11 +1342,13 @@
     const formularioPedido = document.getElementById("formularioPedido");
     const resumenPedido = document.getElementById("resumenPedido");
     const estadoPedido = document.getElementById("estadoPedido");
+    const incluyeDelivery = document.getElementById("incluyeDelivery");
+    const postCompra = document.getElementById("postCompra");
+    const btnWhatsapp = document.getElementById("btnWhatsapp");
     const clienteNombre = document.getElementById("clienteNombre");
     const clienteCorreo = document.getElementById("clienteCorreo");
     const clienteTelefono = document.getElementById("clienteTelefono");
     const clienteDireccion = document.getElementById("clienteDireccion");
-    const fechaEntrega = document.getElementById("fechaEntrega");
     const observaciones = document.getElementById("observaciones");
 
     let packSeleccionado = null;
@@ -1229,7 +1358,7 @@
     document.title = BRAND_CONFIG.name;
     renderPacks();
     renderOpciones();
-    setFechaMinima();
+    syncDeliveryField();
 
     btnVerPromocion.addEventListener("click", () => {
       ofertasPanel.classList.add("visible");
@@ -1257,11 +1386,16 @@
 
     btnRealizarPedido.addEventListener("click", () => {
       formularioPedido.classList.add("visible");
+      postCompra.classList.remove("visible");
       actualizarResumen();
       formularioPedido.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
 
     document.getElementById("opcionesForm").addEventListener("change", manejarCambioOpciones);
+    incluyeDelivery.addEventListener("change", () => {
+      syncDeliveryField();
+      actualizarResumen();
+    });
     formularioPedido.addEventListener("submit", enviarPedido);
 
     function renderPacks() {
@@ -1346,6 +1480,9 @@
       formularioPedido.classList.remove("visible");
       estadoPedido.textContent = "";
       estadoPedido.className = "estado";
+      postCompra.classList.remove("visible");
+      formularioPedido.reset();
+      syncDeliveryField();
       actualizarResumen();
       modalPedido.classList.add("visible");
       modalPedido.setAttribute("aria-hidden", "false");
@@ -1400,6 +1537,39 @@
       };
     }
 
+    function getBasePrice() {
+      if (!packSeleccionado?.precio) return 0;
+      return Number.parseInt(String(packSeleccionado.precio).replace(/[^\d]/g, ""), 10) || 0;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("es-CL", {
+        style: "currency",
+        currency: "CLP",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function getDeliveryExtra() {
+      return incluyeDelivery.checked ? 2000 : 0;
+    }
+
+    function getTotalPrice() {
+      return getBasePrice() + getDeliveryExtra();
+    }
+
+    function syncDeliveryField() {
+      const active = incluyeDelivery.checked;
+      clienteDireccion.disabled = !active;
+
+      if (active) {
+        clienteDireccion.placeholder = "Dirección de entrega";
+      } else {
+        clienteDireccion.value = "";
+        clienteDireccion.placeholder = "Dirección de entrega (solo si eliges delivery)";
+      }
+    }
+
     function setPreviewMode() {
       if (getPreviewConfig()) {
         modalImagen.style.display = "none";
@@ -1451,18 +1621,20 @@
     function actualizarResumen() {
       if (!packSeleccionado) return;
       const personalizacion = getPersonalizacion();
+      const deliveryExtra = getDeliveryExtra();
+      const deliveryText = incluyeDelivery.checked ? "Sí, con delivery" : "No, retiro o coordinación directa";
+      modalPackPrecio.textContent = formatCurrency(getTotalPrice());
       resumenPedido.innerHTML = `
-        <strong>${packSeleccionado.nombre} · ${packSeleccionado.precio}</strong><br />
-        Planta: ${personalizacion.planta}<br />
-        Macetero: ${personalizacion.macetero}<br />
-        Globo: ${personalizacion.globo}
+        <strong>Resumen del pedido</strong>
+        <div class="resumen-line"><span>Pack</span><span>${packSeleccionado.nombre}</span></div>
+        <div class="resumen-line"><span>Planta</span><span>${personalizacion.planta}</span></div>
+        <div class="resumen-line"><span>Macetero</span><span>${personalizacion.macetero}</span></div>
+        <div class="resumen-line"><span>Globo</span><span>${personalizacion.globo}</span></div>
+        <div class="resumen-line"><span>Entrega</span><span>${deliveryText}</span></div>
+        <div class="resumen-line"><span>Pack base</span><span>${formatCurrency(getBasePrice())}</span></div>
+        <div class="resumen-line"><span>Delivery</span><span>${deliveryExtra ? `+ ${formatCurrency(deliveryExtra)}` : formatCurrency(0)}</span></div>
+        <div class="resumen-line resumen-line--total"><span>Total</span><span>${formatCurrency(getTotalPrice())}</span></div>
       `;
-    }
-
-    function setFechaMinima() {
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-      fechaEntrega.min = hoy.toISOString().slice(0, 10);
     }
 
     function validarEmail(email) {
@@ -1473,17 +1645,6 @@
       return String(value || "").replace(/\s+/g, " ").trim();
     }
 
-    function formatearFecha(fechaISO) {
-      if (!fechaISO) return "";
-      const [year, month, day] = fechaISO.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-      return new Intl.DateTimeFormat("es-CL", {
-        weekday: "short",
-        day: "2-digit",
-        month: "2-digit"
-      }).format(date);
-    }
-
     async function enviarPedido(event) {
       event.preventDefault();
       if (!packSeleccionado) return;
@@ -1492,9 +1653,11 @@
       const correo = limpiarTexto(clienteCorreo.value).toLowerCase();
       const telefono = limpiarTexto(clienteTelefono.value);
       const direccion = limpiarTexto(clienteDireccion.value);
-      const fecha = fechaEntrega.value;
       const nota = limpiarTexto(observaciones.value);
       const personalizacion = getPersonalizacion();
+      const conDelivery = incluyeDelivery.checked;
+      const deliveryExtra = getDeliveryExtra();
+      const total = getTotalPrice();
 
       if (nombre.length < 3) {
         setEstado("Ingresa un nombre válido.", true);
@@ -1511,23 +1674,20 @@
         return;
       }
 
-      if (direccion.length < 6) {
+      if (conDelivery && direccion.length < 6) {
         setEstado("Ingresa una dirección de entrega.", true);
-        return;
-      }
-
-      if (!fecha) {
-        setEstado("Selecciona una fecha de entrega.", true);
         return;
       }
 
       const servicio = `Pack ${packSeleccionado.nombre}: ${personalizacion.planta}`;
       const notaInterna = [
-        `Pedido vivero: Pack ${packSeleccionado.nombre} (${packSeleccionado.precio})`,
+        `Pedido vivero: Pack ${packSeleccionado.nombre} (${formatCurrency(getBasePrice())})`,
         `Planta: ${personalizacion.planta}`,
         `Macetero: ${personalizacion.macetero}`,
         `Globo: ${personalizacion.globo}`,
-        `Dirección: ${direccion}`,
+        `Delivery: ${conDelivery ? `Sí (+${formatCurrency(deliveryExtra)})` : "No"}`,
+        `Total: ${formatCurrency(total)}`,
+        conDelivery ? `Dirección: ${direccion}` : "Entrega: Retiro o coordinación directa",
         nota ? `Observaciones: ${nota}` : ""
       ].filter(Boolean).join("\n").slice(0, 500);
 
@@ -1546,8 +1706,8 @@
             correo,
             telefono,
             servicio,
-            fecha: formatearFecha(fecha),
-            hora: "10:00",
+            fecha: "A coordinar",
+            hora: "A coordinar",
             estado: "Pendiente",
             notaInterna
           })
@@ -1558,7 +1718,7 @@
         }
 
         formularioPedido.reset();
-        setFechaMinima();
+        syncDeliveryField();
         renderOpciones();
         if (getPreviewConfig()) {
           const fallback = getPreviewConfig().fallback;
@@ -1567,7 +1727,9 @@
           updateBasicPreview(true);
         }
         actualizarResumen();
-        setEstado("Pedido enviado. Te contactaremos para confirmar la entrega.", false, true);
+        postCompra.classList.add("visible");
+        btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(`Hola, acabo de realizar un pedido de ${packSeleccionado.nombre} en Jardín Flor de Loto y quiero confirmar los detalles.`)}`;
+        setEstado("¡Gracias por su compra! Tu pedido fue enviado correctamente.", false, true);
       } catch (error) {
         console.error(error);
         setEstado("No se pudo enviar el pedido. Intenta nuevamente.", true);

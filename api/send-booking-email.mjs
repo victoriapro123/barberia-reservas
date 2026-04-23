@@ -69,7 +69,7 @@ function validatePayload(payload) {
     return "Servicio invalido.";
   }
 
-  if (!isSizedString(payload.fecha, 3, 20) || !isSizedString(payload.hora, 4, 5)) {
+  if (!isSizedString(payload.fecha, 3, 20) || !isSizedString(payload.hora, 3, 20)) {
     return "Fecha u hora invalida.";
   }
 
