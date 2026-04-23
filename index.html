@@ -550,6 +550,7 @@
       position: absolute;
       left: 50%;
       object-fit: contain;
+      object-position: center bottom;
       background: transparent;
       pointer-events: none;
       user-select: none;
@@ -565,28 +566,33 @@
 
     #basicPreviewPlant {
       z-index: 4;
-      top: 13%;
+      top: auto;
+      bottom: 24%;
       width: 66%;
       height: 52%;
       transform: translateX(-50%);
     }
 
     .basic-preview[data-plant="suculenta"] #basicPreviewPlant {
-      top: 14%;
+      top: auto;
+      bottom: 25%;
       width: 62%;
       height: 50%;
     }
 
     .basic-preview[data-plant="violetta"] #basicPreviewPlant {
-      top: 10%;
+      top: auto;
+      bottom: 24%;
       width: 60%;
       height: 54%;
     }
 
-    .basic-preview[data-plant="planta3"] #basicPreviewPlant {
-      top: 8%;
-      width: 72%;
-      height: 48%;
+    .basic-preview[data-plant="scindapsus"] #basicPreviewPlant {
+      top: auto;
+      bottom: 38%;
+      width: 102%;
+      height: 46%;
+      transform: translateX(-50%);
     }
 
     .basic-preview[data-pack="intermedio"] #basicPreviewPot {
@@ -596,26 +602,30 @@
     }
 
     .basic-preview[data-pack="intermedio"] #basicPreviewPlant {
-      top: 9%;
+      top: auto;
+      bottom: 24%;
       width: 66%;
       height: 58%;
     }
 
     .basic-preview[data-pack="intermedio"][data-plant="intermedioPlanta1"] #basicPreviewPlant {
-      top: 12%;
+      top: auto;
+      bottom: 26%;
       width: 68%;
       height: 52%;
     }
 
     .basic-preview[data-pack="intermedio"][data-plant="intermedioPlanta2"] #basicPreviewPlant {
-      top: -2%;
+      top: auto;
+      bottom: 26%;
       width: 56%;
       height: 60%;
       transform: translateX(-44%);
     }
 
     .basic-preview[data-pack="intermedio"][data-plant="intermedioPlanta3"] #basicPreviewPlant {
-      top: 5%;
+      top: auto;
+      bottom: 25%;
       width: 70%;
       height: 58%;
       transform: translateX(-56%);
@@ -628,9 +638,11 @@
     }
 
     .basic-preview[data-pack="premium"] #basicPreviewPlant {
-      top: -1%;
-      width: 54%;
-      height: 58%;
+      top: auto;
+      bottom: 38%;
+      width: 92%;
+      height: 76%;
+      left: 50%;
       transform: translateX(-50%);
     }
 
@@ -1239,7 +1251,7 @@
         nombre: "Premium",
         precio: "$55.000",
         descripcion: "Una propuesta más completa y elegante para un regalo de alto impacto.",
-        imagen: "/images/premium-planta1.png"
+        imagen: "/images/premium-monstera-variegada-v2.png"
       }
     ];
 
@@ -1253,7 +1265,7 @@
       planta: [
         { value: "suculenta", label: "Suculenta" },
         { value: "violetta", label: "Violeta de Persia" },
-        { value: "planta3", label: "Scindapsus" }
+        { value: "scindapsus", label: "Scindapsus" }
       ],
       macetero: [
         { value: "macetero1", label: "Macetero 1" },
@@ -1277,7 +1289,7 @@
 
     const opcionesPremium = {
       planta: [
-        { value: "premiumPlanta1", label: "Monstera Variegada" }
+        { value: "monsteraVariegada", label: "Monstera Variegada" }
       ],
       macetero: [
         { value: "premiumMacetero1", label: "Macetero 1" },
@@ -1297,7 +1309,7 @@
         plantas: {
           suculenta: "/images/suculenta.png",
           violetta: "/images/violetta.png",
-          planta3: "/images/planta3.png"
+          scindapsus: "/images/scindapsus-v2.png"
         },
         maceteros: {
           macetero1: "/images/macetero1.png",
@@ -1327,7 +1339,7 @@
       },
       premium: {
         plantas: {
-          premiumPlanta1: "/images/premium-planta1.png"
+          monsteraVariegada: "/images/premium-monstera-variegada-v2.png"
         },
         maceteros: {
           premiumMacetero1: "/images/premium-macetero1.png",
@@ -1335,7 +1347,7 @@
           premiumMacetero3: "/images/premium-macetero3.png"
         },
         fallback: {
-          planta: "premiumPlanta1",
+          planta: "monsteraVariegada",
           macetero: "premiumMacetero1"
         }
       }
