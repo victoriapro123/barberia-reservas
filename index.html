@@ -783,6 +783,19 @@
       display: grid;
     }
 
+    .formulario-pedido.gracias-mode {
+      display: grid;
+      min-height: 420px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      place-items: center;
+    }
+
+    .formulario-pedido.gracias-mode > :not(.post-compra) {
+      display: none;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -930,10 +943,12 @@
       border: 1px solid rgba(63, 110, 59, 0.16);
       border-radius: 2px;
       padding: clamp(28px, 5vw, 44px);
-      min-height: 260px;
+      width: min(100%, 760px);
+      min-height: 320px;
       align-content: center;
       justify-items: center;
       text-align: center;
+      box-shadow: 0 30px 70px rgba(10, 33, 25, 0.14);
       animation: aparecer 0.24s ease both;
     }
 
@@ -943,10 +958,10 @@
 
     .post-compra strong {
       color: var(--accent-dark);
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      line-height: 0.95;
+      font-size: clamp(2.6rem, 6vw, 4.8rem);
+      line-height: 0.88;
       letter-spacing: -0.04em;
-      max-width: 12ch;
+      max-width: 10ch;
     }
 
     .post-compra p {
@@ -1418,6 +1433,7 @@
 
     btnRealizarPedido.addEventListener("click", () => {
       formularioPedido.classList.add("visible");
+      formularioPedido.classList.remove("gracias-mode");
       postCompra.classList.remove("visible");
       actualizarResumen();
       formularioPedido.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -1510,6 +1526,7 @@
       modalPackDescripcion.textContent = packSeleccionado.descripcion;
       modalPackPrecio.textContent = packSeleccionado.precio;
       formularioPedido.classList.remove("visible");
+      formularioPedido.classList.remove("gracias-mode");
       estadoPedido.textContent = "";
       estadoPedido.className = "estado";
       postCompra.classList.remove("visible");
@@ -1759,8 +1776,10 @@
           updateBasicPreview(true);
         }
         actualizarResumen();
+        formularioPedido.classList.add("gracias-mode");
         postCompra.classList.add("visible");
         btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(`Hola, acabo de realizar un pedido de ${packSeleccionado.nombre} en Jardín Flor de Loto y quiero confirmar los detalles.`)}`;
+        postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
         setEstado("¡Gracias por su compra! Tu pedido fue enviado correctamente.", false, true);
       } catch (error) {
         console.error(error);
