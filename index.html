@@ -1800,7 +1800,19 @@
             fecha: "A coordinar",
             hora: "A coordinar",
             estado: "Pendiente",
-            notaInterna
+            notaInterna,
+            pedido: {
+              tipo: "pedido_vivero",
+              pack: packSeleccionado.nombre,
+              planta: personalizacion.planta,
+              macetero: personalizacion.macetero,
+              globo: personalizacion.globo,
+              delivery: conDelivery,
+              deliveryExtra,
+              total,
+              direccion,
+              observaciones: nota
+            }
           })
         });
 
