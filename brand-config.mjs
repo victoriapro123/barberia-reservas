@@ -15,6 +15,7 @@ export const BRAND_CONFIG = {
   directionsLabel: "Cómo llegar",
   adminTitle: "Panel de pedidos",
   adminDescription: "Gestión privada de pedidos de Jardín Flor de Loto.",
+  orderNotificationEmails: ["victoriap.rodriguezs@gmail.com", "veronicae.silvap@gmail.com"],
   // Si cambias estos correos, recuerda reflejar lo mismo en firestore.rules y volver a desplegar reglas.
   adminEmails: ["victoriap.rodriguezs@gmail.com"]
 };

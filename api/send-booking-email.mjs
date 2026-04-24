@@ -92,8 +92,7 @@ function validatePayload(payload) {
   return null;
 }
 
-function getTemplateParams(payload, barberEmail) {
-  const toEmail = payload.notificationType === "new_request" ? barberEmail : payload.correo;
+function getTemplateParams(payload, toEmail) {
   const mensaje =
     payload.notificationType === "new_request"
       ? "Nueva solicitud registrada desde la web."
@@ -140,6 +139,35 @@ function isCustomerNotificationForBarber(payload, barberEmail) {
   return payload.correo.trim().toLowerCase() === barberEmail.trim().toLowerCase();
 }
 
+function getNotificationRecipients(barberEmail) {
+  const configuredRecipients = Array.isArray(BRAND_CONFIG.orderNotificationEmails)
+    ? BRAND_CONFIG.orderNotificationEmails
+    : [];
+
+  return [...new Set([barberEmail, ...configuredRecipients].filter(isValidEmail))];
+}
+
+async function sendEmailRequest(templateParams, serviceId, templateId, publicKey, privateKey) {
+  const response = await fetch(EMAILJS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      service_id: serviceId,
+      template_id: templateId,
+      user_id: publicKey,
+      accessToken: privateKey,
+      template_params: templateParams
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`EmailJS error: ${response.status} ${errorText}`);
+  }
+}
+
 async function sendEmail(payload) {
   const serviceId = process.env.EMAILJS_SERVICE_ID;
   const templateId =
@@ -159,24 +187,29 @@ async function sendEmail(payload) {
     return;
   }
 
-  const response = await fetch(EMAILJS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      service_id: serviceId,
-      template_id: templateId,
-      user_id: publicKey,
-      accessToken: privateKey,
-      template_params: getTemplateParams(payload, barberEmail)
-    })
-  });
+  if (payload.notificationType === "new_request") {
+    const recipients = getNotificationRecipients(barberEmail);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`EmailJS error: ${response.status} ${errorText}`);
+    for (const recipient of recipients) {
+      await sendEmailRequest(
+        getTemplateParams(payload, recipient),
+        serviceId,
+        templateId,
+        publicKey,
+        privateKey
+      );
+    }
+
+    return;
   }
+
+  await sendEmailRequest(
+    getTemplateParams(payload, payload.correo),
+    serviceId,
+    templateId,
+    publicKey,
+    privateKey
+  );
 }
 
 export default async function handler(request, response) {
