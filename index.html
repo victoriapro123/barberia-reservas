@@ -1834,7 +1834,7 @@
         postCompra.classList.add("visible");
         postCompraTexto.textContent = "Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.";
         btnWhatsapp.textContent = "Hablar por WhatsApp";
-        btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(`Hola, acabo de realizar un pedido de ${packSeleccionado.nombre} en Jardín Flor de Loto y quiero confirmar los detalles.`)}`;
+        btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(whatsappMessage)}`;
         postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
         setEstado("¡Gracias por su compra! Tu pedido fue enviado correctamente.", false, true);
       } catch (error) {
