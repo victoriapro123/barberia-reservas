@@ -254,10 +254,10 @@
         <section id="agendaPanel">
           <div class="panel-toolbar">
             <div class="toolbar-block">
-              <h2 class="section-title">Calendario semanal</h2>
-              <p class="helper section-copy">Vista de lunes a viernes, ordenada de la hora más temprana a la más tarde.</p>
+              <h2 class="section-title">Pedidos recibidos</h2>
+              <p class="helper section-copy">Aquí verás solo los pedidos que van llegando, con su planta, macetero y globo.</p>
             </div>
-            <div class="week-nav">
+            <div class="week-nav hidden">
               <button id="prevWeekButton" class="btn-secondary" type="button">Semana anterior</button>
               <div id="weekTitle" class="range-title">Semana</div>
               <button id="todayWeekButton" class="btn-secondary" type="button">Hoy</button>
@@ -265,18 +265,18 @@
             </div>
           </div>
 
-          <div id="agendaSummary" class="agenda-summary"></div>
+          <div id="agendaSummary" class="agenda-summary hidden"></div>
           <div id="todayPanel" class="today-panel"></div>
 
           <div class="search-row">
             <div class="search-tools">
-              <input type="search" id="searchInput" placeholder="Buscar cliente por nombre, correo, teléfono, servicio u hora" />
+              <input type="search" id="searchInput" placeholder="Buscar pedido por cliente, planta, macetero o globo" />
               <button id="clearSearchButton" class="btn-secondary" type="button">Limpiar</button>
             </div>
-            <div id="agendaSearchMeta" class="helper search-meta"></div>
+            <div id="agendaSearchMeta" class="helper search-meta hidden"></div>
           </div>
 
-          <div id="weekGrid" class="week-grid"></div>
+          <div id="weekGrid" class="week-grid hidden"></div>
         </section>
 
         <section id="historyPanel" class="hidden">
@@ -1052,46 +1052,47 @@
       appendLine(container, "Observaciones", details.observaciones, lineClass);
     }
 
-    function renderTodayPanel(filteredActiveRequests, activeFlowerOrders) {
-      const todayItems = getTodayAgendaRequests(filteredActiveRequests);
+    function appendCompactOrderLines(container, item, lineClass = "reservation-line") {
+      const details = getOrderDetails(item);
+      appendLine(container, "Planta", details.planta, lineClass);
+      appendLine(container, "Macetero", details.macetero, lineClass);
+      appendLine(container, "Globo", details.globo, lineClass);
+    }
+
+    function renderTodayPanel(activeFlowerOrders) {
       todayPanel.innerHTML = "";
 
       const head = document.createElement("div");
       head.className = "today-panel-head";
       const copy = document.createElement("div");
-      copy.innerHTML = activeFlowerOrders.length
-        ? `<h3>Pedidos en curso</h3><p class="today-panel-copy">Aquí ves los pedidos del vivero en el orden en que fueron llegando, con planta, macetero, globo y total.</p>`
-        : `<h3>Operación de hoy</h3><p class="today-panel-copy">Acceso rápido a las reservas del día para cerrar, cancelar o contactar al cliente sin recorrer toda la semana.</p>`;
+      copy.innerHTML = `<h3>Pedidos en curso</h3><p class="today-panel-copy">Aquí ves únicamente los pedidos entrantes, mostrando planta, macetero y globo en el orden en que llegaron.</p>`;
       const badge = document.createElement("span");
       badge.className = "badge activa";
       badge.textContent = activeFlowerOrders.length
         ? `${activeFlowerOrders.length} pedido${activeFlowerOrders.length === 1 ? "" : "s"}`
-        : todayItems.length ? `${todayItems.length} para hoy` : "Hoy libre";
+        : "Sin pedidos";
       head.appendChild(copy);
       head.appendChild(badge);
       todayPanel.appendChild(head);
 
-      if (!activeFlowerOrders.length && !todayItems.length) {
+      if (!activeFlowerOrders.length) {
         const empty = document.createElement("div");
         empty.className = "today-empty";
-        empty.textContent = "No hay pedidos ni reservas activas.";
+        empty.textContent = "No hay pedidos activos.";
         todayPanel.appendChild(empty);
         return;
       }
 
       const list = document.createElement("div");
       list.className = "today-list";
-      const items = activeFlowerOrders.length ? activeFlowerOrders : todayItems;
-      items.forEach((item) => {
+      activeFlowerOrders.forEach((item) => {
         const card = document.createElement("article");
         card.className = "today-card";
 
         const top = document.createElement("div");
         top.className = "today-card-top";
         const titleWrap = document.createElement("div");
-        titleWrap.innerHTML = activeFlowerOrders.length
-          ? `<div class="reservation-hour">${formatCreatedDate(item.creadoEn)}</div><div class="today-card-name">${item.nombre || "Sin nombre"}</div>`
-          : `<div class="reservation-hour">${item.hora || "Sin hora"}</div><div class="today-card-name">${item.nombre || "Sin nombre"}</div>`;
+        titleWrap.innerHTML = `<div class="reservation-hour">${formatCreatedDate(item.creadoEn)}</div><div class="today-card-name">${item.nombre || "Sin nombre"}</div>`;
         const badge = document.createElement("span");
         badge.className = `badge ${getBadgeClass(item)}`;
         badge.textContent = getDisplayState(item);
@@ -1099,22 +1100,10 @@
         top.appendChild(badge);
         card.appendChild(top);
 
-        const service = document.createElement("div");
-        service.className = "today-card-service";
-        service.innerHTML = activeFlowerOrders.length
-          ? `<strong>Pedido:</strong> ${getOrderDetails(item).pack || item.servicio || "Sin dato"}`
-          : `<strong>Servicio:</strong> ${item.servicio || "Sin dato"}`;
-        const contact = document.createElement("div");
-        contact.className = "today-card-contact";
-        contact.innerHTML = `<strong>Contacto:</strong> ${item.telefono || "Sin teléfono"} · ${item.correo || "Sin correo"}`;
-        card.appendChild(service);
-        if (activeFlowerOrders.length) {
-          const details = document.createElement("div");
-          details.className = "reservation-lines";
-          appendOrderLines(details, item, "reservation-line");
-          card.appendChild(details);
-        }
-        card.appendChild(contact);
+        const details = document.createElement("div");
+        details.className = "reservation-lines";
+        appendCompactOrderLines(details, item, "reservation-line");
+        card.appendChild(details);
         card.appendChild(createReservationActions(item));
         list.appendChild(card);
       });
@@ -1122,126 +1111,12 @@
     }
 
     function renderAgenda() {
-      const visibleRequests = getAgendaRequests();
-      weekGrid.innerHTML = "";
-      weekTitle.textContent = `Semana ${formatWeekRange(currentWeekStart)}`;
       const search = normalizeSearchValue(searchInput.value);
-      const filteredActiveRequests = sortRequestsByAppointment(getActiveAgendaRequests().filter((item) => !search || buildSearchText(item).includes(search)));
       const activeFlowerOrders = getActiveFlowerOrders(search);
-      renderAgendaSummary(visibleRequests, filteredActiveRequests, activeFlowerOrders);
-      renderTodayPanel(filteredActiveRequests, activeFlowerOrders);
-
-      const todayIso = getTodayIso();
-      agendaSearchMeta.textContent = search
-        ? `${visibleRequests.length + activeFlowerOrders.length} resultado${visibleRequests.length + activeFlowerOrders.length === 1 ? "" : "s"} para "${searchInput.value.trim()}".`
-        : `${activeFlowerOrders.length} pedido${activeFlowerOrders.length === 1 ? "" : "s"} activo${activeFlowerOrders.length === 1 ? "" : "s"} y ${visibleRequests.length} reserva${visibleRequests.length === 1 ? "" : "s"} con fecha en esta semana.`;
-
-      WEEKDAY_LABELS.forEach((label, index) => {
-        const dayDate = addDays(currentWeekStart, index);
-        const isoDay = `${dayDate.getFullYear()}-${String(dayDate.getMonth() + 1).padStart(2, "0")}-${String(dayDate.getDate()).padStart(2, "0")}`;
-        const dayRequests = visibleRequests.filter((item) => item.fechaISO === isoDay);
-
-        const column = document.createElement("section");
-        column.className = "day-column";
-        if (isoDay === todayIso) {
-          column.classList.add("today-column");
-        }
-
-        const header = document.createElement("div");
-        header.className = "day-header";
-        const title = document.createElement("h3");
-        title.textContent = `${label} ${formatShortDate(dayDate)}`;
-        const count = document.createElement("div");
-        count.className = "day-count";
-        count.textContent = dayRequests.length ? `${dayRequests.length} reserva${dayRequests.length === 1 ? "" : "s"}` : "Sin reservas";
-        header.appendChild(title);
-        header.appendChild(count);
-        column.appendChild(header);
-
-        const content = document.createElement("div");
-        content.className = "day-content";
-
-        if (!dayRequests.length) {
-          const empty = document.createElement("div");
-          empty.className = "empty-day";
-          empty.textContent = "Sin reservas";
-          content.appendChild(empty);
-        } else {
-          dayRequests.forEach((item) => {
-            const card = document.createElement("article");
-            card.className = "reservation-card";
-
-            const top = document.createElement("div");
-            top.className = "reservation-top";
-            const titleWrap = document.createElement("div");
-            const hour = document.createElement("div");
-            hour.className = "reservation-hour";
-            hour.textContent = item.hora || "Sin hora";
-            const name = document.createElement("div");
-            name.className = "reservation-name";
-            name.textContent = item.nombre || "Sin nombre";
-            const created = document.createElement("div");
-            created.className = "meta";
-            created.textContent = `Creada ${formatCreatedDate(item.creadoEn)}`;
-            titleWrap.appendChild(hour);
-            titleWrap.appendChild(name);
-            titleWrap.appendChild(created);
-
-            const badge = document.createElement("span");
-            badge.className = `badge ${getBadgeClass(item)}`;
-            badge.textContent = getDisplayState(item);
-            top.appendChild(titleWrap);
-            top.appendChild(badge);
-            card.appendChild(top);
-
-            const lines = document.createElement("div");
-            lines.className = "reservation-lines";
-            const serviceLine = document.createElement("div");
-            serviceLine.className = "reservation-line";
-            serviceLine.innerHTML = `<strong>Servicio:</strong> ${item.servicio || "Sin dato"}`;
-            const phoneLine = document.createElement("div");
-            phoneLine.className = "reservation-line";
-            phoneLine.innerHTML = `<strong>Teléfono:</strong> ${item.telefono || "Sin dato"}`;
-            const emailLine = document.createElement("div");
-            emailLine.className = "reservation-line";
-            emailLine.innerHTML = `<strong>Correo:</strong> ${item.correo || "Sin dato"}`;
-            lines.appendChild(serviceLine);
-            lines.appendChild(phoneLine);
-            lines.appendChild(emailLine);
-            card.appendChild(lines);
-
-            const notesPanel = document.createElement("div");
-            notesPanel.className = "notes-panel";
-            const notesTitle = document.createElement("strong");
-            notesTitle.textContent = "Notas internas";
-            const notesTextarea = document.createElement("textarea");
-            notesTextarea.value = getDraftNote(item);
-            notesTextarea.placeholder = "Escribe una nota interna para este pedido o reserva";
-            notesTextarea.addEventListener("input", (event) => {
-              noteDrafts[item.id] = event.target.value;
-            });
-            const notesActions = document.createElement("div");
-            notesActions.className = "notes-actions";
-            const saveNoteButton = document.createElement("button");
-            saveNoteButton.className = "btn-secondary";
-            saveNoteButton.textContent = "Guardar nota";
-            saveNoteButton.addEventListener("click", () => {
-              guardarNota(item.id);
-            });
-            notesActions.appendChild(saveNoteButton);
-            notesPanel.appendChild(notesTitle);
-            notesPanel.appendChild(notesTextarea);
-            notesPanel.appendChild(notesActions);
-            card.appendChild(notesPanel);
-
-            card.appendChild(createReservationActions(item));
-            content.appendChild(card);
-          });
-        }
-
-        column.appendChild(content);
-        weekGrid.appendChild(column);
-      });
+      agendaSummary.innerHTML = "";
+      weekGrid.innerHTML = "";
+      agendaSearchMeta.textContent = "";
+      renderTodayPanel(activeFlowerOrders);
     }
 
     function renderHistorySummary(items) {
