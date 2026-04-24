@@ -1624,6 +1624,33 @@
       ].filter(Boolean).join("\n");
     }
 
+    function buildWhatsappOrderMessageV2({ nombre, correo, telefono, direccion, nota, personalizacion, conDelivery, total }) {
+      return [
+        "Hola, acabo de realizar un pedido en Jardin Flor de Loto,",
+        "",
+        `Pack: ${packSeleccionado.nombre}`,
+        `Planta: ${personalizacion.planta}`,
+        `Macetero: ${personalizacion.macetero}`,
+        `Globo: ${personalizacion.globo}`,
+        `Nombre: ${nombre}`,
+        `Telefono: ${telefono}`,
+        `Correo: ${correo}`,
+        conDelivery ? `Delivery: Si (+${formatCurrency(getDeliveryExtra())})` : "Delivery: No",
+        conDelivery ? `Direccion: ${direccion}` : "Entrega: Retiro o coordinacion directa",
+        nota ? `Observaciones: ${nota}` : "",
+        `Total: ${formatCurrency(total)}`,
+        "",
+        "*Datos de Transferencia:*",
+        "",
+        "Nombre: Veronica Silva",
+        "Rut: 10.721.245-0",
+        "Banco: Estado",
+        "Cuenta: Corriente N° 518000",
+        "Correo: veronicae.silvap@gmail.com",
+        "."
+      ].filter(Boolean).join("\n");
+    }
+
     function syncDeliveryField() {
       const active = incluyeDelivery.checked;
       clienteDireccion.disabled = !active;
@@ -1724,7 +1751,7 @@
       const conDelivery = incluyeDelivery.checked;
       const deliveryExtra = getDeliveryExtra();
       const total = getTotalPrice();
-      const whatsappMessage = buildWhatsappOrderMessage({
+      const whatsappMessage = buildWhatsappOrderMessageV2({
         nombre,
         correo,
         telefono,
@@ -1817,12 +1844,19 @@
         postCompraTexto.textContent = "No pudimos enviar el pedido automáticamente. Termínalo por WhatsApp con el mensaje ya preparado.";
         btnWhatsapp.textContent = "Enviar pedido por WhatsApp";
         btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(whatsappMessage)}`;
+        postCompraTexto.textContent = "Para finalizar, mande el mensaje preparado a WhatsApp para poder finalizar la compra.";
+        btnWhatsapp.textContent = "Finalizar por WhatsApp";
         postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
         setEstado("No se pudo enviar el pedido automático. Continúa por WhatsApp.", true);
       }
     }
 
     function setEstado(message, isError = false, isOk = false) {
+      if (typeof message === "string" && message.startsWith("No se pudo enviar el pedido")) {
+        message = "";
+        isError = false;
+        isOk = false;
+      }
       estadoPedido.textContent = message;
       estadoPedido.className = `estado${isError ? " error" : ""}${isOk ? " ok" : ""}`;
     }
