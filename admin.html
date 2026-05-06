@@ -52,17 +52,6 @@
     .btn-info { background:rgba(111,143,175,.12); color:#315c7a; border:1px solid rgba(111,143,175,.28); }
     .btn-whatsapp { background:rgba(78,139,103,.12); color:var(--success); border:1px solid rgba(78,139,103,.28); }
     .panel-shell { display:grid; gap:28px; }
-    .panel-header {
-      display:grid; gap:14px; padding:18px; border-radius:18px;
-      justify-items:center;
-      background:linear-gradient(135deg, rgba(199,168,107,.08), rgba(255,255,255,.02)), var(--panel-2);
-      border:1px solid rgba(199,168,107,.12);
-    }
-    .view-switch {
-      gap:14px; padding:10px; border-radius:18px; width:max-content; max-width:100%;
-      margin:0 auto;
-      background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);
-    }
     .tab-button {
       min-height:52px; padding:0 22px; border-radius:16px; font-size:1.02rem;
     }
@@ -71,12 +60,8 @@
     .section-title { font-size:2rem; line-height:1; margin-bottom:0; letter-spacing:-.03em; }
     .section-copy { max-width:760px; font-size:1rem; }
     .range-title { min-width:220px; text-align:center; font-weight:bold; color:var(--text); }
-    .search-row { margin-bottom:18px; display:grid; gap:10px; }
-    .search-meta { min-height:22px; }
-    .search-tools input { flex:1 1 320px; }
-    .agenda-summary { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-bottom:18px; }
     .today-panel {
-      display:grid; gap:14px; margin-bottom:18px;
+      display:grid; gap:14px;
       background:linear-gradient(135deg, rgba(199,168,107,.08), rgba(255,255,255,.02)), var(--panel-2);
       border:1px solid rgba(199,168,107,.14); border-radius:18px; padding:18px;
     }
@@ -94,20 +79,7 @@
       background:var(--panel-3); border:1px dashed #303030; border-radius:14px; padding:16px;
       color:var(--muted);
     }
-    .week-grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:14px; }
-    .day-column {
-      background:var(--panel-2); border:1px solid var(--border); border-radius:16px;
-      padding:14px; min-height:420px; display:flex; flex-direction:column; gap:12px;
-    }
-    .day-column.today-column {
-      border-color:rgba(199,168,107,.34);
-      box-shadow:inset 0 0 0 1px rgba(199,168,107,.1);
-    }
-    .day-header { padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.06); }
-    .day-header h3 { font-size:1.05rem; margin-bottom:4px; }
-    .day-count { color:var(--muted); font-size:.9rem; }
     .day-content, .history-list, .reservation-lines, .history-lines, .notes-panel, .history-summary, .settings-grid, .settings-stack, .settings-list, .weekday-settings { display:grid; gap:12px; }
-    .day-content { align-content:start; }
     .empty-day, .empty-history {
       background:var(--panel-3); border:1px dashed rgba(31,74,67,.22); border-radius:14px; padding:16px;
       color:var(--muted); text-align:center;
@@ -195,9 +167,7 @@
     .status.success { color:var(--success); }
     .hidden { display:none !important; }
     @media (max-width:1180px) {
-      .week-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .history-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
-      .agenda-summary { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .settings-grid { grid-template-columns:1fr; }
       .settings-field-grid { grid-template-columns:1fr; }
     }
@@ -207,7 +177,7 @@
       .card { padding:22px; }
       .panel-shell { gap:22px; }
       .panel-header { padding:14px; }
-      .week-grid, .history-summary, .agenda-summary { grid-template-columns:1fr; }
+      .history-summary { grid-template-columns:1fr; }
       .toolbar-actions button, .week-nav button, .history-nav button, .history-mode button,
       .notes-actions button, .reservation-actions button, .view-switch button, .search-tools button { width:100%; }
       .range-title { min-width:0; width:100%; }
@@ -243,154 +213,14 @@
       </div>
 
       <div class="card panel-shell">
-        <div class="panel-header">
-          <div class="view-switch">
-            <button id="agendaTabButton" class="btn-secondary tab-button active" type="button">Agenda semanal</button>
-            <button id="historyTabButton" class="btn-secondary tab-button" type="button">Historial</button>
-            <button id="settingsTabButton" class="btn-secondary tab-button" type="button">Configuración</button>
-          </div>
-        </div>
-
         <section id="agendaPanel">
           <div class="panel-toolbar">
             <div class="toolbar-block">
               <h2 class="section-title">Pedidos recibidos</h2>
               <p class="helper section-copy">Aquí verás solo los pedidos que van llegando, con su planta, macetero y globo.</p>
             </div>
-            <div class="week-nav hidden">
-              <button id="prevWeekButton" class="btn-secondary" type="button">Semana anterior</button>
-              <div id="weekTitle" class="range-title">Semana</div>
-              <button id="todayWeekButton" class="btn-secondary" type="button">Hoy</button>
-              <button id="nextWeekButton" class="btn-secondary" type="button">Semana siguiente</button>
-            </div>
           </div>
-
-          <div id="agendaSummary" class="agenda-summary hidden"></div>
           <div id="todayPanel" class="today-panel"></div>
-
-          <div class="search-row">
-            <div class="search-tools">
-              <input type="search" id="searchInput" placeholder="Buscar pedido por cliente, planta, macetero o globo" />
-              <button id="clearSearchButton" class="btn-secondary" type="button">Limpiar</button>
-            </div>
-            <div id="agendaSearchMeta" class="helper search-meta hidden"></div>
-          </div>
-
-          <div id="weekGrid" class="week-grid hidden"></div>
-        </section>
-
-        <section id="historyPanel" class="hidden">
-          <div class="panel-toolbar">
-            <div class="toolbar-block">
-              <h2 class="section-title">Historial</h2>
-              <p class="helper section-copy">Revisa lo que pasó en la semana o en el mes, con estados y orden cronológico.</p>
-            </div>
-            <div class="history-mode">
-              <button id="historyWeekModeButton" class="btn-secondary tab-button active" type="button">Semana</button>
-              <button id="historyMonthModeButton" class="btn-secondary tab-button" type="button">Mes</button>
-            </div>
-          </div>
-
-          <div class="panel-toolbar">
-            <div class="history-nav">
-              <button id="prevHistoryButton" class="btn-secondary" type="button">Anterior</button>
-              <div id="historyTitle" class="range-title">Historial</div>
-              <button id="nextHistoryButton" class="btn-secondary" type="button">Siguiente</button>
-            </div>
-          </div>
-
-          <div class="search-row">
-            <input type="search" id="historySearchInput" placeholder="Buscar en historial por nombre, servicio, estado o fecha" />
-          </div>
-
-          <div id="historySummary" class="history-summary"></div>
-          <div id="historyList" class="history-list"></div>
-        </section>
-
-        <section id="settingsPanel" class="hidden">
-          <div class="panel-toolbar">
-            <div class="toolbar-block">
-              <h2 class="section-title">Configuración de agenda</h2>
-              <p class="helper section-copy">Define los horarios por día, bloquea fechas y crea excepciones sin tocar el código.</p>
-            </div>
-          </div>
-
-          <div class="settings-grid">
-            <div class="settings-card">
-              <h3>Horarios semanales</h3>
-              <p class="helper">Usa horas separadas por coma. Ejemplo: `10:00, 11:00, 12:00`. Aquí también defines el cupo diario, la anticipación mínima y la colación.</p>
-              <div class="weekday-settings">
-                <div class="weekday-row">
-                  <div class="weekday-label">Lunes</div>
-                  <label class="weekday-toggle"><input type="checkbox" id="lunesAbiertoInput" checked />Abierto</label>
-                  <input type="text" id="lunesHorasInput" placeholder="10:00, 11:00, 12:00" />
-                </div>
-                <div class="weekday-row">
-                  <div class="weekday-label">Martes</div>
-                  <label class="weekday-toggle"><input type="checkbox" id="martesAbiertoInput" checked />Abierto</label>
-                  <input type="text" id="martesHorasInput" placeholder="10:00, 11:00, 12:00" />
-                </div>
-                <div class="weekday-row">
-                  <div class="weekday-label">Miercoles</div>
-                  <label class="weekday-toggle"><input type="checkbox" id="miercolesAbiertoInput" checked />Abierto</label>
-                  <input type="text" id="miercolesHorasInput" placeholder="10:00, 11:00, 12:00" />
-                </div>
-                <div class="weekday-row">
-                  <div class="weekday-label">Jueves</div>
-                  <label class="weekday-toggle"><input type="checkbox" id="juevesAbiertoInput" checked />Abierto</label>
-                  <input type="text" id="juevesHorasInput" placeholder="10:00, 11:00, 12:00" />
-                </div>
-                <div class="weekday-row">
-                  <div class="weekday-label">Viernes</div>
-                  <label class="weekday-toggle"><input type="checkbox" id="viernesAbiertoInput" checked />Abierto</label>
-                  <input type="text" id="viernesHorasInput" placeholder="10:00, 11:00, 12:00" />
-                </div>
-              </div>
-              <div class="settings-field-grid">
-                <div class="settings-field">
-                  <label for="dailyLimitInput">Cupo diario</label>
-                  <input type="number" id="dailyLimitInput" min="1" max="9" />
-                  <p>Limita cuántas reservas activas aceptas por día.</p>
-                </div>
-                <div class="settings-field">
-                  <label for="leadTimeMinutesInput">Anticipación mínima</label>
-                  <input type="number" id="leadTimeMinutesInput" min="0" max="1440" step="15" />
-                  <p>Evita que tomen horas demasiado cercanas a la hora actual.</p>
-                </div>
-                <div class="settings-field">
-                  <label for="breakHoursInput">Descanso o colación</label>
-                  <input type="text" id="breakHoursInput" placeholder="13:00, 17:00" />
-                  <p>Esas horas se ocultan en todos los dias normales de la semana.</p>
-                </div>
-              </div>
-              <button id="saveScheduleButton" class="btn-primary" type="button">Guardar horarios</button>
-            </div>
-
-            <div class="settings-stack">
-              <div class="settings-card">
-                <h3>Fechas bloqueadas</h3>
-                <p class="helper">Puedes bloquear una fecha normal o marcarla como feriado con un clic.</p>
-                <div class="settings-inline">
-                  <input type="date" id="blockedDateInput" />
-                  <input type="text" id="blockedReasonInput" placeholder="Motivo opcional" maxlength="120" />
-                  <button id="addBlockedDateButton" class="btn-danger" type="button">Bloquear fecha</button>
-                  <button id="addHolidayButton" class="btn-secondary" type="button">Marcar feriado</button>
-                </div>
-                <div id="blockedDatesList" class="settings-list"></div>
-              </div>
-
-              <div class="settings-card">
-                <h3>Fechas especiales</h3>
-                <div class="settings-inline">
-                  <input type="date" id="specialDateInput" />
-                  <input type="text" id="specialHoursInput" placeholder="10:00, 11:00, 12:00" />
-                  <input type="text" id="specialNoteInput" placeholder="Nota opcional" maxlength="120" />
-                  <button id="addSpecialDateButton" class="btn-info" type="button">Guardar fecha especial</button>
-                </div>
-                <div id="specialDatesList" class="settings-list"></div>
-              </div>
-            </div>
-          </div>
         </section>
 
         <div id="adminStatus" class="status"></div>
@@ -518,11 +348,11 @@
     function resetAdminView() {
       allRequests = [];
       noteDrafts = {};
-      weekGrid.innerHTML = "";
-      agendaSummary.innerHTML = "";
-      todayPanel.innerHTML = "";
-      historySummary.innerHTML = "";
-      historyList.innerHTML = "";
+      if (weekGrid) weekGrid.innerHTML = "";
+      if (agendaSummary) agendaSummary.innerHTML = "";
+      if (todayPanel) todayPanel.innerHTML = "";
+      if (historySummary) historySummary.innerHTML = "";
+      if (historyList) historyList.innerHTML = "";
       adminEmail.textContent = "";
     }
 
@@ -813,25 +643,27 @@
       const isAgenda = view === "agenda";
       const isHistory = view === "history";
       const isSettings = view === "settings";
-      agendaPanel.classList.toggle("hidden", !isAgenda);
-      historyPanel.classList.toggle("hidden", !isHistory);
-      settingsPanel.classList.toggle("hidden", !isSettings);
-      agendaTabButton.classList.toggle("active", isAgenda);
-      historyTabButton.classList.toggle("active", isHistory);
-      settingsTabButton.classList.toggle("active", isSettings);
+      agendaPanel?.classList.toggle("hidden", !isAgenda);
+      historyPanel?.classList.toggle("hidden", !isHistory);
+      settingsPanel?.classList.toggle("hidden", !isSettings);
+      agendaTabButton?.classList.toggle("active", isAgenda);
+      historyTabButton?.classList.toggle("active", isHistory);
+      settingsTabButton?.classList.toggle("active", isSettings);
     }
 
     function setHistoryMode(mode) {
       historyMode = mode;
-      historyWeekModeButton.classList.toggle("active", mode === "week");
-      historyMonthModeButton.classList.toggle("active", mode === "month");
-      renderHistory();
+      historyWeekModeButton?.classList.toggle("active", mode === "week");
+      historyMonthModeButton?.classList.toggle("active", mode === "month");
+      if (historyList) {
+        renderHistory();
+      }
     }
 
     function getAgendaRequests() {
       const activeRequests = getActiveAgendaRequests();
       const weekEnd = addDays(currentWeekStart, 4);
-      const search = normalizeSearchValue(searchInput.value);
+      const search = normalizeSearchValue(searchInput?.value || "");
       return sortRequestsByAppointment(activeRequests.filter((item) => {
         const appointmentDate = getAppointmentDate(item);
         if (!appointmentDate) return false;
@@ -1111,11 +943,11 @@
     }
 
     function renderAgenda() {
-      const search = normalizeSearchValue(searchInput.value);
+      const search = normalizeSearchValue(searchInput?.value || "");
       const activeFlowerOrders = getActiveFlowerOrders(search);
-      agendaSummary.innerHTML = "";
-      weekGrid.innerHTML = "";
-      agendaSearchMeta.textContent = "";
+      if (agendaSummary) agendaSummary.innerHTML = "";
+      if (weekGrid) weekGrid.innerHTML = "";
+      if (agendaSearchMeta) agendaSearchMeta.textContent = "";
       renderTodayPanel(activeFlowerOrders);
     }
 
@@ -1455,12 +1287,10 @@
       try {
         const requestsQuery = query(collection(db, COLECCION_SOLICITUDES), orderBy("creadoEn", "desc"));
         const [snapshot] = await Promise.all([
-          getDocs(requestsQuery),
-          loadSettings()
+          getDocs(requestsQuery)
         ]);
         allRequests = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
         renderAgenda();
-        renderHistory();
         setStatus(adminStatus, `${allRequests.length} registros cargados.`, "success");
       } catch (error) {
         console.error("Error al cargar reservas:", error);
@@ -1639,36 +1469,36 @@
     logoutButton.addEventListener("click", async () => {
       try { await signOut(auth); } catch (error) { console.error("Error al cerrar sesión:", error); }
     });
-    agendaTabButton.addEventListener("click", () => setCurrentView("agenda"));
-    historyTabButton.addEventListener("click", () => setCurrentView("history"));
-    settingsTabButton.addEventListener("click", () => setCurrentView("settings"));
-    prevWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, -7); renderAgenda(); });
-    nextWeekButton.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, 7); renderAgenda(); });
-    todayWeekButton.addEventListener("click", () => {
+    agendaTabButton?.addEventListener("click", () => setCurrentView("agenda"));
+    historyTabButton?.addEventListener("click", () => setCurrentView("history"));
+    settingsTabButton?.addEventListener("click", () => setCurrentView("settings"));
+    prevWeekButton?.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, -7); renderAgenda(); });
+    nextWeekButton?.addEventListener("click", () => { currentWeekStart = addDays(currentWeekStart, 7); renderAgenda(); });
+    todayWeekButton?.addEventListener("click", () => {
       currentWeekStart = getMonday(new Date());
       renderAgenda();
     });
-    historyWeekModeButton.addEventListener("click", () => setHistoryMode("week"));
-    historyMonthModeButton.addEventListener("click", () => setHistoryMode("month"));
-    prevHistoryButton.addEventListener("click", () => {
+    historyWeekModeButton?.addEventListener("click", () => setHistoryMode("week"));
+    historyMonthModeButton?.addEventListener("click", () => setHistoryMode("month"));
+    prevHistoryButton?.addEventListener("click", () => {
       historyCursorDate = historyMode === "month" ? addMonths(historyCursorDate, -1) : addDays(historyCursorDate, -7);
       renderHistory();
     });
-    nextHistoryButton.addEventListener("click", () => {
+    nextHistoryButton?.addEventListener("click", () => {
       historyCursorDate = historyMode === "month" ? addMonths(historyCursorDate, 1) : addDays(historyCursorDate, 7);
       renderHistory();
     });
-    searchInput.addEventListener("input", renderAgenda);
-    clearSearchButton.addEventListener("click", () => {
+    searchInput?.addEventListener("input", renderAgenda);
+    clearSearchButton?.addEventListener("click", () => {
       searchInput.value = "";
       renderAgenda();
       searchInput.focus();
     });
-    historySearchInput.addEventListener("input", renderHistory);
-    saveScheduleButton.addEventListener("click", () => saveAgendaConfig());
-    addBlockedDateButton.addEventListener("click", () => addBlockedDate());
-    addHolidayButton.addEventListener("click", () => addHolidayDate());
-    addSpecialDateButton.addEventListener("click", () => addSpecialDate());
+    historySearchInput?.addEventListener("input", renderHistory);
+    saveScheduleButton?.addEventListener("click", () => saveAgendaConfig());
+    addBlockedDateButton?.addEventListener("click", () => addBlockedDate());
+    addHolidayButton?.addEventListener("click", () => addHolidayDate());
+    addSpecialDateButton?.addEventListener("click", () => addSpecialDate());
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
@@ -1688,7 +1518,6 @@
       currentWeekStart = getMonday(new Date());
       historyCursorDate = getStartOfDay(new Date());
       setCurrentView("agenda");
-      setHistoryMode("week");
       setStatus(loginStatus, "");
       await loadRequests();
     });
