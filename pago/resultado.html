@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resultado del pago | Jardín Flor de Loto</title>
+  <link rel="icon" href="/assets/flor-de-loto-portada.png" type="image/png" />
+  <style>
+    :root {
+      --bg: #071915;
+      --panel: #fffaf0;
+      --panel-soft: #eef4df;
+      --text: #13332b;
+      --muted: #61746b;
+      --accent: #d9c463;
+      --border: rgba(217, 196, 99, 0.22);
+      --success: #2f7d4a;
+      --danger: #a84141;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        linear-gradient(180deg, rgba(4, 18, 16, 0.9), rgba(5, 22, 19, 0.94)),
+        url("/assets/flor-de-loto-portada.png") center/cover no-repeat;
+      color: #fff8d8;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+    }
+
+    .card {
+      width: min(780px, 100%);
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      box-shadow: 0 32px 80px rgba(0, 12, 10, 0.28);
+      overflow: hidden;
+    }
+
+    .head {
+      padding: 22px 24px;
+      background: var(--panel-soft);
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      gap: 10px;
+    }
+
+    .eyebrow {
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6e7e53;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .copy {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .body {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .status-chip {
+      width: fit-content;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-weight: 900;
+    }
+
+    .status-chip.aprobado {
+      color: var(--success);
+      border-color: rgba(47, 125, 74, 0.24);
+      background: rgba(47, 125, 74, 0.08);
+    }
+
+    .status-chip.rechazado {
+      color: var(--danger);
+      border-color: rgba(168, 65, 65, 0.24);
+      background: rgba(168, 65, 65, 0.08);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      background: #fffdf8;
+      border: 1px solid rgba(19, 51, 43, 0.08);
+      border-radius: 2px;
+      padding: 14px;
+      display: grid;
+      gap: 6px;
+      min-height: 92px;
+    }
+
+    .field span {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .field strong {
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      min-height: 50px;
+      padding: 0 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #173f31;
+      color: #fff8d8;
+      text-decoration: none;
+      font-weight: 900;
+      border-radius: 2px;
+      border: 1px solid rgba(23, 63, 49, 0.12);
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: rgba(19, 51, 43, 0.12);
+    }
+
+    .loading {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <article class="card">
+    <header class="head">
+      <span class="eyebrow">Webpay Plus</span>
+      <h1>Resultado del pago</h1>
+      <p class="copy">Aquí verás el estado final de la transacción de Transbank y el token devuelto por Webpay Plus.</p>
+    </header>
+    <section class="body" id="resultBody">
+      <p class="loading">Confirmando tu transacción con Webpay...</p>
+    </section>
+  </article>
+
+  <script>
+    const resultBody = document.getElementById("resultBody");
+    const params = new URLSearchParams(window.location.search);
+    const tokenWs = params.get("token_ws") || "";
+    const tbkToken = params.get("TBK_TOKEN") || "";
+    const buyOrder = params.get("TBK_ORDEN_COMPRA") || "";
+    const sessionId = params.get("TBK_ID_SESION") || "";
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatAmount(value) {
+      const amount = Number(value || 0);
+      return new Intl.NumberFormat("es-CL", {
+        style: "currency",
+        currency: "CLP",
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+
+    function renderResult(data) {
+      const approved = Boolean(data.approved);
+      resultBody.innerHTML = `
+        <div class="status-chip ${approved ? "aprobado" : "rechazado"}">${approved ? "Pago aprobado" : "Pago rechazado"}</div>
+        <div class="grid">
+          <div class="field"><span>Estado</span><strong>${escapeHtml(data.status || "Sin estado")}</strong></div>
+          <div class="field"><span>Buy Order</span><strong>${escapeHtml(data.buy_order || "")}</strong></div>
+          <div class="field"><span>Authorization Code</span><strong>${escapeHtml(data.authorization_code || "")}</strong></div>
+          <div class="field"><span>Payment Type Code</span><strong>${escapeHtml(data.payment_type_code || "")}</strong></div>
+          <div class="field"><span>Installments Number</span><strong>${escapeHtml(data.installments_number ?? 0)}</strong></div>
+          <div class="field"><span>Amount</span><strong>${escapeHtml(formatAmount(data.amount || 0))}</strong></div>
+          <div class="field" style="grid-column: 1 / -1;"><span>token_ws</span><strong>${escapeHtml(data.token_ws || "")}</strong></div>
+        </div>
+        <div class="actions">
+          <a class="button" href="/">Volver al inicio</a>
+          <a class="button secondary" href="/admin">Ver panel admin</a>
+        </div>
+      `;
+    }
+
+    function renderError(message) {
+      resultBody.innerHTML = `
+        <div class="status-chip rechazado">No se pudo confirmar</div>
+        <p class="copy">${escapeHtml(message)}</p>
+        <div class="actions">
+          <a class="button" href="/">Volver al inicio</a>
+        </div>
+      `;
+    }
+
+    async function main() {
+      if (!tokenWs && !tbkToken) {
+        renderError("No se recibió ningún token de retorno desde Webpay.");
+        return;
+      }
+
+      if (tbkToken) {
+        renderResult({
+          approved: false,
+          status: "rechazado",
+          buy_order: buyOrder,
+          authorization_code: "",
+          payment_type_code: "",
+          installments_number: 0,
+          amount: 0,
+          token_ws: tbkToken,
+          session_id: sessionId
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/webpay/commit?token_ws=${encodeURIComponent(tokenWs)}`);
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload.error || "No se pudo confirmar la transacción.");
+        }
+
+        renderResult(payload);
+      } catch (error) {
+        console.error(error);
+        renderError(error.message || "No se pudo confirmar la transacción.");
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

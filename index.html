@@ -1227,18 +1227,11 @@
               <input type="text" id="clienteDireccion" placeholder="Dirección de entrega (solo si eliges delivery)" maxlength="140" autocomplete="street-address" />
               <textarea id="observaciones" placeholder="Observaciones: horario ideal, referencia de la dirección o mensaje para la tarjeta" maxlength="360"></textarea>
             </div>
-            <button type="submit" class="btn-principal">Enviar pedido</button>
+            <button type="submit" class="btn-principal">Pagar con Webpay</button>
             <div class="estado" id="estadoPedido"></div>
             <div class="post-compra" id="postCompra">
-              <strong>¡Gracias por su compra!</strong>
-              <p id="postCompraTexto">Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.</p>
-              <a
-                class="btn-principal"
-                id="btnWhatsapp"
-                href="https://wa.me/56998462648"
-                target="_blank"
-                rel="noreferrer"
-              >Hablar por WhatsApp</a>
+              <strong>Redirigiendo a Webpay</strong>
+              <p id="postCompraTexto">Estamos preparando tu pago seguro con Transbank. En unos segundos verás el formulario de Webpay Plus.</p>
             </div>
           </form>
         </div>
@@ -1392,7 +1385,6 @@
     const incluyeDelivery = document.getElementById("incluyeDelivery");
     const postCompra = document.getElementById("postCompra");
     const postCompraTexto = document.getElementById("postCompraTexto");
-    const btnWhatsapp = document.getElementById("btnWhatsapp");
     const clienteNombre = document.getElementById("clienteNombre");
     const clienteCorreo = document.getElementById("clienteCorreo");
     const clienteTelefono = document.getElementById("clienteTelefono");
@@ -1608,37 +1600,6 @@
       return getBasePrice() + getDeliveryExtra();
     }
 
-    function buildWhatsappOrderMessage({ nombre, correo, telefono, direccion, nota, personalizacion, conDelivery, total }) {
-      return [
-        `Hola, quiero confirmar este pedido de ${packSeleccionado.nombre} en Jardín Flor de Loto:`,
-        `Nombre: ${nombre}`,
-        `Correo: ${correo}`,
-        `Teléfono: ${telefono}`,
-        `Planta: ${personalizacion.planta}`,
-        `Macetero: ${personalizacion.macetero}`,
-        `Globo: ${personalizacion.globo}`,
-        `Delivery: ${conDelivery ? `Sí (+${formatCurrency(getDeliveryExtra())})` : "No"}`,
-        conDelivery ? `Dirección: ${direccion}` : "Entrega: Retiro o coordinación directa",
-        nota ? `Observaciones: ${nota}` : "",
-        `Total: ${formatCurrency(total)}`
-      ].filter(Boolean).join("\n");
-    }
-
-    function buildWhatsappOrderMessageV2({ nombre, correo, telefono, direccion, nota, personalizacion, conDelivery, total }) {
-      return [
-        "Hola, acabo de realizar un pedido en Jardin Flor de Loto,",
-        "",
-        "*Datos de Transferencia:*",
-        "",
-        "Nombre: Veronica Silva",
-        "Rut: 10.721.245-0",
-        "Banco: Estado",
-        "Cuenta: Corriente N° 518000",
-        "Correo: veronicae.silvap@gmail.com",
-        "."
-      ].filter(Boolean).join("\n");
-    }
-
     function syncDeliveryField() {
       const active = incluyeDelivery.checked;
       clienteDireccion.disabled = !active;
@@ -1726,6 +1687,22 @@
       return String(value || "").replace(/\s+/g, " ").trim();
     }
 
+    function redirectToWebpay(payment) {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = payment.url;
+      form.style.display = "none";
+
+      const tokenInput = document.createElement("input");
+      tokenInput.type = "hidden";
+      tokenInput.name = "token_ws";
+      tokenInput.value = payment.token_ws;
+
+      form.appendChild(tokenInput);
+      document.body.appendChild(form);
+      window.setTimeout(() => form.submit(), 900);
+    }
+
     async function enviarPedido(event) {
       event.preventDefault();
       if (!packSeleccionado) return;
@@ -1739,16 +1716,6 @@
       const conDelivery = incluyeDelivery.checked;
       const deliveryExtra = getDeliveryExtra();
       const total = getTotalPrice();
-      const whatsappMessage = buildWhatsappOrderMessageV2({
-        nombre,
-        correo,
-        telefono,
-        direccion,
-        nota,
-        personalizacion,
-        conDelivery,
-        total
-      });
 
       if (nombre.length < 3) {
         setEstado("Ingresa un nombre válido.", true);
@@ -1770,39 +1737,22 @@
         return;
       }
 
-      const servicio = `Pack ${packSeleccionado.nombre}: ${personalizacion.planta}`;
-      const notaInterna = [
-        `Pedido vivero: Pack ${packSeleccionado.nombre} (${formatCurrency(getBasePrice())})`,
-        `Planta: ${personalizacion.planta}`,
-        `Macetero: ${personalizacion.macetero}`,
-        `Globo: ${personalizacion.globo}`,
-        `Delivery: ${conDelivery ? `Sí (+${formatCurrency(deliveryExtra)})` : "No"}`,
-        `Total: ${formatCurrency(total)}`,
-        conDelivery ? `Dirección: ${direccion}` : "Entrega: Retiro o coordinación directa",
-        nota ? `Observaciones: ${nota}` : ""
-      ].filter(Boolean).join("\n").slice(0, 500);
-
-      setEstado("Enviando pedido...", false);
+      setEstado("Generando pago Webpay...", false);
 
       try {
-        const response = await fetch("/api/send-booking-email", {
+        const response = await fetch("/api/webpay/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            notificationType: "new_request",
-            barbero: BRAND_CONFIG.name,
-            nombre,
-            correo,
-            telefono,
-            servicio,
-            fecha: "A coordinar",
-            hora: "A coordinar",
-            estado: "Pendiente",
-            notaInterna,
-            pedido: {
-              tipo: "pedido_vivero",
+            amount: total,
+            customer: {
+              nombre,
+              correo,
+              telefono
+            },
+            order: {
               pack: packSeleccionado.nombre,
               planta: personalizacion.planta,
               macetero: personalizacion.macetero,
@@ -1817,46 +1767,28 @@
         });
 
         if (!response.ok) {
-          throw new Error("No se pudo enviar el pedido.");
+          const errorPayload = await response.json().catch(() => ({}));
+          throw new Error(errorPayload.error || "No se pudo crear la transacción de Webpay.");
         }
 
-        formularioPedido.reset();
-        syncDeliveryField();
-        renderOpciones();
-        if (getPreviewConfig()) {
-          const fallback = getPreviewConfig().fallback;
-          selectedPlant = fallback.planta;
-          selectedPot = fallback.macetero;
-          updateBasicPreview(true);
-        }
-        actualizarResumen();
+        const payment = await response.json();
+        sessionStorage.setItem("webpay:lastCreate", JSON.stringify(payment));
         formularioPedido.classList.add("gracias-mode");
         postCompra.classList.add("visible");
-        postCompraTexto.textContent = "Tu pedido ya fue enviado. Si quieres hablar directo con la dueña del local, puedes continuar por WhatsApp.";
-        btnWhatsapp.textContent = "Hablar por WhatsApp";
-        btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(whatsappMessage)}`;
+        postCompra.querySelector("strong").textContent = "Redirigiendo a Webpay";
+        postCompraTexto.textContent = `Token generado: ${payment.token_ws}. Serás redirigida al formulario de Webpay Plus en unos segundos.`;
         postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
-        setEstado("¡Gracias por su compra! Tu pedido fue enviado correctamente.", false, true);
+        setEstado(`Token Webpay generado: ${payment.token_ws}`, false, true);
+        redirectToWebpay(payment);
       } catch (error) {
         console.error(error);
-        formularioPedido.classList.add("gracias-mode");
-        postCompra.classList.add("visible");
-        postCompraTexto.textContent = "No pudimos enviar el pedido automáticamente. Termínalo por WhatsApp con el mensaje ya preparado.";
-        btnWhatsapp.textContent = "Enviar pedido por WhatsApp";
-        btnWhatsapp.href = `https://wa.me/56998462648?text=${encodeURIComponent(whatsappMessage)}`;
-        postCompraTexto.textContent = "Para finalizar, mande el mensaje preparado a WhatsApp para poder finalizar la compra.";
-        btnWhatsapp.textContent = "Finalizar por WhatsApp";
-        postCompra.scrollIntoView({ behavior: "smooth", block: "center" });
-        setEstado("No se pudo enviar el pedido automático. Continúa por WhatsApp.", true);
+        formularioPedido.classList.remove("gracias-mode");
+        postCompra.classList.remove("visible");
+        setEstado(error.message || "No se pudo iniciar el pago con Webpay.", true);
       }
     }
 
     function setEstado(message, isError = false, isOk = false) {
-      if (typeof message === "string" && message.startsWith("No se pudo enviar el pedido")) {
-        message = "";
-        isError = false;
-        isOk = false;
-      }
       estadoPedido.textContent = message;
       estadoPedido.className = `estado${isError ? " error" : ""}${isOk ? " ok" : ""}`;
     }

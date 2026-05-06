@@ -4,3 +4,4 @@ Desktop.ini
 firebase-debug.log
 .env
 .env.local
+node_modules/
