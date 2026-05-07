@@ -165,6 +165,40 @@
       line-height: 1.25;
     }
 
+    .map-card {
+      padding: 0;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    .map-card h2,
+    .map-card p,
+    .map-card strong {
+      margin-left: 18px;
+      margin-right: 18px;
+    }
+
+    .map-card h2 {
+      margin-top: 18px;
+    }
+
+    .map-card p {
+      margin-top: 12px;
+    }
+
+    .map-card strong {
+      margin-top: 6px;
+      margin-bottom: 18px;
+    }
+
+    .map-frame {
+      width: 100%;
+      min-height: 230px;
+      border: 0;
+      display: block;
+      filter: saturate(0.92) contrast(0.98);
+    }
+
     .actions {
       display: flex;
       gap: 12px;
@@ -241,7 +275,8 @@
 
   <script>
     const PICKUP_ADDRESS = "Av. Miraflores 2000, Peñaflor";
-    const MAP_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(PICKUP_ADDRESS)}`;
+    const MAP_URL = "https://www.google.com/maps/place/Jardin+Flor+De+Loto/@-33.5995343,-70.8746083,17z/data=!3m1!4b1!4m6!3m5!1s0x9662e768a1093607:0x944e9533cf33b7a9!8m2!3d-33.5995388!4d-70.8720334!16s%2Fg%2F11t_z8yq3c";
+    const MAP_EMBED_URL = "https://www.google.com/maps?q=-33.5995388,-70.8720334&z=17&output=embed";
 
     const resultHead = document.getElementById("resultHead");
     const resultBody = document.getElementById("resultBody");
@@ -309,8 +344,15 @@
             <div class="total"><span>Monto pagado</span><strong>${escapeHtml(formatAmount(data.amount || order.total || 0))}</strong></div>
           </div>
 
-          <div class="panel pickup">
+          <div class="panel pickup map-card">
             <h2>Retiro</h2>
+            <iframe
+              class="map-frame"
+              src="${MAP_EMBED_URL}"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Mapa de Jardín Flor de Loto"
+            ></iframe>
             <p>Tu pedido estará disponible para retiro en:</p>
             <strong>${escapeHtml(PICKUP_ADDRESS)}</strong>
           </div>
