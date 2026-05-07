@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prueba Webpay | Jardín Flor de Loto</title>
+  <title>Prueba Webpay | Jardin Flor de Loto</title>
   <style>
     body {
       min-height: 100vh;
@@ -16,7 +16,7 @@
       font-family: "Segoe UI", sans-serif;
     }
     .card {
-      width: min(560px, 100%);
+      width: min(620px, 100%);
       background: #fffaf0;
       color: #13332b;
       border-radius: 2px;
@@ -35,30 +35,77 @@
       font-weight: 900;
       cursor: pointer;
     }
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
     .status {
       min-height: 24px;
       color: #607568;
       font-weight: 700;
       word-break: break-word;
     }
+    .status.error {
+      color: #a84141;
+    }
+    .diagnostics {
+      display: none;
+      background: #f7f1e8;
+      border: 1px solid rgba(19, 51, 43, 0.12);
+      padding: 14px;
+      color: #13332b;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      max-height: 420px;
+      overflow: auto;
+    }
+    .diagnostics.visible {
+      display: block;
+    }
   </style>
 </head>
 <body>
   <section class="card">
-    <h1>Prueba rápida Webpay</h1>
-    <p>Este acceso crea una transacción de integración por <strong>$1.000</strong>, genera el <strong>token_ws</strong> y te redirige a Webpay Plus de prueba.</p>
-    <p>Usa tarjeta de crédito de prueba, sin cuotas, y revisa el resultado al volver.</p>
+    <h1>Prueba rapida Webpay</h1>
+    <p>Este acceso crea una transaccion de integracion por <strong>$1.000</strong>, genera el <strong>token_ws</strong> y te redirige a Webpay Plus de prueba.</p>
+    <p>Si algo falla, abajo veras si el problema viene de variables de Vercel, credenciales de Transbank, respuesta de Transbank o Firebase.</p>
     <button id="payButton" type="button">Generar pago de prueba</button>
     <div class="status" id="status"></div>
+    <pre class="diagnostics" id="diagnostics"></pre>
   </section>
 
   <script>
     const button = document.getElementById("payButton");
     const status = document.getElementById("status");
+    const diagnostics = document.getElementById("diagnostics");
+
+    function renderError(payload, fallbackMessage) {
+      const lines = [
+        `Error: ${payload.error || fallbackMessage}`,
+        payload.category ? `Categoria: ${payload.category}` : "",
+        payload.detail ? `Detalle: ${payload.detail}` : "",
+        payload.help ? `Ayuda: ${payload.help}` : "",
+        payload.token_ws ? `token_ws generado antes del error: ${payload.token_ws}` : "",
+        payload.buy_order ? `buy_order: ${payload.buy_order}` : "",
+        payload.transbank_status ? `Estado HTTP Transbank: ${payload.transbank_status}` : "",
+        payload.transbank_response ? `Respuesta Transbank: ${JSON.stringify(payload.transbank_response, null, 2)}` : "",
+        payload.diagnostics ? `Variables leidas en Vercel:\n${JSON.stringify(payload.diagnostics, null, 2)}` : ""
+      ].filter(Boolean);
+
+      status.className = "status error";
+      status.textContent = payload.error || fallbackMessage;
+      diagnostics.textContent = lines.join("\n\n");
+      diagnostics.classList.add("visible");
+    }
 
     button.addEventListener("click", async () => {
       button.disabled = true;
-      status.textContent = "Creando transacción de prueba...";
+      status.className = "status";
+      status.textContent = "Creando transaccion de prueba...";
+      diagnostics.textContent = "";
+      diagnostics.classList.remove("visible");
 
       try {
         const response = await fetch("/api/webpay/create", {
@@ -80,14 +127,16 @@
               deliveryExtra: 0,
               total: 1000,
               direccion: "",
-              observaciones: "Prueba de integración Webpay Plus"
+              observaciones: "Prueba de integracion Webpay Plus"
             }
           })
         });
 
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
-          throw new Error(payload.error || "No se pudo crear la transacción.");
+          renderError(payload, "No se pudo crear la transaccion.");
+          button.disabled = false;
+          return;
         }
 
         status.textContent = `token_ws generado: ${payload.token_ws}`;
@@ -106,7 +155,7 @@
         window.setTimeout(() => form.submit(), 900);
       } catch (error) {
         console.error(error);
-        status.textContent = error.message || "No se pudo iniciar la prueba.";
+        renderError({}, error.message || "No se pudo iniciar la prueba.");
         button.disabled = false;
       }
     });

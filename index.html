@@ -1703,6 +1703,17 @@
       window.setTimeout(() => form.submit(), 900);
     }
 
+    function formatWebpayError(payload, fallbackMessage) {
+      const parts = [
+        payload.error || fallbackMessage,
+        payload.category ? `Categoria: ${payload.category}` : "",
+        payload.help || "",
+        payload.token_ws ? `token_ws generado antes del error: ${payload.token_ws}` : ""
+      ].filter(Boolean);
+
+      return parts.join(" ");
+    }
+
     async function enviarPedido(event) {
       event.preventDefault();
       if (!packSeleccionado) return;
@@ -1768,7 +1779,7 @@
 
         if (!response.ok) {
           const errorPayload = await response.json().catch(() => ({}));
-          throw new Error(errorPayload.error || "No se pudo crear la transacción de Webpay.");
+          throw new Error(formatWebpayError(errorPayload, "No se pudo crear la transaccion de Webpay."));
         }
 
         const payment = await response.json();
