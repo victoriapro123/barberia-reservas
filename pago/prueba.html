@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prueba Webpay | Jardin Flor de Loto</title>
+  <meta name="theme-color" content="#071915" />
+  <meta property="og:title" content="Jardin Flor de Loto" />
+  <meta property="og:image" content="/assets/jardin-flor-de-loto-logo.png" />
+  <link rel="icon" href="/assets/jardin-flor-de-loto-logo.png" type="image/png" />
   <style>
     body {
       min-height: 100vh;
@@ -124,6 +128,7 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            webpayMode: "integration",
             amount: 1000,
             customer: {
               nombre: "Prueba Webpay",

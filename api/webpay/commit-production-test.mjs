@@ -89,7 +89,7 @@ export default async function handler(request, response) {
       const baseUrl = getRequestBaseUrl(request, config);
 
       if (tokenWs) {
-        redirect(response, `${baseUrl}/pago/resultado?token_ws=${encodeURIComponent(tokenWs)}&webpay_env=production`);
+        redirect(response, `${baseUrl}/pago/resultado?token_ws=${encodeURIComponent(tokenWs)}&webpay_env=production&webpay_flow=production-test`);
         return;
       }
 
@@ -108,7 +108,7 @@ export default async function handler(request, response) {
 
         redirect(
           response,
-          `${baseUrl}/pago/resultado?TBK_TOKEN=${encodeURIComponent(tbkToken)}&TBK_ORDEN_COMPRA=${encodeURIComponent(buyOrder)}&TBK_ID_SESION=${encodeURIComponent(sessionId)}&webpay_env=production`
+          `${baseUrl}/pago/resultado?TBK_TOKEN=${encodeURIComponent(tbkToken)}&TBK_ORDEN_COMPRA=${encodeURIComponent(buyOrder)}&TBK_ID_SESION=${encodeURIComponent(sessionId)}&webpay_env=production&webpay_flow=production-test`
         );
         return;
       }
@@ -118,14 +118,29 @@ export default async function handler(request, response) {
     }
 
     if (request.method === "GET") {
-      const { token_ws: tokenWs = "", TBK_TOKEN: tbkToken = "", TBK_ORDEN_COMPRA: buyOrder = "", TBK_ID_SESION: sessionId = "" } = request.query || {};
+      const { token_ws: tokenWs = "", TBK_TOKEN: tbkToken = "", TBK_ORDEN_COMPRA: buyOrder = "", TBK_ID_SESION: sessionId = "", format = "" } = request.query || {};
+      const config = getWebpayConfig({ mode: "production" });
+      const baseUrl = getRequestBaseUrl(request, config);
 
       if (tokenWs) {
+        if (String(format).toLowerCase() !== "json") {
+          redirect(response, `${baseUrl}/pago/resultado?token_ws=${encodeURIComponent(String(tokenWs))}&webpay_env=production&webpay_flow=production-test`);
+          return;
+        }
+
         await handleCommitToken(String(tokenWs), response);
         return;
       }
 
       if (tbkToken) {
+        if (String(format).toLowerCase() !== "json") {
+          redirect(
+            response,
+            `${baseUrl}/pago/resultado?TBK_TOKEN=${encodeURIComponent(String(tbkToken))}&TBK_ORDEN_COMPRA=${encodeURIComponent(String(buyOrder || ""))}&TBK_ID_SESION=${encodeURIComponent(String(sessionId || ""))}&webpay_env=production&webpay_flow=production-test`
+          );
+          return;
+        }
+
         sendJson(response, 200, {
           ok: true,
           approved: false,

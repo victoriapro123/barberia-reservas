@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resultado del pago | Jardín Flor de Loto</title>
-  <link rel="icon" href="/assets/flor-de-loto-portada.png" type="image/png" />
+  <title>Resultado del pago | Jardin Flor de Loto</title>
+  <link rel="icon" href="/assets/jardin-flor-de-loto-logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/assets/jardin-flor-de-loto-logo.png" />
+  <meta name="theme-color" content="#071915" />
+  <meta property="og:title" content="Jardin Flor de Loto" />
+  <meta property="og:description" content="Resultado de pago seguro con Webpay Plus." />
+  <meta property="og:image" content="/assets/jardin-flor-de-loto-logo.png" />
   <style>
     :root {
       --bg: #071915;
@@ -19,30 +24,31 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       min-height: 100vh;
       display: grid;
       place-items: center;
       padding: 20px;
       background:
-        linear-gradient(180deg, rgba(4, 18, 16, 0.9), rgba(5, 22, 19, 0.94)),
+        linear-gradient(180deg, rgba(4, 18, 16, 0.88), rgba(5, 22, 19, 0.95)),
         url("/assets/flor-de-loto-portada.png") center/cover no-repeat;
       color: #fff8d8;
       font-family: "Segoe UI", "Trebuchet MS", sans-serif;
     }
 
     .card {
-      width: min(780px, 100%);
+      width: min(820px, 100%);
       background: var(--panel);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 2px;
-      box-shadow: 0 32px 80px rgba(0, 12, 10, 0.28);
+      box-shadow: 0 32px 80px rgba(0, 12, 10, 0.3);
       overflow: hidden;
     }
 
     .head {
-      padding: 22px 24px;
+      padding: 24px;
       background: var(--panel-soft);
       border-bottom: 1px solid var(--border);
       display: grid;
@@ -58,9 +64,9 @@
     }
 
     h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-size: clamp(2rem, 6vw, 3.6rem);
       line-height: 0.95;
-      letter-spacing: -0.04em;
+      letter-spacing: -0.05em;
     }
 
     .copy {
@@ -92,6 +98,20 @@
       color: var(--danger);
       border-color: rgba(168, 65, 65, 0.24);
       background: rgba(168, 65, 65, 0.08);
+    }
+
+    .message {
+      padding: 18px;
+      background: #fffdf8;
+      border: 1px solid rgba(19, 51, 43, 0.08);
+      display: grid;
+      gap: 8px;
+    }
+
+    .message strong {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      letter-spacing: -0.04em;
+      line-height: 1;
     }
 
     .grid {
@@ -158,6 +178,10 @@
       .grid {
         grid-template-columns: 1fr;
       }
+
+      .actions .button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -166,10 +190,10 @@
     <header class="head">
       <span class="eyebrow">Webpay Plus</span>
       <h1>Resultado del pago</h1>
-      <p class="copy">Aquí verás el estado final de la transacción de Transbank y el token devuelto por Webpay Plus.</p>
+      <p class="copy">Aqui veras el estado final de tu pago dentro de Jardin Flor de Loto.</p>
     </header>
     <section class="body" id="resultBody">
-      <p class="loading">Confirmando tu transacción con Webpay...</p>
+      <p class="loading">Confirmando tu pago con Webpay...</p>
     </section>
   </article>
 
@@ -181,6 +205,7 @@
     const buyOrder = params.get("TBK_ORDEN_COMPRA") || "";
     const sessionId = params.get("TBK_ID_SESION") || "";
     const webpayEnv = params.get("webpay_env") || "integration";
+    const webpayFlow = params.get("webpay_flow") || "checkout";
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -202,38 +227,52 @@
 
     function renderResult(data) {
       const approved = Boolean(data.approved);
+      const statusText = approved ? "Pago aprobado" : "Pago rechazado";
+      const messageTitle = approved ? "Gracias por tu compra" : "No se pudo completar el pago";
+      const messageCopy = approved
+        ? "Tu pedido fue confirmado correctamente. Guardamos el resultado del pago."
+        : "Puedes volver al inicio e intentar nuevamente cuando quieras.";
+
       resultBody.innerHTML = `
-        <div class="status-chip ${approved ? "aprobado" : "rechazado"}">${approved ? "Pago aprobado" : "Pago rechazado"}</div>
+        <div class="status-chip ${approved ? "aprobado" : "rechazado"}">${statusText}</div>
+        <section class="message">
+          <strong>${messageTitle}</strong>
+          <p class="copy">${messageCopy}</p>
+        </section>
         <div class="grid">
-          <div class="field"><span>Estado</span><strong>${escapeHtml(data.status || "Sin estado")}</strong></div>
-          <div class="field"><span>Buy Order</span><strong>${escapeHtml(data.buy_order || "")}</strong></div>
-          <div class="field"><span>Authorization Code</span><strong>${escapeHtml(data.authorization_code || "")}</strong></div>
-          <div class="field"><span>Payment Type Code</span><strong>${escapeHtml(data.payment_type_code || "")}</strong></div>
-          <div class="field"><span>Installments Number</span><strong>${escapeHtml(data.installments_number ?? 0)}</strong></div>
-          <div class="field"><span>Amount</span><strong>${escapeHtml(formatAmount(data.amount || 0))}</strong></div>
+          <div class="field"><span>Estado</span><strong>${escapeHtml(data.status || statusText)}</strong></div>
+          <div class="field"><span>Monto pagado</span><strong>${escapeHtml(formatAmount(data.amount || 0))}</strong></div>
+          <div class="field"><span>Codigo de autorizacion</span><strong>${escapeHtml(data.authorization_code || "No aplica")}</strong></div>
+          <div class="field"><span>Numero de orden</span><strong>${escapeHtml(data.buy_order || "")}</strong></div>
+          <div class="field"><span>Tipo de pago</span><strong>${escapeHtml(data.payment_type_code || "No informado")}</strong></div>
+          <div class="field"><span>Cuotas</span><strong>${escapeHtml(data.installments_number ?? 0)}</strong></div>
           <div class="field"><span>Ambiente</span><strong>${escapeHtml(data.environment || webpayEnv)}</strong></div>
           <div class="field" style="grid-column: 1 / -1;"><span>token_ws</span><strong>${escapeHtml(data.token_ws || "")}</strong></div>
         </div>
         <div class="actions">
           <a class="button" href="/">Volver al inicio</a>
-          <a class="button secondary" href="/admin">Ver panel admin</a>
+          <a class="button secondary" href="/">Seguir comprando</a>
         </div>
       `;
     }
 
     function renderError(message) {
       resultBody.innerHTML = `
-        <div class="status-chip rechazado">No se pudo confirmar</div>
-        <p class="copy">${escapeHtml(message)}</p>
+        <div class="status-chip rechazado">Pago rechazado</div>
+        <section class="message">
+          <strong>No se pudo confirmar</strong>
+          <p class="copy">${escapeHtml(message)}</p>
+        </section>
         <div class="actions">
           <a class="button" href="/">Volver al inicio</a>
+          <a class="button secondary" href="/">Intentar nuevamente</a>
         </div>
       `;
     }
 
     async function main() {
       if (!tokenWs && !tbkToken) {
-        renderError("No se recibió ningún token de retorno desde Webpay.");
+        renderError("No se recibio ningun token de retorno desde Webpay.");
         return;
       }
 
@@ -254,20 +293,20 @@
       }
 
       try {
-        const commitEndpoint = webpayEnv === "production"
+        const commitEndpoint = webpayEnv === "production" && webpayFlow === "production-test"
           ? "/api/webpay/commit-production-test"
           : "/api/webpay/commit";
-        const response = await fetch(`${commitEndpoint}?token_ws=${encodeURIComponent(tokenWs)}`);
+        const response = await fetch(`${commitEndpoint}?token_ws=${encodeURIComponent(tokenWs)}&webpay_env=${encodeURIComponent(webpayEnv)}&format=json`);
         const payload = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(payload.error || "No se pudo confirmar la transacción.");
+          throw new Error(payload.error || "No se pudo confirmar el pago.");
         }
 
         renderResult(payload);
       } catch (error) {
         console.error(error);
-        renderError(error.message || "No se pudo confirmar la transacción.");
+        renderError(error.message || "No se pudo confirmar el pago.");
       }
     }
 

@@ -1,9 +1,10 @@
 import { getFirestoreDocument, setFirestoreDocument } from "../_lib/firebase-rest.mjs";
 import { BRAND_CONFIG } from "../../brand-config.mjs";
 import {
-  buildWebpayTransaction,
+  buildWebpayTransactionFromConfig,
   getPaymentStatusLabel,
-  getRequestBaseUrl
+  getRequestBaseUrl,
+  getWebpayConfig
 } from "../_lib/webpay.mjs";
 
 function parseFormBody(rawBody = "") {
@@ -28,6 +29,11 @@ function redirect(response, location) {
 
 function sendJson(response, statusCode, payload) {
   response.status(statusCode).json(payload);
+}
+
+function getModeFromRequest(request) {
+  const mode = String(request.query?.webpay_env || "").trim().toLowerCase();
+  return mode === "production" ? "production" : "integration";
 }
 
 async function ensureOrderDocument(buyOrder, paymentRecord, commitResponse) {
@@ -86,8 +92,9 @@ async function ensureOrderDocument(buyOrder, paymentRecord, commitResponse) {
   });
 }
 
-async function handleCommitToken(tokenWs, response) {
-  const transaction = buildWebpayTransaction();
+async function handleCommitToken(tokenWs, response, webpayMode = "integration") {
+  const config = getWebpayConfig({ mode: webpayMode });
+  const transaction = buildWebpayTransactionFromConfig(config);
   const commitResponse = await transaction.commit(tokenWs);
   const buyOrder = commitResponse.buy_order || "";
   const paymentRecord = buyOrder
@@ -101,6 +108,7 @@ async function handleCommitToken(tokenWs, response) {
       status: commitResponse.status || "UNKNOWN",
       approved,
       committedAt: { __timestamp: committedAt },
+      environment: webpayMode,
       tokenWs,
       authorizationCode: commitResponse.authorization_code || "",
       paymentTypeCode: commitResponse.payment_type_code || "",
@@ -127,7 +135,8 @@ async function handleCommitToken(tokenWs, response) {
     payment_type_code: commitResponse.payment_type_code || "",
     installments_number: Number(commitResponse.installments_number || 0),
     amount: Number(commitResponse.amount || paymentRecord.amount || 0),
-    token_ws: tokenWs
+    token_ws: tokenWs,
+    environment: webpayMode
   });
 }
 
@@ -140,10 +149,12 @@ export default async function handler(request, response) {
       const tbkToken = body.TBK_TOKEN || body.tbk_token || "";
       const buyOrder = body.TBK_ORDEN_COMPRA || body.tbk_orden_compra || "";
       const sessionId = body.TBK_ID_SESION || body.tbk_id_sesion || "";
-      const baseUrl = getRequestBaseUrl(request);
+      const webpayMode = getModeFromRequest(request);
+      const config = getWebpayConfig({ mode: webpayMode });
+      const baseUrl = getRequestBaseUrl(request, config);
 
       if (tokenWs) {
-        redirect(response, `${baseUrl}/pago/resultado?token_ws=${encodeURIComponent(tokenWs)}`);
+        redirect(response, `${baseUrl}/pago/resultado?token_ws=${encodeURIComponent(tokenWs)}&webpay_env=${encodeURIComponent(webpayMode)}`);
         return;
       }
 
@@ -153,6 +164,7 @@ export default async function handler(request, response) {
             status: "ABORTED",
             approved: false,
             committedAt: { __timestamp: new Date().toISOString() },
+            environment: webpayMode,
             tbkToken,
             sessionId
           }).catch(() => {});
@@ -160,7 +172,7 @@ export default async function handler(request, response) {
 
         redirect(
           response,
-          `${baseUrl}/pago/resultado?TBK_TOKEN=${encodeURIComponent(tbkToken)}&TBK_ORDEN_COMPRA=${encodeURIComponent(buyOrder)}&TBK_ID_SESION=${encodeURIComponent(sessionId)}`
+          `${baseUrl}/pago/resultado?TBK_TOKEN=${encodeURIComponent(tbkToken)}&TBK_ORDEN_COMPRA=${encodeURIComponent(buyOrder)}&TBK_ID_SESION=${encodeURIComponent(sessionId)}&webpay_env=${encodeURIComponent(webpayMode)}`
         );
         return;
       }
@@ -170,14 +182,30 @@ export default async function handler(request, response) {
     }
 
     if (request.method === "GET") {
-      const { token_ws: tokenWs = "", TBK_TOKEN: tbkToken = "", TBK_ORDEN_COMPRA: buyOrder = "", TBK_ID_SESION: sessionId = "" } = request.query || {};
+      const { token_ws: tokenWs = "", TBK_TOKEN: tbkToken = "", TBK_ORDEN_COMPRA: buyOrder = "", TBK_ID_SESION: sessionId = "", format = "" } = request.query || {};
+      const webpayMode = getModeFromRequest(request);
+      const config = getWebpayConfig({ mode: webpayMode });
+      const baseUrl = getRequestBaseUrl(request, config);
 
       if (tokenWs) {
-        await handleCommitToken(String(tokenWs), response);
+        if (String(format).toLowerCase() !== "json") {
+          redirect(response, `${baseUrl}/pago/resultado?token_ws=${encodeURIComponent(String(tokenWs))}&webpay_env=${encodeURIComponent(webpayMode)}`);
+          return;
+        }
+
+        await handleCommitToken(String(tokenWs), response, webpayMode);
         return;
       }
 
       if (tbkToken) {
+        if (String(format).toLowerCase() !== "json") {
+          redirect(
+            response,
+            `${baseUrl}/pago/resultado?TBK_TOKEN=${encodeURIComponent(String(tbkToken))}&TBK_ORDEN_COMPRA=${encodeURIComponent(String(buyOrder || ""))}&TBK_ID_SESION=${encodeURIComponent(String(sessionId || ""))}&webpay_env=${encodeURIComponent(webpayMode)}`
+          );
+          return;
+        }
+
         sendJson(response, 200, {
           ok: true,
           approved: false,
@@ -189,7 +217,8 @@ export default async function handler(request, response) {
           installments_number: 0,
           amount: 0,
           token_ws: String(tbkToken || ""),
-          session_id: String(sessionId || "")
+          session_id: String(sessionId || ""),
+          environment: webpayMode
         });
         return;
       }

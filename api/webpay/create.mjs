@@ -8,6 +8,7 @@ import {
   getRequestBaseUrl,
   getWebpayConfig,
   getWebpayEnvDiagnostics,
+  hasWebpayProductionConfig,
   normalizePaymentPayload
 } from "../_lib/webpay.mjs";
 
@@ -16,6 +17,7 @@ function sendJson(response, statusCode, payload) {
 }
 
 function buildErrorPayload(error, extra = {}) {
+  const mode = extra.webpayMode || "integration";
   const isConfig = error instanceof WebpayConfigError;
   const isValidation = error instanceof WebpayValidationError;
   const isTransbank = error?.name === "TransbankError" || String(error?.message || "").includes("TransbankError");
@@ -42,7 +44,7 @@ function buildErrorPayload(error, extra = {}) {
         category: "validation",
         error: error.publicMessage,
         detail: error.message,
-        diagnostics: getWebpayEnvDiagnostics()
+        diagnostics: getWebpayEnvDiagnostics(mode)
       }
     };
   }
@@ -58,7 +60,7 @@ function buildErrorPayload(error, extra = {}) {
         detail: error.message,
         transbank_status: transbankResponse?.status || null,
         transbank_response: transbankResponse?.data || null,
-        diagnostics: getWebpayEnvDiagnostics(),
+        diagnostics: getWebpayEnvDiagnostics(mode),
         help: "Si las variables estan presentes, revisa que commerce code y API key sean de ambiente de integracion y correspondan a Webpay Plus normal."
       }
     };
@@ -71,13 +73,22 @@ function buildErrorPayload(error, extra = {}) {
       category: extra.category || "server",
       error: extra.error || "No se pudo crear la transaccion de Webpay.",
       detail: error.message,
-      diagnostics: getWebpayEnvDiagnostics(),
+      diagnostics: getWebpayEnvDiagnostics(mode),
       ...extra
     }
   };
 }
 
-async function savePaymentRecord({ buyOrder, sessionId, payment, returnUrl, createResponse, createdAt }) {
+function resolveWebpayMode(payload = {}) {
+  const requestedMode = String(payload?.webpayMode || payload?.environment || "").trim().toLowerCase();
+  if (requestedMode === "integration" || requestedMode === "production") {
+    return requestedMode;
+  }
+
+  return hasWebpayProductionConfig() ? "production" : "integration";
+}
+
+async function savePaymentRecord({ buyOrder, sessionId, payment, returnUrl, createResponse, createdAt, webpayMode }) {
   const payload = {
     buyOrder,
     sessionId,
@@ -86,7 +97,7 @@ async function savePaymentRecord({ buyOrder, sessionId, payment, returnUrl, crea
     tokenWs: createResponse.token,
     webpayUrl: createResponse.url,
     status: "CREATED",
-    environment: "integration",
+    environment: webpayMode,
     createdAt: { __timestamp: createdAt },
     order: {
       pack: payment.pack,
@@ -137,14 +148,16 @@ export default async function handler(request, response) {
   let sessionId;
   let returnUrl;
   let createResponse;
+  let webpayMode = "integration";
 
   try {
-    const config = getWebpayConfig();
+    webpayMode = resolveWebpayMode(request.body);
+    const config = getWebpayConfig({ mode: webpayMode });
     payment = normalizePaymentPayload(request.body);
     buyOrder = createBuyOrder();
     sessionId = createSessionId();
     const baseUrl = getRequestBaseUrl(request, config);
-    returnUrl = `${baseUrl}/api/webpay/commit`;
+    returnUrl = `${baseUrl}/api/webpay/commit?webpay_env=${encodeURIComponent(webpayMode)}`;
     const transaction = buildWebpayTransactionFromConfig(config);
     const createdAt = new Date().toISOString();
 
@@ -175,7 +188,8 @@ export default async function handler(request, response) {
       payment,
       returnUrl,
       createResponse,
-      createdAt
+      createdAt,
+      webpayMode
     });
 
     console.info("[webpay/create] payment saved in firestore", {
@@ -190,6 +204,7 @@ export default async function handler(request, response) {
       buy_order: buyOrder,
       session_id: sessionId,
       amount: payment.amount,
+      environment: webpayMode,
       return_url: returnUrl
     });
   } catch (error) {
@@ -205,9 +220,10 @@ export default async function handler(request, response) {
           session_id: sessionId,
           amount: payment?.amount || 0,
           return_url: returnUrl,
+          webpayMode,
           help: "Revisa FIREBASE_SERVICE_ACCOUNT_JSON o FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY/FIREBASE_PROJECT_ID en Vercel."
         }
-      : {};
+      : { webpayMode };
     const payload = buildErrorPayload(error, extra);
 
     console.error("[webpay/create] error", {

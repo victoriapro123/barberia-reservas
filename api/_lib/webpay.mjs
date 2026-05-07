@@ -111,6 +111,16 @@ export function getWebpayEnvDiagnostics(mode = "integration") {
   };
 }
 
+export function hasWebpayProductionConfig() {
+  const diagnostics = getWebpayEnvDiagnostics("production");
+  return Boolean(
+    diagnostics.commerceCode.present &&
+    diagnostics.apiKey.present &&
+    diagnostics.environment.normalized === "production" &&
+    diagnostics.baseUrl.validHttpsUrl
+  );
+}
+
 export function getWebpayConfig(options = {}) {
   const mode = options.mode || "integration";
   const { names, commerceCode, apiKey, environment: rawEnvironment, baseUrl } = getWebpayRawValues(mode);
