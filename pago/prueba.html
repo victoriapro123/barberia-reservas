@@ -39,6 +39,17 @@
       opacity: 0.7;
       cursor: wait;
     }
+    .secondary-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid rgba(19, 51, 43, 0.12);
+      color: #13332b;
+      text-decoration: none;
+      font-weight: 900;
+    }
     .status {
       min-height: 24px;
       color: #607568;
@@ -72,6 +83,7 @@
     <p>Este acceso crea una transaccion de integracion por <strong>$1.000</strong>, genera el <strong>token_ws</strong> y te redirige a Webpay Plus de prueba.</p>
     <p>Si algo falla, abajo veras si el problema viene de variables de Vercel, credenciales de Transbank, respuesta de Transbank o Firebase.</p>
     <button id="payButton" type="button">Generar pago de prueba</button>
+    <a class="secondary-link" href="/pago/produccion-50">Ir a prueba real de produccion por $50</a>
     <div class="status" id="status"></div>
     <pre class="diagnostics" id="diagnostics"></pre>
   </section>

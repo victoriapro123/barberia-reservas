@@ -38,30 +38,70 @@ function isHttpsUrl(value) {
   }
 }
 
-export function getWebpayEnvDiagnostics() {
-  const commerceCode = String(process.env.TRANSBANK_COMMERCE_CODE || "").trim();
-  const apiKey = String(process.env.TRANSBANK_API_KEY || "").trim();
-  const environment = String(process.env.TRANSBANK_ENVIRONMENT || "").trim();
-  const baseUrl = String(process.env.WEBPAY_RETURN_BASE_URL || "").trim().replace(/\/+$/, "");
+function readEnv(name) {
+  return String(process.env[name] || "").trim();
+}
+
+function getWebpayEnvNames(mode = "integration") {
+  if (mode === "production") {
+    return {
+      commerceCode: "TRANSBANK_PRODUCTION_COMMERCE_CODE",
+      apiKey: "TRANSBANK_PRODUCTION_API_KEY",
+      environment: "TRANSBANK_PRODUCTION_ENVIRONMENT",
+      baseUrl: "WEBPAY_PRODUCTION_RETURN_BASE_URL",
+      expectedEnvironment: "production"
+    };
+  }
 
   return {
-    TRANSBANK_COMMERCE_CODE: {
+    commerceCode: "TRANSBANK_COMMERCE_CODE",
+    apiKey: "TRANSBANK_API_KEY",
+    environment: "TRANSBANK_ENVIRONMENT",
+    baseUrl: "WEBPAY_RETURN_BASE_URL",
+    expectedEnvironment: "integration"
+  };
+}
+
+function getWebpayRawValues(mode = "integration") {
+  const names = getWebpayEnvNames(mode);
+  const fallbackToGeneric = mode === "production";
+
+  return {
+    names,
+    commerceCode: readEnv(names.commerceCode) || (fallbackToGeneric ? readEnv("TRANSBANK_COMMERCE_CODE") : ""),
+    apiKey: readEnv(names.apiKey) || (fallbackToGeneric ? readEnv("TRANSBANK_API_KEY") : ""),
+    environment: readEnv(names.environment) || (fallbackToGeneric ? readEnv("TRANSBANK_ENVIRONMENT") : ""),
+    baseUrl: (readEnv(names.baseUrl) || (fallbackToGeneric ? readEnv("WEBPAY_RETURN_BASE_URL") : "")).replace(/\/+$/, "")
+  };
+}
+
+export function getWebpayEnvDiagnostics(mode = "integration") {
+  const { names, commerceCode, apiKey, environment, baseUrl } = getWebpayRawValues(mode);
+
+  return {
+    mode,
+    expectedEnvironment: names.expectedEnvironment,
+    commerceCodeEnv: names.commerceCode,
+    apiKeyEnv: names.apiKey,
+    environmentEnv: names.environment,
+    baseUrlEnv: names.baseUrl,
+    commerceCode: {
       present: Boolean(commerceCode),
       length: commerceCode.length,
       masked: maskSecret(commerceCode, 3, 3),
       numeric: /^\d+$/.test(commerceCode)
     },
-    TRANSBANK_API_KEY: {
+    apiKey: {
       present: Boolean(apiKey),
       length: apiKey.length,
       masked: maskSecret(apiKey, 6, 6)
     },
-    TRANSBANK_ENVIRONMENT: {
+    environment: {
       present: Boolean(environment),
       value: environment || "(missing)",
       normalized: environment.toLowerCase()
     },
-    WEBPAY_RETURN_BASE_URL: {
+    baseUrl: {
       present: Boolean(baseUrl),
       value: baseUrl || "(missing)",
       validHttpsUrl: Boolean(baseUrl) && isHttpsUrl(baseUrl)
@@ -71,26 +111,24 @@ export function getWebpayEnvDiagnostics() {
   };
 }
 
-export function getWebpayConfig() {
-  const commerceCode = String(process.env.TRANSBANK_COMMERCE_CODE || "").trim();
-  const apiKey = String(process.env.TRANSBANK_API_KEY || "").trim();
-  const rawEnvironment = String(process.env.TRANSBANK_ENVIRONMENT || "").trim();
+export function getWebpayConfig(options = {}) {
+  const mode = options.mode || "integration";
+  const { names, commerceCode, apiKey, environment: rawEnvironment, baseUrl } = getWebpayRawValues(mode);
   const environment = rawEnvironment.toLowerCase();
-  const baseUrl = String(process.env.WEBPAY_RETURN_BASE_URL || "").trim().replace(/\/+$/, "");
-  const diagnostics = getWebpayEnvDiagnostics();
+  const diagnostics = getWebpayEnvDiagnostics(mode);
   const missing = [];
 
-  if (!commerceCode) missing.push("TRANSBANK_COMMERCE_CODE");
-  if (!apiKey) missing.push("TRANSBANK_API_KEY");
-  if (!rawEnvironment) missing.push("TRANSBANK_ENVIRONMENT");
-  if (!baseUrl) missing.push("WEBPAY_RETURN_BASE_URL");
+  if (!commerceCode) missing.push(names.commerceCode);
+  if (!apiKey) missing.push(names.apiKey);
+  if (!rawEnvironment) missing.push(names.environment);
+  if (!baseUrl) missing.push(names.baseUrl);
 
   if (missing.length) {
     throw new WebpayConfigError(`Faltan variables de entorno en Vercel: ${missing.join(", ")}.`, diagnostics);
   }
 
-  if (environment !== "integration") {
-    throw new WebpayConfigError("TRANSBANK_ENVIRONMENT debe ser integration para esta prueba.", diagnostics);
+  if (environment !== names.expectedEnvironment) {
+    throw new WebpayConfigError(`${names.environment} debe ser ${names.expectedEnvironment} para esta prueba.`, diagnostics);
   }
 
   if (!/^\d+$/.test(commerceCode)) {
@@ -135,6 +173,10 @@ export function buildWebpayTransaction() {
 }
 
 export function buildWebpayTransactionFromConfig(config) {
+  if (config.environment === "production") {
+    return WebpayPlus.Transaction.buildForProduction(config.commerceCode, config.apiKey);
+  }
+
   return WebpayPlus.Transaction.buildForIntegration(config.commerceCode, config.apiKey);
 }
 

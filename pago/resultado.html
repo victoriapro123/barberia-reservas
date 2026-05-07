@@ -180,6 +180,7 @@
     const tbkToken = params.get("TBK_TOKEN") || "";
     const buyOrder = params.get("TBK_ORDEN_COMPRA") || "";
     const sessionId = params.get("TBK_ID_SESION") || "";
+    const webpayEnv = params.get("webpay_env") || "integration";
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -210,6 +211,7 @@
           <div class="field"><span>Payment Type Code</span><strong>${escapeHtml(data.payment_type_code || "")}</strong></div>
           <div class="field"><span>Installments Number</span><strong>${escapeHtml(data.installments_number ?? 0)}</strong></div>
           <div class="field"><span>Amount</span><strong>${escapeHtml(formatAmount(data.amount || 0))}</strong></div>
+          <div class="field"><span>Ambiente</span><strong>${escapeHtml(data.environment || webpayEnv)}</strong></div>
           <div class="field" style="grid-column: 1 / -1;"><span>token_ws</span><strong>${escapeHtml(data.token_ws || "")}</strong></div>
         </div>
         <div class="actions">
@@ -245,13 +247,17 @@
           installments_number: 0,
           amount: 0,
           token_ws: tbkToken,
-          session_id: sessionId
+          session_id: sessionId,
+          environment: webpayEnv
         });
         return;
       }
 
       try {
-        const response = await fetch(`/api/webpay/commit?token_ws=${encodeURIComponent(tokenWs)}`);
+        const commitEndpoint = webpayEnv === "production"
+          ? "/api/webpay/commit-production-test"
+          : "/api/webpay/commit";
+        const response = await fetch(`${commitEndpoint}?token_ws=${encodeURIComponent(tokenWs)}`);
         const payload = await response.json().catch(() => ({}));
 
         if (!response.ok) {
