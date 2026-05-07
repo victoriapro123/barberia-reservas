@@ -252,6 +252,7 @@
     const sessionId = params.get("TBK_ID_SESION") || "";
     const webpayEnv = params.get("webpay_env") || "integration";
     const webpayFlow = params.get("webpay_flow") || "checkout";
+    const previewMode = params.get("preview") === "aprobado";
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -370,6 +371,26 @@
     }
 
     async function main() {
+      if (previewMode) {
+        renderResult({
+          approved: true,
+          buy_order: "ORDEN-DEMO-001",
+          authorization_code: "123456",
+          payment_type_code: "VD",
+          amount: 15000,
+          order: {
+            pack: "Básico",
+            planta: "Scindapsus",
+            macetero: "Macetero 1",
+            globo: "Globo 1",
+            delivery: false,
+            deliveryExtra: 0,
+            total: 15000
+          }
+        });
+        return;
+      }
+
       if (!tokenWs && !tbkToken) {
         renderError("No se recibió ningún token de retorno desde Webpay.");
         return;
