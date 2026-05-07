@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resultado del pago | Jardin Flor de Loto</title>
+  <title>Resultado del pago | Jardín Flor de Loto</title>
   <link rel="icon" href="/assets/jardin-flor-de-loto-logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/jardin-flor-de-loto-logo.png" />
   <meta name="theme-color" content="#071915" />
-  <meta property="og:title" content="Jardin Flor de Loto" />
+  <meta property="og:title" content="Jardín Flor de Loto" />
   <meta property="og:description" content="Resultado de pago seguro con Webpay Plus." />
   <meta property="og:image" content="/assets/jardin-flor-de-loto-logo.png" />
   <style>
@@ -15,10 +15,11 @@
       --bg: #071915;
       --panel: #fffaf0;
       --panel-soft: #eef4df;
+      --paper: #fffdf8;
       --text: #13332b;
       --muted: #61746b;
       --accent: #d9c463;
-      --border: rgba(217, 196, 99, 0.22);
+      --border: rgba(217, 196, 99, 0.24);
       --success: #2f7d4a;
       --danger: #a84141;
     }
@@ -31,126 +32,148 @@
       place-items: center;
       padding: 20px;
       background:
-        linear-gradient(180deg, rgba(4, 18, 16, 0.88), rgba(5, 22, 19, 0.95)),
+        linear-gradient(180deg, rgba(4, 18, 16, 0.88), rgba(5, 22, 19, 0.96)),
         url("/assets/flor-de-loto-portada.png") center/cover no-repeat;
       color: #fff8d8;
       font-family: "Segoe UI", "Trebuchet MS", sans-serif;
     }
 
     .card {
-      width: min(820px, 100%);
+      width: min(920px, 100%);
       background: var(--panel);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 2px;
-      box-shadow: 0 32px 80px rgba(0, 12, 10, 0.3);
+      box-shadow: 0 32px 90px rgba(0, 12, 10, 0.34);
       overflow: hidden;
     }
 
     .head {
-      padding: 24px;
-      background: var(--panel-soft);
+      padding: clamp(24px, 5vw, 42px);
+      background:
+        linear-gradient(135deg, rgba(238, 244, 223, 0.96), rgba(255, 250, 240, 0.98));
       border-bottom: 1px solid var(--border);
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
     .eyebrow {
-      font-size: 0.82rem;
+      width: fit-content;
+      padding: 8px 12px;
+      background: rgba(47, 125, 74, 0.08);
+      border: 1px solid rgba(47, 125, 74, 0.16);
+      color: #2f7d4a;
+      font-size: 0.78rem;
       font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #6e7e53;
     }
 
     h1 {
-      font-size: clamp(2rem, 6vw, 3.6rem);
-      line-height: 0.95;
-      letter-spacing: -0.05em;
+      font-size: clamp(2.4rem, 8vw, 5rem);
+      line-height: 0.92;
+      letter-spacing: -0.07em;
     }
 
-    .copy {
+    .subtitle {
+      max-width: 720px;
       color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.2rem);
       line-height: 1.6;
     }
 
     .body {
-      padding: 24px;
+      padding: clamp(20px, 4vw, 34px);
       display: grid;
       gap: 18px;
     }
 
-    .status-chip {
-      width: fit-content;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      font-weight: 900;
+    .summary {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 16px;
     }
 
-    .status-chip.aprobado {
-      color: var(--success);
-      border-color: rgba(47, 125, 74, 0.24);
-      background: rgba(47, 125, 74, 0.08);
-    }
-
-    .status-chip.rechazado {
-      color: var(--danger);
-      border-color: rgba(168, 65, 65, 0.24);
-      background: rgba(168, 65, 65, 0.08);
-    }
-
-    .message {
+    .panel {
+      background: var(--paper);
+      border: 1px solid rgba(19, 51, 43, 0.08);
       padding: 18px;
-      background: #fffdf8;
-      border: 1px solid rgba(19, 51, 43, 0.08);
       display: grid;
-      gap: 8px;
+      gap: 14px;
     }
 
-    .message strong {
-      font-size: clamp(1.6rem, 4vw, 2.6rem);
-      letter-spacing: -0.04em;
-      line-height: 1;
+    .panel h2 {
+      font-size: 1.18rem;
+      letter-spacing: -0.02em;
     }
 
-    .grid {
+    .rows {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 10px;
     }
 
-    .field {
-      background: #fffdf8;
-      border: 1px solid rgba(19, 51, 43, 0.08);
-      border-radius: 2px;
-      padding: 14px;
-      display: grid;
-      gap: 6px;
-      min-height: 92px;
+    .row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(19, 51, 43, 0.08);
     }
 
-    .field span {
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+    .row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .row span {
       color: var(--muted);
       font-weight: 800;
     }
 
-    .field strong {
+    .row strong {
+      text-align: right;
       word-break: break-word;
-      line-height: 1.35;
+    }
+
+    .total {
+      margin-top: 4px;
+      padding: 16px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(47, 125, 74, 0.14);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 1.12rem;
+      font-weight: 900;
+    }
+
+    .pickup {
+      background: #173f31;
+      color: #fff8d8;
+      border-color: rgba(255, 248, 216, 0.16);
+    }
+
+    .pickup p {
+      color: rgba(255, 248, 216, 0.82);
+      line-height: 1.55;
+    }
+
+    .pickup strong {
+      display: block;
+      font-size: 1.2rem;
+      line-height: 1.25;
     }
 
     .actions {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+      margin-top: 4px;
     }
 
     .button {
-      min-height: 50px;
+      min-height: 52px;
       padding: 0 20px;
       display: inline-flex;
       align-items: center;
@@ -166,7 +189,12 @@
     .button.secondary {
       background: transparent;
       color: var(--text);
-      border-color: rgba(19, 51, 43, 0.12);
+      border-color: rgba(19, 51, 43, 0.16);
+    }
+
+    .button.map {
+      background: var(--accent);
+      color: #173f31;
     }
 
     .loading {
@@ -174,9 +202,23 @@
       line-height: 1.6;
     }
 
-    @media (max-width: 640px) {
-      .grid {
+    @media (max-width: 760px) {
+      body {
+        padding: 12px;
+      }
+
+      .summary {
         grid-template-columns: 1fr;
+      }
+
+      .row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .row strong {
+        text-align: left;
       }
 
       .actions .button {
@@ -187,10 +229,10 @@
 </head>
 <body>
   <article class="card">
-    <header class="head">
+    <header class="head" id="resultHead">
       <span class="eyebrow">Webpay Plus</span>
-      <h1>Resultado del pago</h1>
-      <p class="copy">Aqui veras el estado final de tu pago dentro de Jardin Flor de Loto.</p>
+      <h1>Confirmando pago</h1>
+      <p class="subtitle">Estamos verificando el resultado de tu compra.</p>
     </header>
     <section class="body" id="resultBody">
       <p class="loading">Confirmando tu pago con Webpay...</p>
@@ -198,6 +240,10 @@
   </article>
 
   <script>
+    const PICKUP_ADDRESS = "Av. Miraflores 2000, Peñaflor";
+    const MAP_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(PICKUP_ADDRESS)}`;
+
+    const resultHead = document.getElementById("resultHead");
     const resultBody = document.getElementById("resultBody");
     const params = new URLSearchParams(window.location.search);
     const tokenWs = params.get("token_ws") || "";
@@ -216,6 +262,11 @@
         .replace(/'/g, "&#39;");
     }
 
+    function valueOrDefault(value) {
+      const normalized = String(value || "").trim();
+      return normalized || "No especificado";
+    }
+
     function formatAmount(value) {
       const amount = Number(value || 0);
       return new Intl.NumberFormat("es-CL", {
@@ -225,54 +276,102 @@
       }).format(amount);
     }
 
-    function renderResult(data) {
-      const approved = Boolean(data.approved);
-      const statusText = approved ? "Pago aprobado" : "Pago rechazado";
-      const messageTitle = approved ? "Gracias por tu compra" : "No se pudo completar el pago";
-      const messageCopy = approved
-        ? "Tu pedido fue confirmado correctamente. Guardamos el resultado del pago."
-        : "Puedes volver al inicio e intentar nuevamente cuando quieras.";
+    function renderHeader(approved) {
+      resultHead.innerHTML = approved
+        ? `
+          <span class="eyebrow">Compra confirmada</span>
+          <h1>¡Pago aprobado!</h1>
+          <p class="subtitle">Gracias por tu compra. Tu pedido fue recibido correctamente.</p>
+        `
+        : `
+          <span class="eyebrow">Pago no confirmado</span>
+          <h1>Pago rechazado</h1>
+          <p class="subtitle">Tu compra no fue confirmada. Puedes intentarlo nuevamente.</p>
+        `;
+    }
+
+    function renderApproved(data) {
+      const order = data.order || {};
+      renderHeader(true);
 
       resultBody.innerHTML = `
-        <div class="status-chip ${approved ? "aprobado" : "rechazado"}">${statusText}</div>
-        <section class="message">
-          <strong>${messageTitle}</strong>
-          <p class="copy">${messageCopy}</p>
+        <section class="summary">
+          <div class="panel">
+            <h2>Detalle del pedido</h2>
+            <div class="rows">
+              <div class="row"><span>Pack seleccionado</span><strong>${escapeHtml(valueOrDefault(order.pack))}</strong></div>
+              <div class="row"><span>Planta seleccionada</span><strong>${escapeHtml(valueOrDefault(order.planta))}</strong></div>
+              <div class="row"><span>Macetero seleccionado</span><strong>${escapeHtml(valueOrDefault(order.macetero))}</strong></div>
+              <div class="row"><span>Globo seleccionado</span><strong>${escapeHtml(valueOrDefault(order.globo))}</strong></div>
+              ${order.delivery ? `<div class="row"><span>Delivery</span><strong>Incluido (${escapeHtml(formatAmount(order.deliveryExtra || 0))})</strong></div>` : ""}
+            </div>
+            <div class="total"><span>Monto pagado</span><strong>${escapeHtml(formatAmount(data.amount || order.total || 0))}</strong></div>
+          </div>
+
+          <div class="panel pickup">
+            <h2>Retiro</h2>
+            <p>Tu pedido estará disponible para retiro en:</p>
+            <strong>${escapeHtml(PICKUP_ADDRESS)}</strong>
+          </div>
         </section>
-        <div class="grid">
-          <div class="field"><span>Estado</span><strong>${escapeHtml(data.status || statusText)}</strong></div>
-          <div class="field"><span>Monto pagado</span><strong>${escapeHtml(formatAmount(data.amount || 0))}</strong></div>
-          <div class="field"><span>Codigo de autorizacion</span><strong>${escapeHtml(data.authorization_code || "No aplica")}</strong></div>
-          <div class="field"><span>Numero de orden</span><strong>${escapeHtml(data.buy_order || "")}</strong></div>
-          <div class="field"><span>Tipo de pago</span><strong>${escapeHtml(data.payment_type_code || "No informado")}</strong></div>
-          <div class="field"><span>Cuotas</span><strong>${escapeHtml(data.installments_number ?? 0)}</strong></div>
-          <div class="field"><span>Ambiente</span><strong>${escapeHtml(data.environment || webpayEnv)}</strong></div>
-          <div class="field" style="grid-column: 1 / -1;"><span>token_ws</span><strong>${escapeHtml(data.token_ws || "")}</strong></div>
-        </div>
+
+        <section class="panel">
+          <h2>Datos útiles</h2>
+          <div class="rows">
+            <div class="row"><span>Número de orden</span><strong>${escapeHtml(valueOrDefault(data.buy_order))}</strong></div>
+            <div class="row"><span>Código de autorización</span><strong>${escapeHtml(valueOrDefault(data.authorization_code))}</strong></div>
+            <div class="row"><span>Tipo de pago</span><strong>${escapeHtml(valueOrDefault(data.payment_type_code))}</strong></div>
+          </div>
+        </section>
+
         <div class="actions">
           <a class="button" href="/">Volver al inicio</a>
-          <a class="button secondary" href="/">Seguir comprando</a>
+          <a class="button secondary" href="/">Hacer otro pedido</a>
+          <a class="button map" href="${MAP_URL}" target="_blank" rel="noopener">Ver ubicación en Google Maps</a>
+        </div>
+      `;
+    }
+
+    function renderRejected() {
+      renderHeader(false);
+      resultBody.innerHTML = `
+        <section class="panel">
+          <h2>Tu compra no fue confirmada</h2>
+          <p class="loading">No se realizó el cargo o Webpay rechazó la transacción. Puedes volver a comprar e intentarlo nuevamente.</p>
+        </section>
+        <div class="actions">
+          <a class="button" href="/">Volver a comprar</a>
+          <a class="button secondary" href="/">Volver al inicio</a>
         </div>
       `;
     }
 
     function renderError(message) {
+      renderHeader(false);
       resultBody.innerHTML = `
-        <div class="status-chip rechazado">Pago rechazado</div>
-        <section class="message">
-          <strong>No se pudo confirmar</strong>
-          <p class="copy">${escapeHtml(message)}</p>
+        <section class="panel">
+          <h2>No se pudo confirmar el pago</h2>
+          <p class="loading">${escapeHtml(message)}</p>
         </section>
         <div class="actions">
-          <a class="button" href="/">Volver al inicio</a>
-          <a class="button secondary" href="/">Intentar nuevamente</a>
+          <a class="button" href="/">Volver a comprar</a>
+          <a class="button secondary" href="/">Volver al inicio</a>
         </div>
       `;
     }
 
+    function renderResult(data) {
+      if (data.approved) {
+        renderApproved(data);
+        return;
+      }
+
+      renderRejected();
+    }
+
     async function main() {
       if (!tokenWs && !tbkToken) {
-        renderError("No se recibio ningun token de retorno desde Webpay.");
+        renderError("No se recibió ningún token de retorno desde Webpay.");
         return;
       }
 
@@ -281,13 +380,7 @@
           approved: false,
           status: "rechazado",
           buy_order: buyOrder,
-          authorization_code: "",
-          payment_type_code: "",
-          installments_number: 0,
-          amount: 0,
-          token_ws: tbkToken,
-          session_id: sessionId,
-          environment: webpayEnv
+          session_id: sessionId
         });
         return;
       }

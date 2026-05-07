@@ -7,6 +7,8 @@ import {
   getWebpayConfig
 } from "../_lib/webpay.mjs";
 
+const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
+
 function parseFormBody(rawBody = "") {
   return Object.fromEntries(new URLSearchParams(rawBody));
 }
@@ -34,6 +36,114 @@ function sendJson(response, statusCode, payload) {
 function getModeFromRequest(request) {
   const mode = String(request.query?.webpay_env || "").trim().toLowerCase();
   return mode === "production" ? "production" : "integration";
+}
+
+function fallback(value, defaultValue = "No especificado") {
+  const normalized = String(value || "").trim();
+  return normalized || defaultValue;
+}
+
+function formatMoney(value) {
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0
+  }).format(Number(value || 0));
+}
+
+function isValidEmail(value) {
+  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function getNotificationRecipients() {
+  const configuredRecipients = Array.isArray(BRAND_CONFIG.orderNotificationEmails)
+    ? BRAND_CONFIG.orderNotificationEmails
+    : [];
+  const barberEmail = process.env.BARBER_EMAIL || BRAND_CONFIG.contactEmail || "";
+
+  return [...new Set([barberEmail, ...configuredRecipients].filter(isValidEmail))];
+}
+
+async function sendEmailRequest(templateParams, serviceId, templateId, publicKey, privateKey) {
+  const emailResponse = await fetch(EMAILJS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      service_id: serviceId,
+      template_id: templateId,
+      user_id: publicKey,
+      accessToken: privateKey,
+      template_params: templateParams
+    })
+  });
+
+  if (!emailResponse.ok) {
+    const errorText = await emailResponse.text();
+    throw new Error(`EmailJS error: ${emailResponse.status} ${errorText}`);
+  }
+}
+
+async function sendPaidOrderEmail({ buyOrder, paymentRecord, commitResponse }) {
+  const serviceId = process.env.EMAILJS_SERVICE_ID;
+  const templateId = process.env.EMAILJS_TEMPLATE_ID;
+  const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+
+  if (!serviceId || !templateId || !publicKey || !privateKey) {
+    throw new Error("Missing EmailJS environment variables for paid order notification.");
+  }
+
+  const order = paymentRecord.order || {};
+  const customer = paymentRecord.customer || {};
+  const total = Number(commitResponse.amount || order.total || paymentRecord.amount || 0);
+  const details = [
+    `Pedido pagado con Webpay`,
+    `Pack: ${fallback(order.pack)}`,
+    `Planta: ${fallback(order.planta)}`,
+    `Macetero: ${fallback(order.macetero)}`,
+    `Globo: ${fallback(order.globo)}`,
+    `Delivery: ${order.delivery ? "Si" : "No"}`,
+    order.direccion ? `Direccion: ${order.direccion}` : "",
+    order.observaciones ? `Observaciones: ${order.observaciones}` : "",
+    `Monto pagado: ${formatMoney(total)}`,
+    `Orden: ${buyOrder}`,
+    `Codigo autorizacion: ${commitResponse.authorization_code || "No especificado"}`
+  ].filter(Boolean).join("\n");
+
+  const recipients = getNotificationRecipients();
+
+  for (const recipient of recipients) {
+    const customerEmail = isValidEmail(customer.correo) ? customer.correo : recipient;
+
+    await sendEmailRequest(
+      {
+        to_email: recipient,
+        to_name: BRAND_CONFIG.name,
+        reply_to: customerEmail,
+        name: fallback(customer.nombre, "Cliente Webpay"),
+        email: customerEmail,
+        title: "Nuevo pedido pagado",
+        message: details,
+        email_title: "Nuevo pedido pagado",
+        cliente_nombre: fallback(customer.nombre, "Cliente Webpay"),
+        cliente_correo: fallback(customer.correo),
+        cliente_telefono: fallback(customer.telefono),
+        servicio: `Pedido Webpay - ${fallback(order.pack, "Pack Flor de Loto")}`,
+        fecha: "Pagado por Webpay",
+        hora: "A coordinar",
+        estado: "Confirmada",
+        mensaje: "Nuevo pedido pagado con Webpay Plus.",
+        nota_interna: details,
+        notification_type: "new_request"
+      },
+      serviceId,
+      templateId,
+      publicKey,
+      privateKey
+    );
+  }
 }
 
 async function ensureOrderDocument(buyOrder, paymentRecord, commitResponse) {
@@ -122,9 +232,25 @@ async function handleCommitToken(tokenWs, response, webpayMode = "integration") 
 
     if (approved) {
       await ensureOrderDocument(buyOrder, paymentRecord, commitResponse);
+
+      if (!paymentRecord.paymentNotificationSentAt) {
+        try {
+          await sendPaidOrderEmail({ buyOrder, paymentRecord, commitResponse });
+          await setFirestoreDocument("webpay_pagos", buyOrder, {
+            paymentNotificationSentAt: { __timestamp: new Date().toISOString() },
+            paymentNotificationError: ""
+          });
+        } catch (emailError) {
+          console.error("Error sending paid order email:", emailError);
+          await setFirestoreDocument("webpay_pagos", buyOrder, {
+            paymentNotificationError: emailError.message || "No se pudo enviar correo de pedido pagado."
+          }).catch(() => {});
+        }
+      }
     }
   }
 
+  const order = paymentRecord.order || {};
   sendJson(response, 200, {
     ok: true,
     approved,
@@ -136,7 +262,18 @@ async function handleCommitToken(tokenWs, response, webpayMode = "integration") 
     installments_number: Number(commitResponse.installments_number || 0),
     amount: Number(commitResponse.amount || paymentRecord.amount || 0),
     token_ws: tokenWs,
-    environment: webpayMode
+    environment: webpayMode,
+    order: {
+      pack: fallback(order.pack),
+      planta: fallback(order.planta),
+      macetero: fallback(order.macetero),
+      globo: fallback(order.globo),
+      delivery: Boolean(order.delivery),
+      deliveryExtra: Number(order.deliveryExtra || 0),
+      total: Number(order.total || commitResponse.amount || paymentRecord.amount || 0),
+      direccion: fallback(order.direccion),
+      observaciones: fallback(order.observaciones)
+    }
   });
 }
 
