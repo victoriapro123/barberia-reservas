@@ -64,6 +64,18 @@ function getNotificationRecipients() {
   return [...new Set([barberEmail, ...configuredRecipients].filter(isValidEmail))];
 }
 
+function getNotificationAddressFields() {
+  const recipients = getNotificationRecipients();
+  const primaryEmail = recipients[0] || "";
+  const copyEmails = recipients.slice(1);
+
+  return {
+    primaryEmail,
+    copyEmail: copyEmails.join(", "),
+    allEmails: recipients.join(", ")
+  };
+}
+
 async function sendEmailRequest(templateParams, serviceId, templateId, publicKey, privateKey) {
   const emailResponse = await fetch(EMAILJS_URL, {
     method: "POST",
@@ -112,38 +124,37 @@ async function sendPaidOrderEmail({ buyOrder, paymentRecord, commitResponse }) {
     `Codigo autorizacion: ${commitResponse.authorization_code || "No especificado"}`
   ].filter(Boolean).join("\n");
 
-  const recipients = getNotificationRecipients();
+  const { primaryEmail, copyEmail, allEmails } = getNotificationAddressFields();
+  const customerEmail = isValidEmail(customer.correo) ? customer.correo : primaryEmail;
 
-  for (const recipient of recipients) {
-    const customerEmail = isValidEmail(customer.correo) ? customer.correo : recipient;
-
-    await sendEmailRequest(
-      {
-        to_email: recipient,
-        to_name: BRAND_CONFIG.name,
-        reply_to: customerEmail,
-        name: fallback(customer.nombre, "Cliente Webpay"),
-        email: customerEmail,
-        title: "Nuevo pedido pagado",
-        message: details,
-        email_title: "Nuevo pedido pagado",
-        cliente_nombre: fallback(customer.nombre, "Cliente Webpay"),
-        cliente_correo: fallback(customer.correo),
-        cliente_telefono: fallback(customer.telefono),
-        servicio: `Pedido Webpay - ${fallback(order.pack, "Pack Flor de Loto")}`,
-        fecha: "Pagado por Webpay",
-        hora: "A coordinar",
-        estado: "Confirmada",
-        mensaje: "Nuevo pedido pagado con Webpay Plus.",
-        nota_interna: details,
-        notification_type: "new_request"
-      },
-      serviceId,
-      templateId,
-      publicKey,
-      privateKey
-    );
-  }
+  await sendEmailRequest(
+    {
+      to_email: allEmails || primaryEmail,
+      cc_email: copyEmail,
+      bcc_email: "",
+      to_name: BRAND_CONFIG.name,
+      reply_to: customerEmail,
+      name: fallback(customer.nombre, "Cliente Webpay"),
+      email: customerEmail,
+      title: "Nuevo pedido pagado",
+      message: details,
+      email_title: "Nuevo pedido pagado",
+      cliente_nombre: fallback(customer.nombre, "Cliente Webpay"),
+      cliente_correo: fallback(customer.correo),
+      cliente_telefono: fallback(customer.telefono),
+      servicio: `Pedido Webpay - ${fallback(order.pack, "Pack Flor de Loto")}`,
+      fecha: "Pagado por Webpay",
+      hora: "A coordinar",
+      estado: "Confirmada",
+      mensaje: "Nuevo pedido pagado con Webpay Plus.",
+      nota_interna: details,
+      notification_type: "new_request"
+    },
+    serviceId,
+    templateId,
+    publicKey,
+    privateKey
+  );
 }
 
 async function ensureOrderDocument(buyOrder, paymentRecord, commitResponse) {

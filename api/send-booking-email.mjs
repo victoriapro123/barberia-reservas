@@ -354,7 +354,7 @@ async function saveOrderRecord(payload) {
   }
 }
 
-function getTemplateParams(payload, toEmail) {
+function getTemplateParams(payload, toEmail, ccEmail = "") {
   const mensaje =
     payload.notificationType === "new_request"
       ? "Nueva solicitud registrada desde la web."
@@ -379,6 +379,8 @@ function getTemplateParams(payload, toEmail) {
 
   return {
     to_email: toEmail,
+    cc_email: ccEmail,
+    bcc_email: "",
     email_title: titulo,
     cliente_nombre: payload.nombre,
     cliente_correo: payload.correo,
@@ -407,6 +409,18 @@ function getNotificationRecipients(barberEmail) {
     : [];
 
   return [...new Set([barberEmail, ...configuredRecipients].filter(isValidEmail))];
+}
+
+function getNotificationAddressFields(barberEmail) {
+  const recipients = getNotificationRecipients(barberEmail);
+  const primaryEmail = recipients[0] || barberEmail;
+  const copyEmails = recipients.slice(1);
+
+  return {
+    primaryEmail,
+    copyEmail: copyEmails.join(", "),
+    allEmails: recipients.join(", ")
+  };
 }
 
 async function sendEmailRequest(templateParams, serviceId, templateId, publicKey, privateKey) {
@@ -450,17 +464,15 @@ async function sendEmail(payload) {
   }
 
   if (payload.notificationType === "new_request") {
-    const recipients = getNotificationRecipients(barberEmail);
+    const { primaryEmail, copyEmail, allEmails } = getNotificationAddressFields(barberEmail);
 
-    for (const recipient of recipients) {
-      await sendEmailRequest(
-        getTemplateParams(payload, recipient),
-        serviceId,
-        templateId,
-        publicKey,
-        privateKey
-      );
-    }
+    await sendEmailRequest(
+      getTemplateParams(payload, allEmails || primaryEmail, copyEmail),
+      serviceId,
+      templateId,
+      publicKey,
+      privateKey
+    );
 
     return;
   }
