@@ -38,9 +38,9 @@
 
     body {
       width: 100%;
-      height: 100vh;
-      height: 100svh;
-      overflow: hidden;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow-x: hidden;
       background: var(--bg);
       color: #fff8d8;
       font-family: "Segoe UI", "Trebuchet MS", sans-serif;
@@ -68,15 +68,15 @@
 
     main {
       width: 100%;
-      height: 100vh;
-      height: 100svh;
-      overflow: hidden;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow: visible;
     }
 
     .hero {
       width: 100%;
-      height: 100vh;
-      height: 100svh;
+      height: 92vh;
+      height: 92svh;
       display: grid;
       place-items: stretch;
       padding: 0;
@@ -175,6 +175,7 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
+      max-width: 820px;
     }
 
     .btn-principal,
@@ -283,6 +284,275 @@
       transform: translateY(14px) scale(0.985);
       transition: opacity 0.28s ease, transform 0.28s ease;
       overflow-y: auto;
+    }
+
+    .info-section {
+      padding: clamp(58px, 8vw, 96px) 18px;
+      background: #f7f0df;
+      color: var(--text);
+    }
+
+    .info-layout {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .info-copy {
+      display: grid;
+      gap: 18px;
+      align-content: center;
+    }
+
+    .info-copy span {
+      color: #67844d;
+      font-weight: 950;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+    }
+
+    .info-copy h2 {
+      color: #173f31;
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .info-copy p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1.04rem;
+    }
+
+    .info-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .info-card {
+      background: #fffaf0;
+      border: 1px solid rgba(23, 63, 49, 0.12);
+      border-radius: 2px;
+      padding: 18px;
+      display: grid;
+      gap: 8px;
+      box-shadow: 0 18px 44px rgba(12, 42, 32, 0.09);
+    }
+
+    .info-card strong {
+      color: #173f31;
+      font-size: 1.06rem;
+    }
+
+    .info-card p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .map-card {
+      min-height: 420px;
+      background: #fffaf0;
+      border: 1px solid rgba(23, 63, 49, 0.12);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 22px 56px rgba(12, 42, 32, 0.12);
+    }
+
+    .map-card iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      border: 0;
+      display: block;
+    }
+
+    .catalog-empty {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+      text-align: center;
+      background: rgba(255, 248, 216, 0.1);
+      border: 1px solid rgba(255, 248, 216, 0.24);
+      border-radius: 2px;
+      padding: clamp(28px, 6vw, 52px);
+    }
+
+    .catalog-empty strong {
+      font-size: clamp(1.7rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.035em;
+    }
+
+    .catalog-empty p {
+      color: rgba(255, 248, 216, 0.76);
+      line-height: 1.65;
+    }
+
+    .cart-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 18;
+      min-height: 54px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: #fff8d8;
+      color: #173f31;
+      border: 1px solid rgba(23, 63, 49, 0.18);
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .cart-count {
+      min-width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: #173f31;
+      color: #fff8d8;
+      display: inline-grid;
+      place-items: center;
+      font-size: 0.82rem;
+    }
+
+    .cart-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      background: rgba(5, 20, 18, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .cart-modal.visible {
+      display: grid;
+      justify-items: end;
+      animation: fade 0.2s ease both;
+    }
+
+    .cart-panel {
+      width: min(560px, 100%);
+      min-height: calc(100vh - 36px);
+      background: #fffaf0;
+      color: var(--text);
+      border: 1px solid rgba(255, 248, 216, 0.34);
+      border-radius: 2px;
+      box-shadow: 0 30px 90px rgba(0, 12, 10, 0.36);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .cart-head,
+    .cart-footer {
+      padding: 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .cart-footer {
+      border-top: 1px solid var(--border);
+      border-bottom: 0;
+      display: grid;
+      gap: 14px;
+    }
+
+    .cart-head h2 {
+      color: #173f31;
+      font-size: 1.65rem;
+      letter-spacing: -0.03em;
+    }
+
+    .cart-content {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      background: #fffdf8;
+      border: 1px solid rgba(63, 110, 59, 0.14);
+      border-radius: 2px;
+      padding: 14px;
+    }
+
+    .cart-item h3 {
+      color: #173f31;
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+    }
+
+    .cart-item p {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    .cart-remove {
+      width: 38px;
+      height: 38px;
+      border-radius: 2px;
+      background: #edf2e2;
+      color: #173f31;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .cart-empty {
+      color: var(--muted);
+      line-height: 1.6;
+      text-align: center;
+      padding: 36px 18px;
+      background: #fffdf8;
+      border: 1px dashed rgba(63, 110, 59, 0.22);
+      border-radius: 2px;
+    }
+
+    .cart-total-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .cart-total-line strong {
+      color: #173f31;
+      font-size: 1.18rem;
+    }
+
+    .cart-checkout {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cart-checkout .btn-principal {
+      border-radius: 2px;
+      background: #173f31;
+      color: #fff8d8;
+      box-shadow: none;
+    }
+
+    .admin-link {
+      color: #fff8d8;
+      border-color: rgba(255, 248, 216, 0.42);
     }
 
     .section.visible {
@@ -1030,7 +1300,8 @@
 
     @media (max-width: 880px) {
       .hero-card,
-      .modal-content {
+      .modal-content,
+      .info-layout {
         grid-template-columns: 1fr;
       }
 
@@ -1049,6 +1320,11 @@
 
       .packs-grid {
         grid-template-columns: 1fr;
+      }
+
+      .map-card,
+      .map-card iframe {
+        min-height: 320px;
       }
     }
 
@@ -1132,7 +1408,7 @@
     <section class="hero" aria-label="Portada">
       <div class="hero-card">
         <div class="hero-intro">
-          <h1>Jardín Flor de Loto</h1>
+          <h1>Bienvenidos a Jardín Flor de Loto</h1>
         </div>
 
         <div class="hero-visual" aria-hidden="true">
@@ -1148,12 +1424,37 @@
 
         <div class="hero-cta">
           <p class="hero-copy">
-            Packs naturales, delicados y listos para regalar. Elige una propuesta,
-            personalízala en segundos y agenda la entrega.
+            Plantas para interior, exterior y packs listos para regalar. Compra con Webpay
+            y recibe dentro de Peñaflor por $2.000.
           </p>
           <div class="hero-actions">
-            <button type="button" class="btn-principal" id="btnVerPromocion">Ver Promoción</button>
+            <button type="button" class="btn-principal" data-open-category="plantas">Plantas</button>
+            <button type="button" class="btn-principal" data-open-category="maceteros">Maceteros</button>
+            <button type="button" class="btn-principal" data-open-category="packs">Packs</button>
+            <a class="btn-principal" href="https://wa.me/56998462648?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20informacion%20" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn-principal admin-link" href="/admin.html">Cuenta</a>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-section" id="ubicacion">
+      <div class="info-layout">
+        <div class="info-copy">
+          <span>Peñaflor</span>
+          <h2>Visítanos o pide despacho local.</h2>
+          <p>Estamos en Av. Miraflores 1702, Peñaflor, Región Metropolitana. Hacemos envíos dentro de Peñaflor por $2.000 y también puedes escribirnos por WhatsApp para coordinar detalles.</p>
+          <div class="info-card">
+            <strong>Envíos dentro de Peñaflor: $2.000</strong>
+            <p>El carrito suma el despacho cuando marcas la opción de delivery antes de pagar con Webpay.</p>
+          </div>
+          <div class="info-actions">
+            <a class="btn-secundario" href="https://www.google.com/maps/search/?api=1&query=Av.%20Miraflores%201702%2C%20Pe%C3%B1aflor%2C%20Regi%C3%B3n%20Metropolitana" target="_blank" rel="noopener">Cómo llegar</a>
+            <a class="btn-secundario" href="https://wa.me/56998462648?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20informacion%20" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+          </div>
+        </div>
+        <div class="map-card">
+          <iframe title="Mapa de Jardín Flor de Loto" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Av.%20Miraflores%201702%2C%20Pe%C3%B1aflor%2C%20Regi%C3%B3n%20Metropolitana&output=embed"></iframe>
         </div>
       </div>
     </section>
@@ -1169,7 +1470,25 @@
         <div class="packs-grid" id="packsGrid"></div>
       </div>
     </section>
+
+    <section class="section" id="catalogo" aria-hidden="true">
+      <div class="container">
+        <div class="section-head">
+          <span id="catalogoEtiqueta">Catálogo</span>
+          <h2 id="catalogoTitulo">Plantas</h2>
+          <button type="button" class="cerrar-ofertas" id="btnCerrarCatalogo">Volver a portada</button>
+        </div>
+        <div class="catalog-empty">
+          <strong id="catalogoMensajeTitulo">Pronto agregaremos plantas aquí.</strong>
+          <p id="catalogoMensaje">Cuando me mandes las fotos, las voy ordenando en plantas o maceteros y cada producto quedará listo para agregarse al carrito.</p>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <button type="button" class="cart-fab" id="btnAbrirCarrito">
+    Carrito <span class="cart-count" id="cartCount">0</span>
+  </button>
 
   <div class="modal" id="modalPedido" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
@@ -1212,7 +1531,7 @@
               <div class="radio-grid" id="opcionesGlobo"></div>
             </fieldset>
 
-            <button type="button" class="btn-principal" id="btnRealizarPedido">Realizar Pedido</button>
+            <button type="button" class="btn-principal" id="btnRealizarPedido">Agregar al carrito</button>
           </form>
 
           <form class="formulario-pedido" id="formularioPedido">
@@ -1243,6 +1562,41 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="cart-modal" id="cartModal" aria-hidden="true">
+    <aside class="cart-panel" aria-labelledby="cartTitle">
+      <div class="cart-head">
+        <h2 id="cartTitle">Tu carrito</h2>
+        <button type="button" class="cerrar-modal" id="btnCerrarCarrito" aria-label="Cerrar carrito">×</button>
+      </div>
+      <div class="cart-content" id="cartItems"></div>
+      <div class="cart-footer">
+        <label class="delivery-option" for="cartDelivery">
+          <span>
+            <input type="checkbox" id="cartDelivery" />
+          </span>
+          <span>
+            <strong>Delivery dentro de Peñaflor +$2.000</strong>
+            <p>Marca esta opción si quieres despacho a domicilio.</p>
+          </span>
+        </label>
+        <div class="cart-total-line"><span>Productos</span><strong id="cartSubtotal">$0</strong></div>
+        <div class="cart-total-line"><span>Delivery</span><strong id="cartDeliveryTotal">$0</strong></div>
+        <div class="cart-total-line"><span>Total</span><strong id="cartTotal">$0</strong></div>
+        <form class="cart-checkout" id="cartCheckoutForm">
+          <div class="form-grid">
+            <input type="text" id="cartClienteNombre" placeholder="Nombre" maxlength="60" autocomplete="name" />
+            <input type="email" id="cartClienteCorreo" placeholder="Correo" maxlength="120" autocomplete="email" />
+            <input type="tel" id="cartClienteTelefono" placeholder="Teléfono" maxlength="20" autocomplete="tel" />
+            <input type="text" id="cartClienteDireccion" placeholder="Dirección de entrega (solo si eliges delivery)" maxlength="140" autocomplete="street-address" />
+            <textarea id="cartObservaciones" placeholder="Observaciones o mensaje para el pedido" maxlength="360"></textarea>
+          </div>
+          <button type="submit" class="btn-principal">Pagar carrito con Webpay</button>
+          <div class="estado" id="cartEstado"></div>
+        </form>
+      </div>
+    </aside>
   </div>
 
   <script type="module">
@@ -1372,8 +1726,13 @@
 
     const packsGrid = document.getElementById("packsGrid");
     const ofertasPanel = document.getElementById("ofertas");
-    const btnVerPromocion = document.getElementById("btnVerPromocion");
     const btnCerrarOfertas = document.getElementById("btnCerrarOfertas");
+    const catalogoPanel = document.getElementById("catalogo");
+    const btnCerrarCatalogo = document.getElementById("btnCerrarCatalogo");
+    const catalogoEtiqueta = document.getElementById("catalogoEtiqueta");
+    const catalogoTitulo = document.getElementById("catalogoTitulo");
+    const catalogoMensajeTitulo = document.getElementById("catalogoMensajeTitulo");
+    const catalogoMensaje = document.getElementById("catalogoMensaje");
     const modalPedido = document.getElementById("modalPedido");
     const btnCerrarModal = document.getElementById("btnCerrarModal");
     const modalTitulo = document.getElementById("modalTitulo");
@@ -1396,19 +1755,36 @@
     const clienteTelefono = document.getElementById("clienteTelefono");
     const clienteDireccion = document.getElementById("clienteDireccion");
     const observaciones = document.getElementById("observaciones");
+    const btnAbrirCarrito = document.getElementById("btnAbrirCarrito");
+    const cartModal = document.getElementById("cartModal");
+    const btnCerrarCarrito = document.getElementById("btnCerrarCarrito");
+    const cartCount = document.getElementById("cartCount");
+    const cartItems = document.getElementById("cartItems");
+    const cartDelivery = document.getElementById("cartDelivery");
+    const cartSubtotal = document.getElementById("cartSubtotal");
+    const cartDeliveryTotal = document.getElementById("cartDeliveryTotal");
+    const cartTotal = document.getElementById("cartTotal");
+    const cartCheckoutForm = document.getElementById("cartCheckoutForm");
+    const cartEstado = document.getElementById("cartEstado");
+    const cartClienteNombre = document.getElementById("cartClienteNombre");
+    const cartClienteCorreo = document.getElementById("cartClienteCorreo");
+    const cartClienteTelefono = document.getElementById("cartClienteTelefono");
+    const cartClienteDireccion = document.getElementById("cartClienteDireccion");
+    const cartObservaciones = document.getElementById("cartObservaciones");
 
     let packSeleccionado = null;
     let selectedPlant = "suculenta";
     let selectedPot = "macetero1";
+    let carrito = loadCart();
 
     document.title = BRAND_CONFIG.name;
     renderPacks();
     renderOpciones();
     syncDeliveryField();
+    renderCart();
 
-    btnVerPromocion.addEventListener("click", () => {
-      ofertasPanel.classList.add("visible");
-      ofertasPanel.setAttribute("aria-hidden", "false");
+    document.querySelectorAll("[data-open-category]").forEach((button) => {
+      button.addEventListener("click", () => openCategory(button.dataset.openCategory));
     });
 
     btnCerrarOfertas.addEventListener("click", () => {
@@ -1416,26 +1792,32 @@
       ofertasPanel.setAttribute("aria-hidden", "true");
     });
 
+    btnCerrarCatalogo.addEventListener("click", cerrarCatalogo);
     btnCerrarModal.addEventListener("click", cerrarModal);
     modalPedido.addEventListener("click", (event) => {
       if (event.target === modalPedido) cerrarModal();
+    });
+    btnAbrirCarrito.addEventListener("click", abrirCarrito);
+    btnCerrarCarrito.addEventListener("click", cerrarCarrito);
+    cartModal.addEventListener("click", (event) => {
+      if (event.target === cartModal) cerrarCarrito();
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && modalPedido.classList.contains("visible")) {
         cerrarModal();
+      } else if (event.key === "Escape" && cartModal.classList.contains("visible")) {
+        cerrarCarrito();
       } else if (event.key === "Escape" && ofertasPanel.classList.contains("visible")) {
         ofertasPanel.classList.remove("visible");
         ofertasPanel.setAttribute("aria-hidden", "true");
+      } else if (event.key === "Escape" && catalogoPanel.classList.contains("visible")) {
+        cerrarCatalogo();
       }
     });
 
     btnRealizarPedido.addEventListener("click", () => {
-      formularioPedido.classList.add("visible");
-      formularioPedido.classList.remove("gracias-mode");
-      postCompra.classList.remove("visible");
-      actualizarResumen();
-      formularioPedido.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      agregarPackAlCarrito();
     });
 
     document.getElementById("opcionesForm").addEventListener("change", manejarCambioOpciones);
@@ -1444,6 +1826,36 @@
       actualizarResumen();
     });
     formularioPedido.addEventListener("submit", enviarPedido);
+    cartDelivery.addEventListener("change", () => {
+      syncCartDeliveryField();
+      renderCart();
+    });
+    cartCheckoutForm.addEventListener("submit", pagarCarrito);
+
+    function openCategory(category) {
+      if (category === "packs") {
+        ofertasPanel.classList.add("visible");
+        ofertasPanel.setAttribute("aria-hidden", "false");
+        return;
+      }
+
+      const isMaceteros = category === "maceteros";
+      catalogoEtiqueta.textContent = isMaceteros ? "Maceteros" : "Plantas";
+      catalogoTitulo.textContent = isMaceteros ? "Maceteros" : "Plantas";
+      catalogoMensajeTitulo.textContent = isMaceteros
+        ? "Pronto agregaremos maceteros."
+        : "Pronto agregaremos plantas.";
+      catalogoMensaje.textContent = isMaceteros
+        ? "En cuanto me mandes las fotos de maceteros, los dejaré aquí con precio, foto y botón para agregar al carrito."
+        : "Cuando me envíes las fotos de plantas, las separaré en esta sección y quedarán listas para comprar.";
+      catalogoPanel.classList.add("visible");
+      catalogoPanel.setAttribute("aria-hidden", "false");
+    }
+
+    function cerrarCatalogo() {
+      catalogoPanel.classList.remove("visible");
+      catalogoPanel.setAttribute("aria-hidden", "true");
+    }
 
     function renderPacks() {
       packsGrid.innerHTML = "";
@@ -1459,7 +1871,7 @@
               <div class="precio">${pack.precio}</div>
             </div>
             <p>${pack.descripcion}</p>
-            <button type="button" class="btn-principal" data-pack="${pack.id}">Personalizar</button>
+            <button type="button" class="btn-principal" data-pack="${pack.id}">Ver promoción</button>
           </div>
         `;
 
@@ -1683,6 +2095,206 @@
         <div class="resumen-line"><span>Delivery</span><span>${deliveryExtra ? `+ ${formatCurrency(deliveryExtra)}` : formatCurrency(0)}</span></div>
         <div class="resumen-line resumen-line--total"><span>Total</span><span>${formatCurrency(getTotalPrice())}</span></div>
       `;
+    }
+
+    function parsePrice(price) {
+      return Number.parseInt(String(price || "").replace(/[^\d]/g, ""), 10) || 0;
+    }
+
+    function loadCart() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem("jardinFlorDeLotoCart") || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCart() {
+      localStorage.setItem("jardinFlorDeLotoCart", JSON.stringify(carrito));
+    }
+
+    function agregarPackAlCarrito() {
+      if (!packSeleccionado) return;
+      const personalizacion = getPersonalizacion();
+      carrito.push({
+        id: `${packSeleccionado.id}-${Date.now()}`,
+        tipo: "pack",
+        nombre: `Pack ${packSeleccionado.nombre}`,
+        pack: packSeleccionado.nombre,
+        planta: personalizacion.planta,
+        macetero: personalizacion.macetero,
+        globo: personalizacion.globo,
+        precio: parsePrice(packSeleccionado.precio),
+        imagen: packSeleccionado.imagen
+      });
+      saveCart();
+      renderCart();
+      cerrarModal();
+      abrirCarrito();
+    }
+
+    function abrirCarrito() {
+      cartModal.classList.add("visible");
+      cartModal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-abierto");
+      renderCart();
+    }
+
+    function cerrarCarrito() {
+      cartModal.classList.remove("visible");
+      cartModal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modal-abierto");
+    }
+
+    function removeCartItem(itemId) {
+      carrito = carrito.filter((item) => item.id !== itemId);
+      saveCart();
+      renderCart();
+    }
+
+    function getCartSubtotal() {
+      return carrito.reduce((total, item) => total + Number(item.precio || 0), 0);
+    }
+
+    function getCartDeliveryExtra() {
+      return cartDelivery.checked ? 2000 : 0;
+    }
+
+    function getCartTotal() {
+      return getCartSubtotal() + getCartDeliveryExtra();
+    }
+
+    function syncCartDeliveryField() {
+      const active = cartDelivery.checked;
+      cartClienteDireccion.disabled = !active;
+      if (active) {
+        cartClienteDireccion.placeholder = "Dirección de entrega";
+      } else {
+        cartClienteDireccion.value = "";
+        cartClienteDireccion.placeholder = "Dirección de entrega (solo si eliges delivery)";
+      }
+    }
+
+    function renderCart() {
+      cartCount.textContent = String(carrito.length);
+      syncCartDeliveryField();
+
+      if (!carrito.length) {
+        cartItems.innerHTML = `<div class="cart-empty">Tu carrito está vacío. Entra a Packs y agrega una promoción para continuar.</div>`;
+      } else {
+        cartItems.innerHTML = carrito.map((item) => `
+          <article class="cart-item">
+            <div>
+              <h3>${item.nombre}</h3>
+              <p>Planta: ${item.planta || "Sin selección"} · Macetero: ${item.macetero || "Sin selección"} · Globo: ${item.globo || "Sin selección"}</p>
+              <p><strong>${formatCurrency(item.precio || 0)}</strong></p>
+            </div>
+            <button type="button" class="cart-remove" data-remove-item="${item.id}" aria-label="Quitar ${item.nombre}">×</button>
+          </article>
+        `).join("");
+        cartItems.querySelectorAll("[data-remove-item]").forEach((button) => {
+          button.addEventListener("click", () => removeCartItem(button.dataset.removeItem));
+        });
+      }
+
+      cartSubtotal.textContent = formatCurrency(getCartSubtotal());
+      cartDeliveryTotal.textContent = formatCurrency(getCartDeliveryExtra());
+      cartTotal.textContent = formatCurrency(getCartTotal());
+      cartCheckoutForm.querySelector("button[type='submit']").disabled = carrito.length === 0;
+    }
+
+    function setCartEstado(message, isError = false, isOk = false) {
+      cartEstado.textContent = message;
+      cartEstado.className = `estado${isError ? " error" : ""}${isOk ? " ok" : ""}`;
+    }
+
+    function buildCartOrderSummary() {
+      return carrito.map((item, index) => {
+        return `${index + 1}. ${item.nombre} - Planta: ${item.planta || "Sin dato"}, Macetero: ${item.macetero || "Sin dato"}, Globo: ${item.globo || "Sin dato"}, Precio: ${formatCurrency(item.precio || 0)}`;
+      }).join(" | ");
+    }
+
+    async function pagarCarrito(event) {
+      event.preventDefault();
+
+      if (!carrito.length) {
+        setCartEstado("Agrega al menos un producto al carrito.", true);
+        return;
+      }
+
+      const nombre = limpiarTexto(cartClienteNombre.value);
+      const correo = limpiarTexto(cartClienteCorreo.value).toLowerCase();
+      const telefono = limpiarTexto(cartClienteTelefono.value);
+      const direccion = limpiarTexto(cartClienteDireccion.value);
+      const nota = limpiarTexto(cartObservaciones.value);
+      const conDelivery = cartDelivery.checked;
+      const deliveryExtra = getCartDeliveryExtra();
+      const total = getCartTotal();
+      const resumenCarrito = buildCartOrderSummary();
+
+      if (nombre.length < 3) {
+        setCartEstado("Ingresa un nombre válido.", true);
+        return;
+      }
+
+      if (!validarEmail(correo)) {
+        setCartEstado("Ingresa un correo válido.", true);
+        return;
+      }
+
+      if (!/^[+\d\s()-]{8,20}$/.test(telefono)) {
+        setCartEstado("Ingresa un teléfono válido.", true);
+        return;
+      }
+
+      if (conDelivery && direccion.length < 6) {
+        setCartEstado("Ingresa una dirección de entrega.", true);
+        return;
+      }
+
+      setCartEstado("Generando pago Webpay...", false);
+
+      try {
+        const response = await fetch("/api/webpay/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            amount: total,
+            customer: {
+              nombre,
+              correo,
+              telefono
+            },
+            order: {
+              pack: `Carrito (${carrito.length} producto${carrito.length === 1 ? "" : "s"})`,
+              planta: resumenCarrito,
+              macetero: "Ver detalle del carrito",
+              globo: "Ver detalle del carrito",
+              delivery: conDelivery,
+              deliveryExtra,
+              total,
+              direccion,
+              observaciones: [nota, resumenCarrito].filter(Boolean).join(" | ")
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const errorPayload = await response.json().catch(() => ({}));
+          throw new Error(formatWebpayError(errorPayload, "No se pudo crear la transacción de Webpay."));
+        }
+
+        const payment = await response.json();
+        sessionStorage.setItem("webpay:lastCreate", JSON.stringify(payment));
+        setCartEstado(`Token Webpay generado: ${payment.token_ws}. Redirigiendo...`, false, true);
+        redirectToWebpay(payment);
+      } catch (error) {
+        console.error(error);
+        setCartEstado(error.message || "No se pudo iniciar el pago con Webpay.", true);
+      }
     }
 
     function validarEmail(email) {

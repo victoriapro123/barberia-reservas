@@ -190,11 +190,12 @@
   <div class="shell">
     <section id="loginSection" class="card login-card">
       <h2>Acceso admin</h2>
-      <p class="helper">Inicia sesión con tu cuenta de Firebase para revisar y gestionar pedidos.</p>
+      <p class="helper">Inicia sesión con tu correo y contraseña para revisar las compras que ya hicieron los clientes.</p>
       <div class="form-grid">
         <input type="email" id="emailInput" placeholder="Correo admin" autocomplete="email" />
         <input type="password" id="passwordInput" placeholder="Contraseña" autocomplete="current-password" />
         <button id="loginButton" class="btn-primary">Entrar</button>
+        <button id="resetPasswordButton" class="btn-secondary" type="button">Olvidé mi contraseña</button>
       </div>
       <div id="loginStatus" class="status"></div>
     </section>
@@ -230,7 +231,7 @@
   <script type="module">
     import { BRAND_CONFIG } from "./brand-config.mjs";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { deleteDoc, getDoc, getFirestore, collection, doc, getDocs, orderBy, query, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -264,6 +265,7 @@
     const emailInput = document.getElementById("emailInput");
     const passwordInput = document.getElementById("passwordInput");
     const loginButton = document.getElementById("loginButton");
+    const resetPasswordButton = document.getElementById("resetPasswordButton");
     const loginStatus = document.getElementById("loginStatus");
     const adminStatus = document.getElementById("adminStatus");
     const adminEmail = document.getElementById("adminEmail");
@@ -1458,6 +1460,29 @@
         setStatus(loginStatus, "No se pudo iniciar sesión. Revisa correo, contraseña y Auth en Firebase.", "error");
       } finally {
         loginButton.disabled = false;
+      }
+    });
+
+    resetPasswordButton.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      if (!email) {
+        setStatus(loginStatus, "Escribe tu correo admin para enviarte el enlace de recuperación.", "error");
+        return;
+      }
+      if (!isAllowedAdminEmail(email)) {
+        setStatus(loginStatus, "Ese correo no está autorizado para el panel admin.", "error");
+        return;
+      }
+      resetPasswordButton.disabled = true;
+      setStatus(loginStatus, "Enviando correo de recuperación...");
+      try {
+        await sendPasswordResetEmail(auth, email);
+        setStatus(loginStatus, "Te enviamos un correo para restablecer la contraseña.", "success");
+      } catch (error) {
+        console.error("Error al enviar recuperación:", error);
+        setStatus(loginStatus, "No se pudo enviar el correo de recuperación. Revisa Firebase Auth.", "error");
+      } finally {
+        resetPasswordButton.disabled = false;
       }
     });
 
