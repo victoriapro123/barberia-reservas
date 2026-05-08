@@ -1,21 +1,10 @@
-import { createPrivateKey, createSign } from "node:crypto";
+import admin from "firebase-admin";
 import { BRAND_CONFIG } from "../brand-config.mjs";
 
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
-const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-const FIREBASE_OOB_URL = "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode";
 
 function isValidEmail(value) {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function getRequestBaseUrl(request) {
-  const configured = String(process.env.PASSWORD_RESET_CONTINUE_URL || process.env.WEBPAY_RETURN_BASE_URL || "").trim().replace(/\/+$/, "");
-  if (configured) return configured;
-
-  const protocol = String(request.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
-  const host = String(request.headers["x-forwarded-host"] || request.headers.host || "").split(",")[0].trim();
-  return host ? `${protocol}://${host}` : "";
 }
 
 function assertHttpsUrl(value, label) {
@@ -33,53 +22,15 @@ function assertHttpsUrl(value, label) {
   return url.toString();
 }
 
-function toBase64Url(input) {
-  const value = typeof input === "string" ? input : JSON.stringify(input);
-  return Buffer.from(value)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-}
+function getRequestBaseUrl(request) {
+  const configured = String(process.env.PASSWORD_RESET_CONTINUE_URL || process.env.WEBPAY_RETURN_BASE_URL || "").trim().replace(/\/+$/, "");
+  if (configured) return assertHttpsUrl(configured, "PASSWORD_RESET_CONTINUE_URL").replace(/\/+$/, "");
 
-function getServiceAccountConfig(request) {
-  const serviceAccount = getServiceAccountData();
-  const clientEmail = serviceAccount.clientEmail;
-  const privateKey = serviceAccount.privateKey;
-  const projectId = serviceAccount.projectId || process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912";
-  const authDomain = process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`;
-  const continueUrl = assertHttpsUrl(getRequestBaseUrl(request) || `https://${authDomain}`, "PASSWORD_RESET_CONTINUE_URL");
+  const protocol = String(request.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
+  const host = String(request.headers["x-forwarded-host"] || request.headers.host || "").split(",")[0].trim();
+  if (!host) throw new Error("No se pudo resolver el dominio publico para recuperar clave.");
 
-  if (!clientEmail || !privateKey) {
-    throw new Error("Missing Firebase service account environment variables.");
-  }
-
-  return {
-    clientEmail,
-    privateKey,
-    projectId,
-    authDomain,
-    continueUrl
-  };
-}
-
-function getServiceAccountData() {
-  const rawJson = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || "").trim();
-
-  if (rawJson) {
-    const parsed = parseServiceAccountJson(rawJson);
-    return {
-      clientEmail: parsed.client_email || "",
-      privateKey: getNormalizedPrivateKey(parsed.private_key || ""),
-      projectId: parsed.project_id || ""
-    };
-  }
-
-  return {
-    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL || "").trim(),
-    privateKey: getNormalizedPrivateKey(process.env.FIREBASE_PRIVATE_KEY),
-    projectId: String(process.env.FIREBASE_PROJECT_ID || "").trim()
-  };
+  return assertHttpsUrl(`${protocol}://${host}`, "Dominio de recuperacion").replace(/\/+$/, "");
 }
 
 function parseServiceAccountJson(rawJson) {
@@ -97,122 +48,64 @@ function parseServiceAccountJson(rawJson) {
     }
   }
 
-  throw new Error("Invalid FIREBASE_SERVICE_ACCOUNT_JSON format.");
+  throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON no tiene formato JSON valido.");
 }
 
-function getNormalizedPrivateKey(rawValue) {
-  const raw = String(rawValue || "").trim();
+function normalizePrivateKey(rawValue) {
+  return String(rawValue || "")
+    .trim()
+    .replace(/^"(.*)"$/s, "$1")
+    .replace(/^'(.*)'$/s, "$1")
+    .replace(/\\n/g, "\n");
+}
 
-  if (raw.startsWith("{") && raw.includes("private_key")) {
-    const parsed = parseServiceAccountJson(raw);
-    return getNormalizedPrivateKey(parsed.private_key || "");
+function getFirebaseServiceAccount() {
+  const rawJson = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || "").trim();
+
+  if (rawJson) {
+    const parsed = parseServiceAccountJson(rawJson);
+    return {
+      projectId: parsed.project_id || process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912",
+      clientEmail: parsed.client_email || "",
+      privateKey: normalizePrivateKey(parsed.private_key || "")
+    };
   }
 
-  const candidates = [
-    raw,
-    raw.replace(/\\n/g, "\n"),
-    raw.replace(/^"(.*)"$/s, "$1"),
-    raw.replace(/^'(.*)'$/s, "$1"),
-    raw.replace(/^"(.*)"$/s, "$1").replace(/\\n/g, "\n"),
-    raw.replace(/^'(.*)'$/s, "$1").replace(/\\n/g, "\n")
-  ].filter(Boolean);
+  return {
+    projectId: String(process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912").trim(),
+    clientEmail: String(process.env.FIREBASE_CLIENT_EMAIL || "").trim(),
+    privateKey: normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY)
+  };
+}
 
-  for (const candidate of candidates) {
-    try {
-      const keyObject = createPrivateKey({ key: candidate, format: "pem" });
-      return keyObject.export({ format: "pem", type: "pkcs8" }).toString();
-    } catch (error) {
-      continue;
+function getFirebaseAuth() {
+  if (!admin.apps.length) {
+    const serviceAccount = getFirebaseServiceAccount();
+
+    if (!serviceAccount.clientEmail || !serviceAccount.privateKey || !serviceAccount.projectId) {
+      throw new Error("Faltan variables Firebase: FIREBASE_SERVICE_ACCOUNT_JSON o FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY/FIREBASE_PROJECT_ID.");
     }
+
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: serviceAccount.projectId,
+        clientEmail: serviceAccount.clientEmail,
+        privateKey: serviceAccount.privateKey
+      })
+    });
   }
 
-  throw new Error("Invalid FIREBASE_PRIVATE_KEY format.");
-}
-
-function createGoogleJwt(clientEmail, privateKey) {
-  const issuedAt = Math.floor(Date.now() / 1000) - 60;
-  const expiresAt = issuedAt + 3600;
-
-  const header = {
-    alg: "RS256",
-    typ: "JWT"
-  };
-
-  const claimSet = {
-    iss: clientEmail,
-    sub: clientEmail,
-    aud: GOOGLE_TOKEN_URL,
-    scope: "https://www.googleapis.com/auth/identitytoolkit",
-    iat: issuedAt,
-    exp: expiresAt
-  };
-
-  const unsignedToken = `${toBase64Url(header)}.${toBase64Url(claimSet)}`;
-  const signer = createSign("RSA-SHA256");
-  signer.update(unsignedToken);
-  signer.end();
-
-  const signature = signer.sign(privateKey, "base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-
-  return `${unsignedToken}.${signature}`;
-}
-
-async function fetchGoogleAccessToken(config) {
-  const assertion = createGoogleJwt(config.clientEmail, config.privateKey);
-  const response = await fetch(GOOGLE_TOKEN_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion
-    })
-  });
-
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok || !payload.access_token) {
-    throw new Error(payload.error_description || payload.error || "Could not get Google access token.");
-  }
-
-  return payload.access_token;
+  return admin.auth();
 }
 
 async function generatePasswordResetLink(email, request) {
-  const config = getServiceAccountConfig(request);
-  const accessToken = await fetchGoogleAccessToken(config);
-
-  const response = await fetch(FIREBASE_OOB_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify({
-      requestType: "PASSWORD_RESET",
-      email,
-      returnOobLink: true,
-      continueUrl: config.continueUrl,
-      canHandleCodeInApp: false,
-      targetProjectId: config.projectId
-    })
+  const continueUrl = getRequestBaseUrl(request);
+  const resetLink = await getFirebaseAuth().generatePasswordResetLink(email, {
+    url: continueUrl,
+    handleCodeInApp: false
   });
 
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(payload?.error?.message || payload?.error?.status || "Could not generate password reset link.");
-  }
-
-  if (!payload.oobLink) {
-    throw new Error("Firebase did not return a password reset link.");
-  }
-
-  return payload.oobLink;
+  return assertHttpsUrl(resetLink, "reset_link");
 }
 
 async function sendResetEmail(email, resetLink) {
@@ -223,7 +116,7 @@ async function sendResetEmail(email, resetLink) {
   const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
   if (!serviceId || !templateId || !publicKey || !privateKey) {
-    throw new Error("Missing password reset email environment variables.");
+    throw new Error("Faltan variables EmailJS: EMAILJS_SERVICE_ID, EMAILJS_PASSWORD_RESET_TEMPLATE_ID, EMAILJS_PUBLIC_KEY o EMAILJS_PRIVATE_KEY.");
   }
 
   const response = await fetch(EMAILJS_URL, {
@@ -245,11 +138,11 @@ async function sendResetEmail(email, resetLink) {
         cliente_nombre: email.split("@")[0],
         cliente_correo: email,
         cliente_telefono: "-",
-        servicio: `Recuperación de acceso a ${BRAND_CONFIG.name}`,
+        servicio: `Recuperacion de acceso a ${BRAND_CONFIG.name}`,
         fecha: "-",
         hora: "-",
         estado: "Pendiente",
-        mensaje: `Recibimos una solicitud para restablecer tu clave de ${BRAND_CONFIG.name}. Usa el botón de abajo para continuar.`,
+        mensaje: `Recibimos una solicitud para restablecer tu clave de ${BRAND_CONFIG.name}. Usa el boton de abajo para continuar.`,
         nota_interna: safeResetLink,
         notification_type: "password_reset",
         action_label: "Restablecer clave",
@@ -288,14 +181,23 @@ export default async function handler(request, response) {
   } catch (error) {
     console.error("Error sending password reset email:", error);
 
-    if (String(error.message || "").includes("EMAIL_NOT_FOUND")) {
-      response.status(400).json({ error: "EMAIL_NOT_FOUND" });
+    const message = String(error.message || "");
+    if (message.includes("auth/user-not-found") || message.includes("EMAIL_NOT_FOUND")) {
+      response.status(400).json({ error: "EMAIL_NOT_FOUND", detail: "No existe una cuenta con ese correo." });
+      return;
+    }
+
+    if (message.includes("auth/unauthorized-continue-uri")) {
+      response.status(400).json({
+        error: "UNAUTHORIZED_DOMAIN",
+        detail: "El dominio del link no esta autorizado en Firebase Authentication > Settings > Authorized domains."
+      });
       return;
     }
 
     response.status(500).json({
       error: "No se pudo enviar el correo de recuperacion.",
-      detail: error.message || ""
+      detail: message
     });
   }
 }
