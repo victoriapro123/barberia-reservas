@@ -481,7 +481,7 @@
 
     .cart-modal.visible {
       display: grid;
-      justify-items: end;
+      place-items: center;
       animation: fade 0.2s ease both;
     }
 
@@ -598,15 +598,16 @@
     }
 
     .cart-panel {
-      width: min(560px, 100%);
-      min-height: calc(100vh - 36px);
+      width: min(980px, 100%);
+      max-height: calc(100vh - 36px);
       background: #fffaf0;
       color: var(--text);
       border: 1px solid rgba(255, 248, 216, 0.34);
       border-radius: 2px;
       box-shadow: 0 30px 90px rgba(0, 12, 10, 0.36);
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
     }
 
     .cart-head,
@@ -624,6 +625,7 @@
       border-bottom: 0;
       display: grid;
       gap: 14px;
+      background: #fffaf0;
     }
 
     .cart-head h2 {
@@ -638,6 +640,7 @@
       gap: 14px;
       align-content: start;
       overflow-y: auto;
+      max-height: min(52vh, 520px);
     }
 
     .cart-item {
@@ -749,6 +752,7 @@
       justify-content: space-between;
       gap: 12px;
       color: var(--muted);
+      font-size: 1.02rem;
     }
 
     .cart-total-line strong {
@@ -756,9 +760,35 @@
       font-size: 1.18rem;
     }
 
-    .cart-checkout {
+    .cart-summary {
       display: grid;
       gap: 12px;
+      background: #fffdf8;
+      border: 1px solid rgba(63, 110, 59, 0.12);
+      border-radius: 2px;
+      padding: 14px;
+    }
+
+    .cart-pay-button {
+      width: 100%;
+      min-height: 58px;
+      border-radius: 2px;
+      background: #173f31;
+      color: #fff8d8;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .cart-checkout {
+      display: none;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(63, 110, 59, 0.12);
+      animation: aparecer 0.24s ease both;
+    }
+
+    .cart-checkout.visible {
+      display: grid;
     }
 
     .cart-checkout .btn-principal {
@@ -1609,6 +1639,19 @@
         height: 48px;
       }
 
+      .cart-modal {
+        padding: 10px;
+      }
+
+      .cart-panel {
+        width: 100%;
+        max-height: calc(100vh - 20px);
+      }
+
+      .cart-content {
+        max-height: 42vh;
+      }
+
       .section {
         padding: 58px 14px;
       }
@@ -1850,9 +1893,12 @@
             <p>Marca esta opción si quieres despacho a domicilio.</p>
           </span>
         </label>
-        <div class="cart-total-line"><span>Productos</span><strong id="cartSubtotal">$0</strong></div>
-        <div class="cart-total-line"><span>Delivery</span><strong id="cartDeliveryTotal">$0</strong></div>
-        <div class="cart-total-line"><span>Total</span><strong id="cartTotal">$0</strong></div>
+        <div class="cart-summary">
+          <div class="cart-total-line"><span>Productos</span><strong id="cartSubtotal">$0</strong></div>
+          <div class="cart-total-line"><span>Delivery</span><strong id="cartDeliveryTotal">$0</strong></div>
+          <div class="cart-total-line"><span>Total</span><strong id="cartTotal">$0</strong></div>
+        </div>
+        <button type="button" class="cart-pay-button" id="btnMostrarPago">Pagar</button>
         <form class="cart-checkout" id="cartCheckoutForm">
           <div class="form-grid">
             <input type="text" id="cartClienteNombre" placeholder="Nombre" maxlength="60" autocomplete="name" />
@@ -1861,7 +1907,7 @@
             <input type="text" id="cartClienteDireccion" placeholder="Dirección de entrega (solo si eliges delivery)" maxlength="140" autocomplete="street-address" />
             <textarea id="cartObservaciones" placeholder="Observaciones o mensaje para el pedido" maxlength="360"></textarea>
           </div>
-          <button type="submit" class="btn-principal">Pagar carrito con Webpay</button>
+          <button type="submit" class="btn-principal">Pagar con Webpay</button>
           <div class="estado" id="cartEstado"></div>
         </form>
       </div>
@@ -2047,6 +2093,7 @@
     const cartSubtotal = document.getElementById("cartSubtotal");
     const cartDeliveryTotal = document.getElementById("cartDeliveryTotal");
     const cartTotal = document.getElementById("cartTotal");
+    const btnMostrarPago = document.getElementById("btnMostrarPago");
     const cartCheckoutForm = document.getElementById("cartCheckoutForm");
     const cartEstado = document.getElementById("cartEstado");
     const cartClienteNombre = document.getElementById("cartClienteNombre");
@@ -2133,6 +2180,7 @@
       syncCartDeliveryField();
       renderCart();
     });
+    btnMostrarPago.addEventListener("click", mostrarFormularioPago);
     cartCheckoutForm.addEventListener("submit", pagarCarrito);
     accountLoginButton.addEventListener("click", iniciarSesionCliente);
     accountCreateButton.addEventListener("click", crearCuentaCliente);
@@ -2452,6 +2500,9 @@
       cartModal.classList.add("visible");
       cartModal.setAttribute("aria-hidden", "false");
       document.body.classList.add("modal-abierto");
+      cartCheckoutForm.classList.remove("visible");
+      btnMostrarPago.style.display = "";
+      setCartEstado("");
       renderCart();
     }
 
@@ -2660,6 +2711,19 @@
       }
     }
 
+    function mostrarFormularioPago() {
+      if (!carrito.length) {
+        setCartEstado("Agrega al menos un producto al carrito.", true);
+        return;
+      }
+
+      cartCheckoutForm.classList.add("visible");
+      btnMostrarPago.style.display = "none";
+      setCartEstado("");
+      cartCheckoutForm.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      cartClienteNombre.focus();
+    }
+
     function renderCart() {
       carrito = carrito.map(normalizeCartItem);
       saveCart();
@@ -2667,6 +2731,8 @@
       syncCartDeliveryField();
 
       if (!carrito.length) {
+        cartCheckoutForm.classList.remove("visible");
+        btnMostrarPago.style.display = "";
         cartItems.innerHTML = `<div class="cart-empty">Tu carrito está vacío. Entra a Packs y agrega una promoción para continuar.</div>`;
       } else {
         cartItems.innerHTML = carrito.map((item) => `
@@ -2708,6 +2774,7 @@
       cartSubtotal.textContent = formatCurrency(getCartSubtotal());
       cartDeliveryTotal.textContent = formatCurrency(getCartDeliveryExtra());
       cartTotal.textContent = formatCurrency(getCartTotal());
+      btnMostrarPago.disabled = carrito.length === 0;
       cartCheckoutForm.querySelector("button[type='submit']").disabled = carrito.length === 0;
     }
 
