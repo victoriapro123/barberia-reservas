@@ -2801,7 +2801,7 @@
         setAccountStatus("Te enviamos un correo para recuperar tu clave.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus(`${error.message || "No se pudo enviar el correo."} Revisa EmailJS, Firebase y que el dominio esté autorizado.`, true);
+        setAccountStatus(error.message || "No se pudo enviar el correo de recuperacion.", true);
       } finally {
         accountRecoverButton.disabled = false;
       }

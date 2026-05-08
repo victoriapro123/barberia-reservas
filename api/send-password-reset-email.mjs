@@ -95,10 +95,7 @@ function getFirebaseAuth() {
 
 async function generatePasswordResetLink(email, request) {
   const baseUrl = getRequestBaseUrl(request);
-  const firebaseResetLink = await getFirebaseAuth().generatePasswordResetLink(email, {
-    url: baseUrl,
-    handleCodeInApp: false
-  });
+  const firebaseResetLink = await getFirebaseAuth().generatePasswordResetLink(email);
 
   const parsedFirebaseLink = new URL(assertHttpsUrl(firebaseResetLink, "firebase_reset_link"));
   const oobCode = parsedFirebaseLink.searchParams.get("oobCode");
