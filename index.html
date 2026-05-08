@@ -1848,7 +1848,7 @@
             <button type="button" class="btn-principal" id="accountLoginButton">Entrar</button>
             <button type="button" class="btn-principal" id="accountCreateButton">Crear cuenta</button>
           </div>
-          <button type="button" class="btn-secundario" id="accountRecoverButton">Recuperar clave</button>
+          <button type="button" class="btn-secundario" id="accountRecoverButton">Recuperar clave por correo</button>
           <div class="estado" id="accountStatus"></div>
         </div>
       </div>
@@ -2175,6 +2175,7 @@
     renderOpciones();
     syncDeliveryField();
     renderCart();
+    handleRecoveryLink();
 
     document.querySelectorAll("[data-open-category]").forEach((button) => {
       button.addEventListener("click", () => openCategory(button.dataset.openCategory));
@@ -2663,6 +2664,16 @@
       accountCopy.classList.remove("signed-in");
     }
 
+    function handleRecoveryLink() {
+      const params = new URLSearchParams(window.location.search);
+      const recoveryEmail = limpiarTexto(params.get("recover_email") || "").toLowerCase();
+      if (!recoveryEmail) return;
+
+      abrirCuenta();
+      accountEmail.value = recoveryEmail;
+      setAccountStatus("Escribe una nueva clave y presiona Recuperar clave para actualizarla.", false, true);
+    }
+
     async function iniciarSesionCliente() {
       const { email, password } = getAccountCredentials();
       if (!validateAccountEmail(email) || !validateAccountPassword(password)) return;
@@ -2723,26 +2734,29 @@
     }
 
     async function recuperarClaveCliente() {
-      const { email, password } = getAccountCredentials();
-      if (!validateAccountEmail(email) || !validateAccountPassword(password)) return;
+      const { email } = getAccountCredentials();
+      if (!validateAccountEmail(email)) return;
 
       accountRecoverButton.disabled = true;
-      setAccountStatus("Actualizando clave...");
+      setAccountStatus("Enviando correo de recuperación...");
       try {
-        const existingCustomer = loadCustomer(email);
-        const customer = existingCustomer || {
-          email,
-          createdAt: new Date().toISOString()
-        };
-        customer.passwordHash = await hashPassword(email, password);
-        customer.updatedAt = new Date().toISOString();
-        saveCustomer(customer);
-        saveCurrentCustomer({ email: customer.email, createdAt: customer.createdAt });
-        accountPassword.value = "";
-        setAccountStatus("Clave recuperada correctamente. Sesión iniciada.", false, true);
+        const response = await fetch("/api/send-password-reset-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email })
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || "No se pudo enviar el correo de recuperación.");
+        }
+
+        setAccountStatus("Te enviamos un correo para recuperar tu clave.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus("No se pudo recuperar la clave. Inténtalo otra vez.", true);
+        setAccountStatus(`${error.message || "No se pudo enviar el correo."} Revisa las variables de EmailJS/Firebase en Vercel si sigue fallando.`, true);
       } finally {
         accountRecoverButton.disabled = false;
       }

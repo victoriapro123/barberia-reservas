@@ -9,6 +9,15 @@ function isValidEmail(value) {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function getRequestBaseUrl(request) {
+  const configured = String(process.env.PASSWORD_RESET_CONTINUE_URL || process.env.WEBPAY_RETURN_BASE_URL || "").trim().replace(/\/+$/, "");
+  if (configured) return configured;
+
+  const protocol = String(request.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
+  const host = String(request.headers["x-forwarded-host"] || request.headers.host || "").split(",")[0].trim();
+  return host ? `${protocol}://${host}` : "https://barberia-elite-d5912.firebaseapp.com";
+}
+
 function toBase64Url(input) {
   const value = typeof input === "string" ? input : JSON.stringify(input);
   return Buffer.from(value)
@@ -237,6 +246,11 @@ async function sendResetEmail(email, resetLink) {
   }
 }
 
+function buildFallbackResetLink(request, email) {
+  const baseUrl = getRequestBaseUrl(request);
+  return `${baseUrl}/?recover_email=${encodeURIComponent(email)}`;
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.status(405).json({ error: "Method not allowed." });
@@ -251,7 +265,14 @@ export default async function handler(request, response) {
       return;
     }
 
-    const resetLink = await generatePasswordResetLink(email);
+    let resetLink = "";
+    try {
+      resetLink = await generatePasswordResetLink(email);
+    } catch (firebaseError) {
+      console.warn("Firebase reset link unavailable, using storefront recovery link:", firebaseError);
+      resetLink = buildFallbackResetLink(request, email);
+    }
+
     await sendResetEmail(email, resetLink);
 
     response.status(200).json({ ok: true });
