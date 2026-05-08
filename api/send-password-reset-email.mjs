@@ -15,7 +15,22 @@ function getRequestBaseUrl(request) {
 
   const protocol = String(request.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
   const host = String(request.headers["x-forwarded-host"] || request.headers.host || "").split(",")[0].trim();
-  return host ? `${protocol}://${host}` : "https://barberia-elite-d5912.firebaseapp.com";
+  return host ? `${protocol}://${host}` : "";
+}
+
+function assertHttpsUrl(value, label) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch (error) {
+    throw new Error(`${label} no es una URL valida.`);
+  }
+
+  if (url.protocol !== "https:") {
+    throw new Error(`${label} debe comenzar con https://`);
+  }
+
+  return url.toString();
 }
 
 function toBase64Url(input) {
@@ -27,13 +42,13 @@ function toBase64Url(input) {
     .replace(/=+$/g, "");
 }
 
-function getServiceAccountConfig() {
+function getServiceAccountConfig(request) {
   const serviceAccount = getServiceAccountData();
   const clientEmail = serviceAccount.clientEmail;
   const privateKey = serviceAccount.privateKey;
   const projectId = serviceAccount.projectId || process.env.FIREBASE_PROJECT_ID || "barberia-elite-d5912";
   const authDomain = process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`;
-  const continueUrl = process.env.PASSWORD_RESET_CONTINUE_URL || `https://${authDomain}`;
+  const continueUrl = assertHttpsUrl(getRequestBaseUrl(request) || `https://${authDomain}`, "PASSWORD_RESET_CONTINUE_URL");
 
   if (!clientEmail || !privateKey) {
     throw new Error("Missing Firebase service account environment variables.");
@@ -167,8 +182,8 @@ async function fetchGoogleAccessToken(config) {
   return payload.access_token;
 }
 
-async function generatePasswordResetLink(email) {
-  const config = getServiceAccountConfig();
+async function generatePasswordResetLink(email, request) {
+  const config = getServiceAccountConfig(request);
   const accessToken = await fetchGoogleAccessToken(config);
 
   const response = await fetch(FIREBASE_OOB_URL, {
@@ -201,6 +216,7 @@ async function generatePasswordResetLink(email) {
 }
 
 async function sendResetEmail(email, resetLink) {
+  const safeResetLink = assertHttpsUrl(resetLink, "reset_link");
   const serviceId = process.env.EMAILJS_SERVICE_ID;
   const templateId = process.env.EMAILJS_PASSWORD_RESET_TEMPLATE_ID;
   const publicKey = process.env.EMAILJS_PUBLIC_KEY;
@@ -222,6 +238,9 @@ async function sendResetEmail(email, resetLink) {
       accessToken: privateKey,
       template_params: {
         to_email: email,
+        brand_name: BRAND_CONFIG.name,
+        business_name: BRAND_CONFIG.name,
+        app_name: BRAND_CONFIG.name,
         email_title: `Recupera tu clave - ${BRAND_CONFIG.name}`,
         cliente_nombre: email.split("@")[0],
         cliente_correo: email,
@@ -231,11 +250,13 @@ async function sendResetEmail(email, resetLink) {
         hora: "-",
         estado: "Pendiente",
         mensaje: `Recibimos una solicitud para restablecer tu clave de ${BRAND_CONFIG.name}. Usa el botón de abajo para continuar.`,
-        nota_interna: resetLink,
+        nota_interna: safeResetLink,
         notification_type: "password_reset",
         action_label: "Restablecer clave",
-        action_url: resetLink,
-        reset_link: resetLink
+        action_url: safeResetLink,
+        button_url: safeResetLink,
+        link_visible: safeResetLink,
+        reset_link: safeResetLink
       }
     })
   });
@@ -244,11 +265,6 @@ async function sendResetEmail(email, resetLink) {
     const errorText = await response.text();
     throw new Error(`EmailJS error: ${response.status} ${errorText}`);
   }
-}
-
-function buildFallbackResetLink(request, email) {
-  const baseUrl = getRequestBaseUrl(request);
-  return `${baseUrl}/?recover_email=${encodeURIComponent(email)}`;
 }
 
 export default async function handler(request, response) {
@@ -265,17 +281,10 @@ export default async function handler(request, response) {
       return;
     }
 
-    let resetLink = "";
-    try {
-      resetLink = await generatePasswordResetLink(email);
-    } catch (firebaseError) {
-      console.warn("Firebase reset link unavailable, using storefront recovery link:", firebaseError);
-      resetLink = buildFallbackResetLink(request, email);
-    }
-
+    const resetLink = await generatePasswordResetLink(email, request);
     await sendResetEmail(email, resetLink);
 
-    response.status(200).json({ ok: true });
+    response.status(200).json({ ok: true, reset_link_sent: true });
   } catch (error) {
     console.error("Error sending password reset email:", error);
 
@@ -284,6 +293,9 @@ export default async function handler(request, response) {
       return;
     }
 
-    response.status(500).json({ error: "No se pudo enviar el correo de recuperacion." });
+    response.status(500).json({
+      error: "No se pudo enviar el correo de recuperacion.",
+      detail: error.message || ""
+    });
   }
 }
