@@ -545,6 +545,11 @@
       gap: 12px;
     }
 
+    .account-form.signed-in,
+    .account-copy.signed-in {
+      display: none;
+    }
+
     .account-form input {
       width: 100%;
       border: 1px solid rgba(63, 110, 59, 0.18);
@@ -593,6 +598,16 @@
       display: grid;
     }
 
+    .account-user .btn-secundario {
+      width: 100%;
+      min-height: 58px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #173f31;
+      border: 1px solid rgba(217, 196, 99, 0.34);
+      font-weight: 950;
+    }
+
     .account-user strong {
       color: #173f31;
     }
@@ -629,6 +644,15 @@
       background: #fffaf0;
       align-items: stretch;
       width: 100%;
+    }
+
+    .cart-review-actions {
+      display: grid;
+      gap: 14px;
+    }
+
+    .cart-review-actions.hidden {
+      display: none;
     }
 
     .cart-footer > *,
@@ -795,8 +819,6 @@
     .cart-checkout {
       display: none;
       gap: 12px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(63, 110, 59, 0.12);
       animation: aparecer 0.24s ease both;
     }
 
@@ -1814,7 +1836,7 @@
         <button type="button" class="cerrar-modal" id="btnCerrarCuenta" aria-label="Cerrar cuenta">×</button>
       </div>
       <div class="account-body">
-        <p class="account-copy">Ingresa con tu correo y clave, o crea una cuenta para comprar más rápido y recuperar tu acceso cuando lo necesites.</p>
+        <p class="account-copy" id="accountCopy">Ingresa con tu correo y clave, o crea una cuenta para comprar más rápido y recuperar tu acceso cuando lo necesites.</p>
         <div class="account-user" id="accountUserBox">
           <strong id="accountUserEmail"></strong>
           <button type="button" class="btn-secundario" id="accountLogoutButton">Cerrar sesión</button>
@@ -1915,22 +1937,28 @@
       </div>
       <div class="cart-content" id="cartItems"></div>
       <div class="cart-footer">
-        <label class="delivery-option" for="cartDelivery">
-          <span>
-            <input type="checkbox" id="cartDelivery" />
-          </span>
-          <span>
-            <strong>Delivery dentro de Peñaflor +$2.000</strong>
-            <p>Marca esta opción si quieres despacho a domicilio.</p>
-          </span>
-        </label>
-        <div class="cart-summary">
-          <div class="cart-total-line"><span>Productos</span><strong id="cartSubtotal">$0</strong></div>
-          <div class="cart-total-line"><span>Delivery</span><strong id="cartDeliveryTotal">$0</strong></div>
-          <div class="cart-total-line"><span>Total</span><strong id="cartTotal">$0</strong></div>
+        <div class="cart-review-actions" id="cartReviewActions">
+          <div class="cart-summary">
+            <div class="cart-total-line"><span>Productos</span><strong id="cartSubtotal">$0</strong></div>
+            <div class="cart-total-line"><span>Total productos</span><strong id="cartTotal">$0</strong></div>
+          </div>
+          <button type="button" class="cart-pay-button" id="btnMostrarPago">Pagar</button>
         </div>
-        <button type="button" class="cart-pay-button" id="btnMostrarPago">Pagar</button>
         <form class="cart-checkout" id="cartCheckoutForm">
+          <label class="delivery-option" for="cartDelivery">
+            <span>
+              <input type="checkbox" id="cartDelivery" />
+            </span>
+            <span>
+              <strong>Delivery dentro de Peñaflor +$2.000</strong>
+              <p>Marca esta opción si quieres despacho a domicilio.</p>
+            </span>
+          </label>
+          <div class="cart-summary">
+            <div class="cart-total-line"><span>Productos</span><strong id="cartCheckoutSubtotal">$0</strong></div>
+            <div class="cart-total-line"><span>Delivery</span><strong id="cartDeliveryTotal">$0</strong></div>
+            <div class="cart-total-line"><span>Total</span><strong id="cartCheckoutTotal">$0</strong></div>
+          </div>
           <div class="form-grid">
             <input type="text" id="cartClienteNombre" placeholder="Nombre" maxlength="60" autocomplete="name" />
             <input type="email" id="cartClienteCorreo" placeholder="Correo" maxlength="120" autocomplete="email" />
@@ -2108,8 +2136,11 @@
     const cartItems = document.getElementById("cartItems");
     const cartDelivery = document.getElementById("cartDelivery");
     const cartSubtotal = document.getElementById("cartSubtotal");
+    const cartCheckoutSubtotal = document.getElementById("cartCheckoutSubtotal");
     const cartDeliveryTotal = document.getElementById("cartDeliveryTotal");
     const cartTotal = document.getElementById("cartTotal");
+    const cartCheckoutTotal = document.getElementById("cartCheckoutTotal");
+    const cartReviewActions = document.getElementById("cartReviewActions");
     const btnMostrarPago = document.getElementById("btnMostrarPago");
     const cartCheckoutForm = document.getElementById("cartCheckoutForm");
     const cartEstado = document.getElementById("cartEstado");
@@ -2122,6 +2153,7 @@
     const accountModal = document.getElementById("accountModal");
     const btnCerrarCuenta = document.getElementById("btnCerrarCuenta");
     const accountForm = document.getElementById("accountForm");
+    const accountCopy = document.getElementById("accountCopy");
     const accountEmail = document.getElementById("accountEmail");
     const accountPassword = document.getElementById("accountPassword");
     const accountLoginButton = document.getElementById("accountLoginButton");
@@ -2517,8 +2549,9 @@
       cartModal.setAttribute("aria-hidden", "false");
       document.body.classList.add("modal-abierto");
       cartCheckoutForm.classList.remove("visible");
-      btnMostrarPago.style.display = "";
+      cartReviewActions.classList.remove("hidden");
       setCartEstado("");
+      if (clienteActual?.email) cartClienteCorreo.value = clienteActual.email;
       renderCart();
     }
 
@@ -2605,6 +2638,9 @@
 
     async function hashPassword(email, password) {
       const payload = `${email.trim().toLowerCase()}::${password}`;
+      if (!crypto?.subtle) {
+        return btoa(unescape(encodeURIComponent(payload)));
+      }
       const bytes = new TextEncoder().encode(payload);
       const digest = await crypto.subtle.digest("SHA-256", bytes);
       return [...new Uint8Array(digest)].map((item) => item.toString(16).padStart(2, "0")).join("");
@@ -2615,6 +2651,7 @@
         accountUserEmail.textContent = customer.email || "Cuenta activa";
         accountUserBox.classList.add("visible");
         accountForm.classList.add("signed-in");
+        accountCopy.classList.add("signed-in");
         if (cartClienteCorreo && customer.email) cartClienteCorreo.value = customer.email;
         setAccountStatus("Sesión iniciada.", false, true);
         return;
@@ -2623,6 +2660,7 @@
       accountUserEmail.textContent = "";
       accountUserBox.classList.remove("visible");
       accountForm.classList.remove("signed-in");
+      accountCopy.classList.remove("signed-in");
     }
 
     async function iniciarSesionCliente() {
@@ -2691,18 +2729,17 @@
       accountRecoverButton.disabled = true;
       setAccountStatus("Actualizando clave...");
       try {
-        const customer = loadCustomer(email);
-        if (!customer) {
-          setAccountStatus("No existe una cuenta con ese correo. Crea una cuenta primero.", true);
-          return;
-        }
-
+        const existingCustomer = loadCustomer(email);
+        const customer = existingCustomer || {
+          email,
+          createdAt: new Date().toISOString()
+        };
         customer.passwordHash = await hashPassword(email, password);
         customer.updatedAt = new Date().toISOString();
         saveCustomer(customer);
         saveCurrentCustomer({ email: customer.email, createdAt: customer.createdAt });
         accountPassword.value = "";
-        setAccountStatus("Clave recuperada y actualizada correctamente.", false, true);
+        setAccountStatus("Clave recuperada correctamente. Sesión iniciada.", false, true);
       } catch (error) {
         console.error(error);
         setAccountStatus("No se pudo recuperar la clave. Inténtalo otra vez.", true);
@@ -2791,8 +2828,9 @@
       }
 
       cartCheckoutForm.classList.add("visible");
-      btnMostrarPago.style.display = "none";
+      cartReviewActions.classList.add("hidden");
       setCartEstado("");
+      if (clienteActual?.email) cartClienteCorreo.value = clienteActual.email;
       cartCheckoutForm.scrollIntoView({ behavior: "smooth", block: "nearest" });
       cartClienteNombre.focus();
     }
@@ -2805,7 +2843,7 @@
 
       if (!carrito.length) {
         cartCheckoutForm.classList.remove("visible");
-        btnMostrarPago.style.display = "";
+        cartReviewActions.classList.remove("hidden");
         cartItems.innerHTML = `<div class="cart-empty">Tu carrito está vacío. Entra a Packs y agrega una promoción para continuar.</div>`;
       } else {
         cartItems.innerHTML = carrito.map((item) => `
@@ -2845,8 +2883,10 @@
       }
 
       cartSubtotal.textContent = formatCurrency(getCartSubtotal());
+      cartCheckoutSubtotal.textContent = formatCurrency(getCartSubtotal());
       cartDeliveryTotal.textContent = formatCurrency(getCartDeliveryExtra());
-      cartTotal.textContent = formatCurrency(getCartTotal());
+      cartTotal.textContent = formatCurrency(getCartSubtotal());
+      cartCheckoutTotal.textContent = formatCurrency(getCartTotal());
       btnMostrarPago.disabled = carrito.length === 0;
       cartCheckoutForm.querySelector("button[type='submit']").disabled = carrito.length === 0;
     }
