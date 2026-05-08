@@ -1947,20 +1947,6 @@
 
   <script type="module">
     import { BRAND_CONFIG } from "./brand-config.mjs";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD_aflPBbf1EnI288bFjeq5Sk-4bIiKcgA",
-      authDomain: "barberia-elite-d5912.firebaseapp.com",
-      projectId: "barberia-elite-d5912",
-      storageBucket: "barberia-elite-d5912.firebasestorage.app",
-      messagingSenderId: "25729180241",
-      appId: "1:25729180241:web:e49871957a06207f2e30c9"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
 
     const packs = [
       {
@@ -2150,6 +2136,7 @@
     let selectedPlant = "suculenta";
     let selectedPot = "macetero1";
     let carrito = loadCart();
+    let clienteActual = loadCurrentCustomer();
 
     document.title = BRAND_CONFIG.name;
     renderPacks();
@@ -2220,9 +2207,7 @@
     accountPassword.addEventListener("keydown", (event) => {
       if (event.key === "Enter") iniciarSesionCliente();
     });
-    onAuthStateChanged(auth, (user) => {
-      renderAccountState(user);
-    });
+    renderAccountState(clienteActual);
 
     function openCategory(category) {
       if (category === "packs") {
@@ -2584,29 +2569,53 @@
       return true;
     }
 
-    function getFirebaseAuthMessage(error, fallbackMessage) {
-      const messages = {
-        "auth/email-already-in-use": "Ese correo ya tiene cuenta. Usa Entrar o Recuperar clave.",
-        "auth/invalid-email": "El correo no es válido.",
-        "auth/weak-password": "La clave debe tener al menos 6 caracteres.",
-        "auth/missing-password": "Ingresa una clave.",
-        "auth/invalid-credential": "Correo o clave incorrectos.",
-        "auth/user-not-found": "No encontramos una cuenta con ese correo.",
-        "auth/wrong-password": "La clave no es correcta.",
-        "auth/too-many-requests": "Firebase bloqueó temporalmente los intentos. Espera un momento y vuelve a probar.",
-        "auth/operation-not-allowed": "Firebase Auth no tiene habilitado correo y contraseña. Actívalo en Firebase > Authentication > Sign-in method.",
-        "auth/unauthorized-domain": "Este dominio no está autorizado en Firebase Auth. Agrega tu dominio de Vercel en Firebase > Authentication > Settings > Authorized domains.",
-        "auth/network-request-failed": "No se pudo conectar con Firebase. Revisa internet o la configuración del proyecto."
-      };
-
-      return messages[error?.code] || `${fallbackMessage}${error?.code ? ` (${error.code})` : ""}`;
+    function getCustomerStorageKey(email) {
+      return `jardinFlorDeLotoCustomer:${email}`;
     }
 
-    function renderAccountState(user) {
-      if (user) {
-        accountUserEmail.textContent = user.email || "Cuenta activa";
+    function loadCurrentCustomer() {
+      try {
+        return JSON.parse(localStorage.getItem("jardinFlorDeLotoCurrentCustomer") || "null");
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveCurrentCustomer(customer) {
+      clienteActual = customer;
+      if (customer) {
+        localStorage.setItem("jardinFlorDeLotoCurrentCustomer", JSON.stringify(customer));
+      } else {
+        localStorage.removeItem("jardinFlorDeLotoCurrentCustomer");
+      }
+      renderAccountState(clienteActual);
+    }
+
+    function loadCustomer(email) {
+      try {
+        return JSON.parse(localStorage.getItem(getCustomerStorageKey(email)) || "null");
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveCustomer(customer) {
+      localStorage.setItem(getCustomerStorageKey(customer.email), JSON.stringify(customer));
+    }
+
+    async function hashPassword(email, password) {
+      const payload = `${email.trim().toLowerCase()}::${password}`;
+      const bytes = new TextEncoder().encode(payload);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(digest)].map((item) => item.toString(16).padStart(2, "0")).join("");
+    }
+
+    function renderAccountState(customer) {
+      if (customer) {
+        accountUserEmail.textContent = customer.email || "Cuenta activa";
         accountUserBox.classList.add("visible");
         accountForm.classList.add("signed-in");
+        if (cartClienteCorreo && customer.email) cartClienteCorreo.value = customer.email;
         setAccountStatus("Sesión iniciada.", false, true);
         return;
       }
@@ -2623,12 +2632,24 @@
       accountLoginButton.disabled = true;
       setAccountStatus("Entrando a tu cuenta...");
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const customer = loadCustomer(email);
+        if (!customer) {
+          setAccountStatus("No existe una cuenta con ese correo. Usa Crear cuenta.", true);
+          return;
+        }
+
+        const passwordHash = await hashPassword(email, password);
+        if (customer.passwordHash !== passwordHash) {
+          setAccountStatus("La clave no es correcta. Puedes usar Recuperar clave.", true);
+          return;
+        }
+
+        saveCurrentCustomer({ email: customer.email, createdAt: customer.createdAt });
         accountPassword.value = "";
         setAccountStatus("Cuenta abierta correctamente.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus(getFirebaseAuthMessage(error, "No se pudo entrar. Revisa correo y clave."), true);
+        setAccountStatus("No se pudo entrar. Inténtalo otra vez.", true);
       } finally {
         accountLoginButton.disabled = false;
       }
@@ -2641,29 +2662,50 @@
       accountCreateButton.disabled = true;
       setAccountStatus("Creando cuenta...");
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
+        if (loadCustomer(email)) {
+          setAccountStatus("Ese correo ya tiene cuenta. Usa Entrar o Recuperar clave.", true);
+          return;
+        }
+
+        const customer = {
+          email,
+          passwordHash: await hashPassword(email, password),
+          createdAt: new Date().toISOString()
+        };
+        saveCustomer(customer);
+        saveCurrentCustomer({ email: customer.email, createdAt: customer.createdAt });
         accountPassword.value = "";
         setAccountStatus("Cuenta creada correctamente.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus(getFirebaseAuthMessage(error, "No se pudo crear la cuenta. Intenta con otro correo o clave."), true);
+        setAccountStatus("No se pudo crear la cuenta. Inténtalo otra vez.", true);
       } finally {
         accountCreateButton.disabled = false;
       }
     }
 
     async function recuperarClaveCliente() {
-      const email = limpiarTexto(accountEmail.value).toLowerCase();
-      if (!validateAccountEmail(email)) return;
+      const { email, password } = getAccountCredentials();
+      if (!validateAccountEmail(email) || !validateAccountPassword(password)) return;
 
       accountRecoverButton.disabled = true;
-      setAccountStatus("Enviando recuperación de clave...");
+      setAccountStatus("Actualizando clave...");
       try {
-        await sendPasswordResetEmail(auth, email);
-        setAccountStatus("Te enviamos un correo para recuperar tu clave.", false, true);
+        const customer = loadCustomer(email);
+        if (!customer) {
+          setAccountStatus("No existe una cuenta con ese correo. Crea una cuenta primero.", true);
+          return;
+        }
+
+        customer.passwordHash = await hashPassword(email, password);
+        customer.updatedAt = new Date().toISOString();
+        saveCustomer(customer);
+        saveCurrentCustomer({ email: customer.email, createdAt: customer.createdAt });
+        accountPassword.value = "";
+        setAccountStatus("Clave recuperada y actualizada correctamente.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus(getFirebaseAuthMessage(error, "No se pudo enviar la recuperación. Revisa el correo."), true);
+        setAccountStatus("No se pudo recuperar la clave. Inténtalo otra vez.", true);
       } finally {
         accountRecoverButton.disabled = false;
       }
@@ -2671,7 +2713,7 @@
 
     async function cerrarSesionCliente() {
       try {
-        await signOut(auth);
+        saveCurrentCustomer(null);
         setAccountStatus("Sesión cerrada.");
       } catch (error) {
         console.error(error);
