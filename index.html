@@ -642,8 +642,7 @@
 
     .cart-item {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
+      gap: 14px;
       background: #fffdf8;
       border: 1px solid rgba(63, 110, 59, 0.14);
       border-radius: 2px;
@@ -662,12 +661,75 @@
       font-size: 0.92rem;
     }
 
-    .cart-remove {
+    .cart-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .cart-detail {
+      display: grid;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .cart-detail-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      border-bottom: 1px solid rgba(63, 110, 59, 0.08);
+      padding-bottom: 5px;
+    }
+
+    .cart-detail-line span:first-child {
+      color: #173f31;
+      font-weight: 850;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(63, 110, 59, 0.1);
+      padding-top: 12px;
+    }
+
+    .qty-control {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(63, 110, 59, 0.16);
+      background: #ffffff;
+    }
+
+    .qty-control button {
       width: 38px;
       height: 38px;
-      border-radius: 2px;
+      border-radius: 0;
       background: #edf2e2;
       color: #173f31;
+      font-size: 1.1rem;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .qty-control strong {
+      min-width: 42px;
+      text-align: center;
+      color: #173f31;
+    }
+
+    .cart-remove {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 2px;
+      background: rgba(168, 65, 65, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(168, 65, 65, 0.18);
       font-weight: 950;
       cursor: pointer;
     }
@@ -2376,6 +2438,7 @@
         planta: personalizacion.planta,
         macetero: personalizacion.macetero,
         globo: personalizacion.globo,
+        cantidad: 1,
         precio: parsePrice(packSeleccionado.precio),
         imagen: packSeleccionado.imagen
       });
@@ -2439,6 +2502,24 @@
       return true;
     }
 
+    function getFirebaseAuthMessage(error, fallbackMessage) {
+      const messages = {
+        "auth/email-already-in-use": "Ese correo ya tiene cuenta. Usa Entrar o Recuperar clave.",
+        "auth/invalid-email": "El correo no es válido.",
+        "auth/weak-password": "La clave debe tener al menos 6 caracteres.",
+        "auth/missing-password": "Ingresa una clave.",
+        "auth/invalid-credential": "Correo o clave incorrectos.",
+        "auth/user-not-found": "No encontramos una cuenta con ese correo.",
+        "auth/wrong-password": "La clave no es correcta.",
+        "auth/too-many-requests": "Firebase bloqueó temporalmente los intentos. Espera un momento y vuelve a probar.",
+        "auth/operation-not-allowed": "Firebase Auth no tiene habilitado correo y contraseña. Actívalo en Firebase > Authentication > Sign-in method.",
+        "auth/unauthorized-domain": "Este dominio no está autorizado en Firebase Auth. Agrega tu dominio de Vercel en Firebase > Authentication > Settings > Authorized domains.",
+        "auth/network-request-failed": "No se pudo conectar con Firebase. Revisa internet o la configuración del proyecto."
+      };
+
+      return messages[error?.code] || `${fallbackMessage}${error?.code ? ` (${error.code})` : ""}`;
+    }
+
     function renderAccountState(user) {
       if (user) {
         accountUserEmail.textContent = user.email || "Cuenta activa";
@@ -2465,7 +2546,7 @@
         setAccountStatus("Cuenta abierta correctamente.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus("No se pudo entrar. Revisa correo y clave.", true);
+        setAccountStatus(getFirebaseAuthMessage(error, "No se pudo entrar. Revisa correo y clave."), true);
       } finally {
         accountLoginButton.disabled = false;
       }
@@ -2483,10 +2564,7 @@
         setAccountStatus("Cuenta creada correctamente.", false, true);
       } catch (error) {
         console.error(error);
-        const message = error?.code === "auth/email-already-in-use"
-          ? "Ese correo ya tiene cuenta. Usa Entrar o Recuperar clave."
-          : "No se pudo crear la cuenta. Intenta con otro correo o clave.";
-        setAccountStatus(message, true);
+        setAccountStatus(getFirebaseAuthMessage(error, "No se pudo crear la cuenta. Intenta con otro correo o clave."), true);
       } finally {
         accountCreateButton.disabled = false;
       }
@@ -2503,7 +2581,7 @@
         setAccountStatus("Te enviamos un correo para recuperar tu clave.", false, true);
       } catch (error) {
         console.error(error);
-        setAccountStatus("No se pudo enviar la recuperación. Revisa el correo.", true);
+        setAccountStatus(getFirebaseAuthMessage(error, "No se pudo enviar la recuperación. Revisa el correo."), true);
       } finally {
         accountRecoverButton.disabled = false;
       }
@@ -2525,8 +2603,42 @@
       renderCart();
     }
 
+    function normalizeCartItem(item) {
+      return {
+        ...item,
+        cantidad: Math.max(1, Number.parseInt(item.cantidad || 1, 10) || 1),
+        precio: Number(item.precio || 0)
+      };
+    }
+
+    function getCartItemQuantity(item) {
+      return normalizeCartItem(item).cantidad;
+    }
+
+    function getCartItemSubtotal(item) {
+      const normalized = normalizeCartItem(item);
+      return normalized.precio * normalized.cantidad;
+    }
+
+    function updateCartItemQuantity(itemId, delta) {
+      carrito = carrito.map((item) => {
+        if (item.id !== itemId) return normalizeCartItem(item);
+        const current = getCartItemQuantity(item);
+        return {
+          ...item,
+          cantidad: Math.max(1, current + delta)
+        };
+      });
+      saveCart();
+      renderCart();
+    }
+
     function getCartSubtotal() {
-      return carrito.reduce((total, item) => total + Number(item.precio || 0), 0);
+      return carrito.reduce((total, item) => total + getCartItemSubtotal(item), 0);
+    }
+
+    function getCartQuantityTotal() {
+      return carrito.reduce((total, item) => total + getCartItemQuantity(item), 0);
     }
 
     function getCartDeliveryExtra() {
@@ -2549,7 +2661,9 @@
     }
 
     function renderCart() {
-      cartCount.textContent = String(carrito.length);
+      carrito = carrito.map(normalizeCartItem);
+      saveCart();
+      cartCount.textContent = String(getCartQuantityTotal());
       syncCartDeliveryField();
 
       if (!carrito.length) {
@@ -2557,16 +2671,37 @@
       } else {
         cartItems.innerHTML = carrito.map((item) => `
           <article class="cart-item">
-            <div>
-              <h3>${item.nombre}</h3>
-              <p>Planta: ${item.planta || "Sin selección"} · Macetero: ${item.macetero || "Sin selección"} · Globo: ${item.globo || "Sin selección"}</p>
-              <p><strong>${formatCurrency(item.precio || 0)}</strong></p>
+            <div class="cart-item-top">
+              <div>
+                <h3>${item.nombre}</h3>
+                <p>Detalle completo de tu pedido.</p>
+              </div>
+              <strong>${formatCurrency(getCartItemSubtotal(item))}</strong>
             </div>
-            <button type="button" class="cart-remove" data-remove-item="${item.id}" aria-label="Quitar ${item.nombre}">×</button>
+            <div class="cart-detail">
+              <div class="cart-detail-line"><span>Planta</span><span>${item.planta || "Sin selección"}</span></div>
+              <div class="cart-detail-line"><span>Macetero</span><span>${item.macetero || "Sin selección"}</span></div>
+              <div class="cart-detail-line"><span>Globo</span><span>${item.globo || "Sin selección"}</span></div>
+              <div class="cart-detail-line"><span>Precio unitario</span><span>${formatCurrency(item.precio || 0)}</span></div>
+            </div>
+            <div class="cart-item-actions">
+              <div class="qty-control" aria-label="Cantidad de ${item.nombre}">
+                <button type="button" data-qty-minus="${item.id}" aria-label="Restar cantidad">−</button>
+                <strong>${getCartItemQuantity(item)}</strong>
+                <button type="button" data-qty-plus="${item.id}" aria-label="Sumar cantidad">+</button>
+              </div>
+              <button type="button" class="cart-remove" data-remove-item="${item.id}">Eliminar</button>
+            </div>
           </article>
         `).join("");
         cartItems.querySelectorAll("[data-remove-item]").forEach((button) => {
           button.addEventListener("click", () => removeCartItem(button.dataset.removeItem));
+        });
+        cartItems.querySelectorAll("[data-qty-minus]").forEach((button) => {
+          button.addEventListener("click", () => updateCartItemQuantity(button.dataset.qtyMinus, -1));
+        });
+        cartItems.querySelectorAll("[data-qty-plus]").forEach((button) => {
+          button.addEventListener("click", () => updateCartItemQuantity(button.dataset.qtyPlus, 1));
         });
       }
 
@@ -2583,7 +2718,7 @@
 
     function buildCartOrderSummary() {
       return carrito.map((item, index) => {
-        return `${index + 1}. ${item.nombre} - Planta: ${item.planta || "Sin dato"}, Macetero: ${item.macetero || "Sin dato"}, Globo: ${item.globo || "Sin dato"}, Precio: ${formatCurrency(item.precio || 0)}`;
+        return `${index + 1}. ${item.nombre} x${getCartItemQuantity(item)} - Planta: ${item.planta || "Sin dato"}, Macetero: ${item.macetero || "Sin dato"}, Globo: ${item.globo || "Sin dato"}, Unitario: ${formatCurrency(item.precio || 0)}, Subtotal: ${formatCurrency(getCartItemSubtotal(item))}`;
       }).join(" | ");
     }
 
@@ -2641,7 +2776,7 @@
               telefono
             },
             order: {
-              pack: `Carrito (${carrito.length} producto${carrito.length === 1 ? "" : "s"})`,
+              pack: `Carrito (${getCartQuantityTotal()} producto${getCartQuantityTotal() === 1 ? "" : "s"})`,
               planta: resumenCarrito,
               macetero: "Ver detalle del carrito",
               globo: "Ver detalle del carrito",
