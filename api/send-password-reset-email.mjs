@@ -23,7 +23,12 @@ function assertHttpsUrl(value, label) {
 }
 
 function getRequestBaseUrl(request) {
-  const configured = String(process.env.PASSWORD_RESET_CONTINUE_URL || process.env.WEBPAY_RETURN_BASE_URL || "").trim().replace(/\/+$/, "");
+  const configured = String(
+    process.env.PUBLIC_SITE_URL ||
+    process.env.PASSWORD_RESET_CONTINUE_URL ||
+    process.env.WEBPAY_RETURN_BASE_URL ||
+    ""
+  ).trim().replace(/\/+$/, "");
   if (configured) return assertHttpsUrl(configured, "PASSWORD_RESET_CONTINUE_URL").replace(/\/+$/, "");
 
   const protocol = String(request.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
@@ -99,13 +104,21 @@ function getFirebaseAuth() {
 }
 
 async function generatePasswordResetLink(email, request) {
-  const continueUrl = getRequestBaseUrl(request);
-  const resetLink = await getFirebaseAuth().generatePasswordResetLink(email, {
-    url: continueUrl,
+  const baseUrl = getRequestBaseUrl(request);
+  const firebaseResetLink = await getFirebaseAuth().generatePasswordResetLink(email, {
+    url: baseUrl,
     handleCodeInApp: false
   });
 
-  return assertHttpsUrl(resetLink, "reset_link");
+  const parsedFirebaseLink = new URL(assertHttpsUrl(firebaseResetLink, "firebase_reset_link"));
+  const oobCode = parsedFirebaseLink.searchParams.get("oobCode");
+  const mode = parsedFirebaseLink.searchParams.get("mode") || "resetPassword";
+
+  if (!oobCode) {
+    throw new Error("Firebase genero un link sin codigo de recuperacion.");
+  }
+
+  return assertHttpsUrl(`${baseUrl}/reset-password.html?mode=${encodeURIComponent(mode)}&oobCode=${encodeURIComponent(oobCode)}&email=${encodeURIComponent(email)}`, "reset_link");
 }
 
 async function sendResetEmail(email, resetLink) {
