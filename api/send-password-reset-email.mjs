@@ -2,6 +2,7 @@ import admin from "firebase-admin";
 import { BRAND_CONFIG } from "../brand-config.mjs";
 
 const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
+const PUBLIC_SITE_URL = "https://jardinflordeloto.cl";
 
 function isValidEmail(value) {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -23,19 +24,8 @@ function assertHttpsUrl(value, label) {
 }
 
 function getRequestBaseUrl(request) {
-  const configured = String(
-    process.env.PUBLIC_SITE_URL ||
-    process.env.PASSWORD_RESET_CONTINUE_URL ||
-    process.env.WEBPAY_RETURN_BASE_URL ||
-    ""
-  ).trim().replace(/\/+$/, "");
-  if (configured) return assertHttpsUrl(configured, "PASSWORD_RESET_CONTINUE_URL").replace(/\/+$/, "");
-
-  const protocol = String(request.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
-  const host = String(request.headers["x-forwarded-host"] || request.headers.host || "").split(",")[0].trim();
-  if (!host) throw new Error("No se pudo resolver el dominio publico para recuperar clave.");
-
-  return assertHttpsUrl(`${protocol}://${host}`, "Dominio de recuperacion").replace(/\/+$/, "");
+  const configured = String(process.env.PUBLIC_SITE_URL || PUBLIC_SITE_URL).trim().replace(/\/+$/, "");
+  return assertHttpsUrl(configured, "PUBLIC_SITE_URL").replace(/\/+$/, "");
 }
 
 function parseServiceAccountJson(rawJson) {
