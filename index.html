@@ -561,6 +561,37 @@
       outline: none;
     }
 
+    .password-field {
+      position: relative;
+      display: grid;
+    }
+
+    .password-field input {
+      padding-right: 58px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 42px;
+      height: 42px;
+      border-radius: 2px;
+      background: #edf2e2;
+      color: #173f31;
+      border: 1px solid rgba(63, 110, 59, 0.12);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .password-toggle svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
     .account-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1843,7 +1874,15 @@
         </div>
         <div class="account-form" id="accountForm">
           <input type="email" id="accountEmail" placeholder="Correo" maxlength="120" autocomplete="email" />
-          <input type="password" id="accountPassword" placeholder="Clave" maxlength="80" autocomplete="current-password" />
+          <div class="password-field">
+            <input type="password" id="accountPassword" placeholder="Clave" maxlength="80" autocomplete="current-password" />
+            <button type="button" class="password-toggle" id="accountPasswordToggle" aria-label="Ver contraseña" title="Ver contraseña">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
           <div class="account-actions">
             <button type="button" class="btn-principal" id="accountLoginButton">Entrar</button>
             <button type="button" class="btn-principal" id="accountCreateButton">Crear cuenta</button>
@@ -2158,6 +2197,7 @@
     const accountCopy = document.getElementById("accountCopy");
     const accountEmail = document.getElementById("accountEmail");
     const accountPassword = document.getElementById("accountPassword");
+    const accountPasswordToggle = document.getElementById("accountPasswordToggle");
     const accountLoginButton = document.getElementById("accountLoginButton");
     const accountCreateButton = document.getElementById("accountCreateButton");
     const accountRecoverButton = document.getElementById("accountRecoverButton");
@@ -2238,6 +2278,7 @@
     accountCreateButton.addEventListener("click", crearCuentaCliente);
     accountRecoverButton.addEventListener("click", recuperarClaveCliente);
     accountLogoutButton.addEventListener("click", cerrarSesionCliente);
+    accountPasswordToggle.addEventListener("click", toggleAccountPasswordVisibility);
     accountPassword.addEventListener("keydown", (event) => {
       if (event.key === "Enter") iniciarSesionCliente();
     });
@@ -2672,6 +2713,13 @@
       accountUserBox.classList.remove("visible");
       accountForm.classList.remove("signed-in");
       accountCopy.classList.remove("signed-in");
+    }
+
+    function toggleAccountPasswordVisibility() {
+      const shouldShow = accountPassword.type === "password";
+      accountPassword.type = shouldShow ? "text" : "password";
+      accountPasswordToggle.setAttribute("aria-label", shouldShow ? "Ocultar contraseña" : "Ver contraseña");
+      accountPasswordToggle.title = shouldShow ? "Ocultar contraseña" : "Ver contraseña";
     }
 
     async function iniciarSesionCliente() {
