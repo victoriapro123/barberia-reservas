@@ -396,6 +396,81 @@
       line-height: 1.65;
     }
 
+    [hidden] {
+      display: none !important;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .product-card {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: #f4ecdc;
+      border: 1px solid rgba(255, 248, 216, 0.24);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+      animation: aparecer 0.7s ease both;
+    }
+
+    .product-img {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      background: #fffaf0;
+    }
+
+    .product-body {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 22px;
+      color: #173f31;
+    }
+
+    .product-top {
+      display: grid;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(23, 63, 49, 0.12);
+    }
+
+    .product-top h3 {
+      font-size: 1.24rem;
+      line-height: 1.12;
+      color: #10231e;
+    }
+
+    .product-body p {
+      color: #556457;
+      line-height: 1.55;
+      font-size: 0.96rem;
+    }
+
+    .product-variant {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(63, 110, 59, 0.22);
+      background: #fffdf8;
+      color: #173f31;
+      padding: 0 12px;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .product-card .btn-principal {
+      width: 100%;
+      min-height: 50px;
+      border-radius: 2px;
+      background: #173f31;
+      color: #fff8d8;
+      box-shadow: none;
+    }
+
     .top-actions {
       position: fixed;
       top: 18px;
@@ -1829,10 +1904,11 @@
           <h2 id="catalogoTitulo">Plantas</h2>
           <button type="button" class="cerrar-ofertas" id="btnCerrarCatalogo">Volver a portada</button>
         </div>
-        <div class="catalog-empty">
+        <div class="catalog-empty" id="catalogPlaceholder">
           <strong id="catalogoMensajeTitulo">Pronto agregaremos plantas aquí.</strong>
           <p id="catalogoMensaje">Cuando me mandes las fotos, las voy ordenando en plantas o maceteros y cada producto quedará listo para agregarse al carrito.</p>
         </div>
+        <div class="catalog-grid" id="catalogGrid" hidden></div>
       </div>
     </section>
   </main>
@@ -2041,6 +2117,87 @@
       }
     ];
 
+    const plantas = [
+      {
+        id: "rosa",
+        nombre: "Rosa",
+        precioDesde: "$8.000",
+        descripcion: "Rosa en maceta, ideal para regalar o sumar color al jardin.",
+        imagen: "/assets/plantas/rosa.png",
+        variantes: [{ id: "unica", nombre: "Rosa", precio: 8000 }]
+      },
+      {
+        id: "gazania",
+        nombre: "Gazania",
+        precioDesde: "$1.000",
+        descripcion: "Flor resistente y colorida para espacios luminosos.",
+        imagen: "/assets/plantas/gazania.png",
+        variantes: [{ id: "unica", nombre: "Gazania", precio: 1000 }]
+      },
+      {
+        id: "pino-cipres-limon",
+        nombre: "Pino cipres limon",
+        precioDesde: "$16.500",
+        descripcion: "Conifera ornamental de tono verde limon y presencia elegante.",
+        imagen: "/assets/plantas/pino-cipres-limon.png",
+        variantes: [{ id: "unica", nombre: "Pino cipres limon", precio: 16500 }]
+      },
+      {
+        id: "crisantemos",
+        nombre: "Crisantemos",
+        precioDesde: "$3.800",
+        descripcion: "Flores abundantes y alegres para decorar o regalar.",
+        imagen: "/assets/plantas/crisantemos.png",
+        variantes: [{ id: "unica", nombre: "Crisantemos", precio: 3800 }]
+      },
+      {
+        id: "begonia-porcelana",
+        nombre: "Begonia Porcelana",
+        precioDesde: "Desde $1.000",
+        descripcion: "Begonia delicada con floracion suave. Disponible en dos tamanos.",
+        imagen: "/assets/plantas/begonia-porcelana.png",
+        variantes: [
+          { id: "chica", nombre: "Chica", precio: 1000 },
+          { id: "grande", nombre: "Grande", precio: 2500 }
+        ]
+      },
+      {
+        id: "cala-de-color",
+        nombre: "Cala de color",
+        precioDesde: "$12.000",
+        descripcion: "Cala decorativa de color intenso para interiores luminosos.",
+        imagen: "/assets/plantas/cala-de-color.png",
+        variantes: [{ id: "unica", nombre: "Cala de color", precio: 12000 }]
+      },
+      {
+        id: "spatifilium",
+        nombre: "Spatifilium",
+        precioDesde: "Desde $16.000",
+        descripcion: "Planta de interior elegante y frondosa, disponible chica o grande.",
+        imagen: "/assets/plantas/spatifilium.png",
+        variantes: [
+          { id: "chica", nombre: "Chica", precio: 16000 },
+          { id: "grande", nombre: "Grande", precio: 25000 }
+        ]
+      },
+      {
+        id: "corona-de-inca",
+        nombre: "Corona de Inca",
+        precioDesde: "$11.500",
+        descripcion: "Planta llamativa por su color y forma, perfecta para destacar.",
+        imagen: "/assets/plantas/corona-de-inca.png",
+        variantes: [{ id: "unica", nombre: "Corona de Inca", precio: 11500 }]
+      },
+      {
+        id: "violeta-de-persia",
+        nombre: "Violeta de Persia",
+        precioDesde: "$8.000",
+        descripcion: "Flor intensa y delicada para dar vida a cualquier rincon.",
+        imagen: "/assets/plantas/violeta-de-persia.png",
+        variantes: [{ id: "unica", nombre: "Violeta de Persia", precio: 8000 }]
+      }
+    ];
+
     const opciones = {
       planta: ["Loto", "Suculenta", "Lavanda", "Anturio"],
       macetero: ["Cerámica blanca", "Greda natural", "Fibra vegetal", "Minimal verde"],
@@ -2146,6 +2303,8 @@
     const btnCerrarCatalogo = document.getElementById("btnCerrarCatalogo");
     const catalogoEtiqueta = document.getElementById("catalogoEtiqueta");
     const catalogoTitulo = document.getElementById("catalogoTitulo");
+    const catalogPlaceholder = document.getElementById("catalogPlaceholder");
+    const catalogGrid = document.getElementById("catalogGrid");
     const catalogoMensajeTitulo = document.getElementById("catalogoMensajeTitulo");
     const catalogoMensaje = document.getElementById("catalogoMensaje");
     const modalPedido = document.getElementById("modalPedido");
@@ -2294,12 +2453,16 @@
       const isMaceteros = category === "maceteros";
       catalogoEtiqueta.textContent = isMaceteros ? "Maceteros" : "Plantas";
       catalogoTitulo.textContent = isMaceteros ? "Maceteros" : "Plantas";
-      catalogoMensajeTitulo.textContent = isMaceteros
-        ? "Pronto agregaremos maceteros."
-        : "Pronto agregaremos plantas.";
-      catalogoMensaje.textContent = isMaceteros
-        ? "En cuanto me mandes las fotos de maceteros, los dejaré aquí con precio, foto y botón para agregar al carrito."
-        : "Cuando me envíes las fotos de plantas, las separaré en esta sección y quedarán listas para comprar.";
+      if (isMaceteros) {
+        catalogPlaceholder.hidden = false;
+        catalogGrid.hidden = true;
+        catalogoMensajeTitulo.textContent = "Pronto agregaremos maceteros.";
+        catalogoMensaje.textContent = "En cuanto me mandes las fotos de maceteros, los dejaré aquí con precio, foto y botón para agregar al carrito.";
+      } else {
+        renderCatalogoPlantas();
+        catalogPlaceholder.hidden = true;
+        catalogGrid.hidden = false;
+      }
       catalogoPanel.classList.add("visible");
       catalogoPanel.setAttribute("aria-hidden", "false");
     }
@@ -2330,6 +2493,44 @@
         card.querySelector("button").addEventListener("click", () => abrirPack(pack.id));
         packsGrid.appendChild(card);
       }
+    }
+
+    function renderCatalogoPlantas() {
+      catalogGrid.innerHTML = plantas.map((planta) => {
+        const hasVariants = planta.variantes.length > 1;
+        const variantControl = hasVariants
+          ? `
+            <select class="product-variant" data-product-variant="${planta.id}" aria-label="Opciones de ${planta.nombre}">
+              ${planta.variantes.map((variant) => `
+                <option value="${variant.id}">${variant.nombre} - ${formatCurrency(variant.precio)}</option>
+              `).join("")}
+            </select>
+          `
+          : "";
+
+        return `
+          <article class="product-card">
+            <img class="product-img" src="${planta.imagen}" alt="${planta.nombre}" loading="lazy" />
+            <div class="product-body">
+              <div class="product-top">
+                <h3>${planta.nombre}</h3>
+                <div class="precio">${planta.precioDesde}</div>
+              </div>
+              <p>${planta.descripcion}</p>
+              ${variantControl}
+              <button type="button" class="btn-principal" data-add-product="${planta.id}">Agregar al carrito</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      catalogGrid.querySelectorAll("[data-add-product]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const productId = button.dataset.addProduct;
+          const variantSelect = catalogGrid.querySelector(`[data-product-variant="${productId}"]`);
+          agregarProductoAlCarrito(productId, variantSelect?.value || "unica");
+        });
+      });
     }
 
     function renderOpciones() {
@@ -2584,6 +2785,38 @@
       saveCart();
       renderCart();
       cerrarModal();
+      abrirCarrito();
+    }
+
+    function agregarProductoAlCarrito(productId, variantId = "unica") {
+      const producto = plantas.find((item) => item.id === productId);
+      if (!producto) return;
+      const variante = producto.variantes.find((item) => item.id === variantId) || producto.variantes[0];
+      const variantText = producto.variantes.length > 1 ? variante.nombre : "";
+      const cartKey = `${producto.id}-${variante.id}`;
+      const existing = carrito.find((item) => item.cartKey === cartKey);
+
+      if (existing) {
+        existing.cantidad = getCartItemQuantity(existing) + 1;
+      } else {
+        carrito.push({
+          id: `${cartKey}-${Date.now()}`,
+          cartKey,
+          tipo: "planta",
+          nombre: producto.nombre,
+          pack: "",
+          planta: producto.nombre,
+          variante: variantText,
+          macetero: "No aplica",
+          globo: "No aplica",
+          cantidad: 1,
+          precio: Number(variante.precio || 0),
+          imagen: producto.imagen
+        });
+      }
+
+      saveCart();
+      renderCart();
       abrirCarrito();
     }
 
@@ -2869,6 +3102,33 @@
       return getCartSubtotal() + getCartDeliveryExtra();
     }
 
+    function getCartItemDescription(item) {
+      if (item.tipo === "planta") {
+        return item.variante ? `Planta - ${item.variante}` : "Planta";
+      }
+
+      return "Detalle completo de tu pedido.";
+    }
+
+    function renderCartDetailLines(item) {
+      const lines = item.tipo === "planta"
+        ? [
+          ["Producto", item.planta || item.nombre],
+          ["Opcion", item.variante || "Unica"],
+          ["Precio unitario", formatCurrency(item.precio || 0)]
+        ]
+        : [
+          ["Planta", item.planta || "Sin seleccion"],
+          ["Macetero", item.macetero || "Sin seleccion"],
+          ["Globo", item.globo || "Sin seleccion"],
+          ["Precio unitario", formatCurrency(item.precio || 0)]
+        ];
+
+      return lines.map(([label, value]) => `
+        <div class="cart-detail-line"><span>${label}</span><span>${value}</span></div>
+      `).join("");
+    }
+
     function syncCartDeliveryField() {
       const active = cartDelivery.checked;
       cartClienteDireccion.disabled = !active;
@@ -2910,15 +3170,12 @@
             <div class="cart-item-top">
               <div>
                 <h3>${item.nombre}</h3>
-                <p>Detalle completo de tu pedido.</p>
+                <p>${getCartItemDescription(item)}</p>
               </div>
               <strong>${formatCurrency(getCartItemSubtotal(item))}</strong>
             </div>
             <div class="cart-detail">
-              <div class="cart-detail-line"><span>Planta</span><span>${item.planta || "Sin selección"}</span></div>
-              <div class="cart-detail-line"><span>Macetero</span><span>${item.macetero || "Sin selección"}</span></div>
-              <div class="cart-detail-line"><span>Globo</span><span>${item.globo || "Sin selección"}</span></div>
-              <div class="cart-detail-line"><span>Precio unitario</span><span>${formatCurrency(item.precio || 0)}</span></div>
+              ${renderCartDetailLines(item)}
             </div>
             <div class="cart-item-actions">
               <div class="qty-control" aria-label="Cantidad de ${item.nombre}">
@@ -2957,6 +3214,10 @@
 
     function buildCartOrderSummary() {
       return carrito.map((item, index) => {
+        if (item.tipo === "planta") {
+          return `${index + 1}. ${item.nombre} x${getCartItemQuantity(item)} - Opcion: ${item.variante || "Unica"}, Unitario: ${formatCurrency(item.precio || 0)}, Subtotal: ${formatCurrency(getCartItemSubtotal(item))}`;
+        }
+
         return `${index + 1}. ${item.nombre} x${getCartItemQuantity(item)} - Planta: ${item.planta || "Sin dato"}, Macetero: ${item.macetero || "Sin dato"}, Globo: ${item.globo || "Sin dato"}, Unitario: ${formatCurrency(item.precio || 0)}, Subtotal: ${formatCurrency(getCartItemSubtotal(item))}`;
       }).join(" | ");
     }
