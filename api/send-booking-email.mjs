@@ -71,7 +71,7 @@ function validatePayload(payload) {
   }
 
   if (payload.barbero !== BRAND_CONFIG.name) {
-    return "Barbero invalido.";
+    return "Tienda invalida.";
   }
 
   if (!isSizedString(payload.nombre, 3, 60)) {
@@ -361,21 +361,21 @@ function getTemplateParams(payload, toEmail, ccEmail = "") {
       : payload.notificationType === "customer_received"
         ? "Recibimos tu solicitud y pronto la revisaremos."
         : payload.estado === "Confirmada"
-          ? "Tu solicitud fue confirmada por la barberia."
+          ? "Tu pedido fue confirmado por Jardin Flor de Loto."
           : payload.estado === "Cancelada"
-            ? "Tu solicitud fue cancelada por la barberia."
-            : `Gracias por su visita. Esperamos verle nuevamente en ${BRAND_CONFIG.name}.`;
+            ? "Tu pedido fue cancelado por Jardin Flor de Loto."
+            : `Gracias por tu compra. Esperamos verte nuevamente en ${BRAND_CONFIG.name}.`;
 
   const titulo =
     payload.notificationType === "new_request"
-      ? "Nueva solicitud de reserva"
+      ? "Nuevo pedido"
       : payload.notificationType === "customer_received"
-        ? "Solicitud recibida"
+        ? "Pedido recibido"
         : payload.estado === "Confirmada"
-          ? "Reserva confirmada"
+          ? "Pedido confirmado"
           : payload.estado === "Cancelada"
-            ? "Reserva cancelada"
-            : "Gracias por su visita";
+            ? "Pedido cancelado"
+            : "Gracias por tu compra";
 
   return {
     to_email: toEmail,
