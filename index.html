@@ -326,9 +326,9 @@
 
     .dark-band {
       margin-top: -1px;
-      color: var(--cream);
-      background: var(--night);
-      border-block: 1px solid rgba(201, 169, 85, 0.16);
+      color: var(--green-deep);
+      background: var(--cream);
+      border-bottom: 1px solid var(--line);
     }
 
     .dark-band-grid {
@@ -337,7 +337,7 @@
       gap: 1px;
       min-height: 126px;
       overflow: hidden;
-      background: rgba(255, 249, 239, 0.12);
+      background: rgba(31, 74, 53, 0.12);
     }
 
     .trust-item {
@@ -345,18 +345,18 @@
       align-content: center;
       gap: 8px;
       padding: 24px;
-      background: var(--night);
+      background: var(--cream);
     }
 
     .trust-item strong {
-      color: var(--cream);
+      color: var(--green-deep);
       font-size: 0.86rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .trust-item span {
-      color: rgba(255, 249, 239, 0.66);
+      color: var(--ink-soft);
       font-size: 0.88rem;
       line-height: 1.45;
     }
@@ -386,24 +386,12 @@
       border-bottom: 1px solid rgba(201, 169, 85, 0.16);
     }
 
-    .editorial-dark::before,
     .editorial-dark::after {
       content: "";
       position: absolute;
       pointer-events: none;
       background-repeat: no-repeat;
       background-size: contain;
-    }
-
-    .editorial-dark::before {
-      left: -90px;
-      bottom: -150px;
-      width: 520px;
-      height: 520px;
-      opacity: 0.16;
-      filter: grayscale(1) brightness(1.45);
-      background-image: url("/assets/plantas/pino-cipres-limon.png");
-      transform: rotate(-14deg);
     }
 
     .editorial-dark::after {
@@ -420,51 +408,14 @@
     .editorial-content {
       position: relative;
       z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 0.72fr) minmax(240px, 0.28fr);
-      gap: 40px;
-      align-items: center;
-    }
-
-    .editorial-copy {
-      max-width: 520px;
-      display: grid;
-      gap: 22px;
-    }
-
-    .editorial-kicker {
-      color: var(--copper);
-      font-size: 0.78rem;
-      font-weight: 900;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-    }
-
-    .editorial-copy h2 {
-      color: var(--cream);
-      font-size: clamp(2.5rem, 5.4vw, 5.8rem);
-      line-height: 0.94;
-    }
-
-    .editorial-copy h2 span {
-      color: var(--rose);
-    }
-
-    .editorial-copy p {
-      max-width: 360px;
-      color: rgba(255, 249, 239, 0.72);
-      line-height: 1.7;
-    }
-
-    .editorial-line {
-      width: 78px;
-      height: 1px;
-      background: linear-gradient(90deg, var(--copper), rgba(200, 132, 102, 0));
+      min-height: 720px;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 72px;
     }
 
     .editorial-chip {
-      justify-self: end;
-      width: min(100%, 260px);
+      width: min(100%, 300px);
       padding: 18px;
       color: rgba(255, 249, 239, 0.78);
       background: rgba(255, 249, 239, 0.06);
@@ -560,20 +511,25 @@
 
     .feature-grid {
       display: grid;
-      grid-template-columns: 1.08fr 0.92fr;
       gap: 24px;
-      align-items: stretch;
     }
 
-    .feature-photo {
-      min-height: 560px;
+    .sample-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .sample-photo {
+      aspect-ratio: 4 / 5;
+      margin: 0;
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
       background: var(--sage);
     }
 
-    .feature-photo img {
+    .sample-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -581,6 +537,7 @@
 
     .feature-panel {
       display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
     }
 
@@ -1016,15 +973,12 @@
       }
 
       .dark-band-grid,
-      .feature-grid,
+      .sample-gallery,
+      .feature-panel,
       .contact,
       .packs-grid,
       .catalog-grid,
       .pots-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .editorial-content {
         grid-template-columns: 1fr;
       }
 
@@ -1042,11 +996,7 @@
       }
 
       .editorial-chip {
-        justify-self: start;
-      }
-
-      .feature-photo {
-        min-height: 360px;
+        width: min(100%, 300px);
       }
 
       .section-head {
@@ -1184,17 +1134,8 @@
         </div>
       </section>
 
-      <section class="editorial-dark" aria-labelledby="filosofia-title">
+      <section class="editorial-dark" aria-label="Presentación de plantas">
         <div class="container editorial-content">
-          <div class="editorial-copy">
-            <span class="editorial-kicker">Nuestra filosofía</span>
-            <h2 id="filosofia-title">Así como se ve, <span>se siente.</span></h2>
-            <div class="editorial-line"></div>
-            <p>Cada planta tiene que verse especial antes de llegar a su nuevo lugar. Por eso cuidamos la combinación, la textura y la forma de presentar cada regalo.</p>
-            <div class="hero-actions">
-              <a class="button button-soft" href="#regalos">Ver packs</a>
-            </div>
-          </div>
           <div class="editorial-chip">
             <strong>Plantas con fondo, luz y presencia.</strong>
             <span>Una vitrina más profunda, elegante y visual para comprar con confianza.</span>
@@ -1212,8 +1153,13 @@
             </div>
           </div>
           <div class="feature-grid">
-            <div class="feature-photo">
-              <img src="/assets/flor-de-loto-portada.png" alt="Arreglo floral de Jardín Flor de Loto" />
+            <div class="sample-gallery">
+              <figure class="sample-photo">
+                <img src="/assets/muestras/macetero-gato.jpg" alt="Suculenta en macetero blanco con forma de gato" loading="lazy" />
+              </figure>
+              <figure class="sample-photo">
+                <img src="/assets/muestras/suculenta-rayada.jpg" alt="Suculenta en macetero decorativo a rayas" loading="lazy" />
+              </figure>
             </div>
             <div class="feature-panel">
               <article class="feature-card">
@@ -1290,14 +1236,14 @@
             <div class="contact-card">
               <span class="eyebrow">Contacto</span>
               <h2 id="contacto-title">Hablemos de tu próximo regalo verde.</h2>
-              <p>Estamos en Av. Miraflores 1702, Peñaflor, Región Metropolitana.</p>
+              <p>Estamos en Av. Miraflores 2000, Peñaflor, Región Metropolitana.</p>
               <div class="contact-actions">
                 <a class="button button-green" href="https://wa.me/56998462648?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Jard%C3%ADn%20Flor%20de%20Loto" target="_blank" rel="noopener">WhatsApp</a>
-                <a class="button button-outline" href="https://www.google.com/maps/search/?api=1&query=Av.%20Miraflores%201702%2C%20Pe%C3%B1aflor%2C%20Regi%C3%B3n%20Metropolitana" target="_blank" rel="noopener">Cómo llegar</a>
+                <a class="button button-outline" href="https://www.google.com/maps/search/?api=1&query=Av.%20Miraflores%202000%2C%20Pe%C3%B1aflor%2C%20Regi%C3%B3n%20Metropolitana" target="_blank" rel="noopener">Cómo llegar</a>
               </div>
             </div>
             <div class="map-card">
-              <iframe title="Mapa de Jardín Flor de Loto" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Av.%20Miraflores%201702%2C%20Pe%C3%B1aflor%2C%20Regi%C3%B3n%20Metropolitana&output=embed"></iframe>
+              <iframe title="Mapa de Jardín Flor de Loto" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Av.%20Miraflores%202000%2C%20Pe%C3%B1aflor%2C%20Regi%C3%B3n%20Metropolitana&output=embed"></iframe>
             </div>
           </div>
         </div>
