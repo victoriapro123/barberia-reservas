@@ -84,63 +84,164 @@
     .nav {
       position: fixed;
       z-index: 50;
-      top: 16px;
+      top: 18px;
       left: 50%;
-      width: min(1120px, calc(100% - 28px));
+      width: min(1480px, calc(100% - 32px));
       transform: translateX(-50%);
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(190px, 1fr) auto minmax(290px, 1fr);
       align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 10px 12px 10px 14px;
+      gap: 26px;
+      min-height: 84px;
+      padding: 8px 15px 8px 22px;
       color: var(--cream);
-      background: rgba(16, 37, 27, 0.72);
-      border: 1px solid rgba(255, 249, 239, 0.2);
+      background:
+        radial-gradient(circle at 4% 50%, rgba(94, 122, 66, 0.24), transparent 24%),
+        linear-gradient(105deg, rgba(9, 37, 26, 0.98), rgba(5, 47, 35, 0.98) 52%, rgba(7, 35, 25, 0.98));
+      border: 1px solid rgba(201, 169, 85, 0.58);
       border-radius: 999px;
-      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22);
-      backdrop-filter: blur(18px);
+      box-shadow: 0 12px 30px rgba(1, 12, 8, 0.28), 0 2px 8px rgba(201, 169, 85, 0.12);
+      backdrop-filter: blur(14px);
     }
 
     .brand {
-      display: inline-flex;
-      align-items: center;
-      min-width: 0;
-      gap: 10px;
+      position: relative;
+      justify-self: start;
+      display: block;
+      width: 172px;
+      height: 66px;
       text-decoration: none;
-      font-weight: 800;
     }
 
-    .brand img {
-      width: 38px;
-      height: 38px;
+    .lotus-logo {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      border-radius: 999px;
+      transition: transform 0.4s ease, filter 0.4s ease;
+      filter: brightness(1);
+    }
+
+    .lotus-logo::after {
+      content: "";
+      position: absolute;
+      top: 9px;
+      right: -18px;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(transparent, rgba(201, 169, 85, 0.5), transparent);
+    }
+
+    .lotus-logo-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 58%;
+      border-radius: 999px;
+      transform: scale(1.72);
+      clip-path: inset(20% 20% 20% 20% round 999px);
+    }
+
+    .brand:hover .lotus-logo,
+    .brand:focus-visible .lotus-logo,
+    .brand.is-active .lotus-logo {
+      transform: scale(1.05);
+      filter:
+        brightness(1.12)
+        drop-shadow(0 0 8px rgba(255, 224, 130, 0.65))
+        drop-shadow(0 0 18px rgba(255, 215, 100, 0.35));
+    }
+
+    .brand:focus-visible {
+      outline: 2px solid var(--gold-soft);
+      outline-offset: 5px;
+      border-radius: 999px;
+    }
+
+    .lotus-spark {
+      position: absolute;
+      z-index: 2;
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
-      background: var(--cream);
+      background: #ffe7a3;
+      box-shadow: 0 0 8px rgba(255, 220, 118, 0.95);
+      opacity: 0;
+      transform: scale(0.2);
+      pointer-events: none;
     }
 
-    .brand span {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .lotus-spark:nth-of-type(1) { left: 17%; top: 18%; }
+    .lotus-spark:nth-of-type(2) { left: 51%; top: 3%; width: 3px; height: 3px; }
+    .lotus-spark:nth-of-type(3) { right: 13%; top: 27%; }
+    .lotus-spark:nth-of-type(4) { left: 35%; bottom: 7%; width: 3px; height: 3px; }
+
+    .brand:hover .lotus-spark,
+    .brand:focus-visible .lotus-spark,
+    .brand.is-active .lotus-spark {
+      animation: lotusSpark 0.9s ease-in-out infinite alternate;
+    }
+
+    .brand:hover .lotus-spark:nth-of-type(2),
+    .brand:focus-visible .lotus-spark:nth-of-type(2),
+    .brand.is-active .lotus-spark:nth-of-type(2) { animation-delay: 0.14s; }
+
+    .brand:hover .lotus-spark:nth-of-type(3),
+    .brand:focus-visible .lotus-spark:nth-of-type(3),
+    .brand.is-active .lotus-spark:nth-of-type(3) { animation-delay: 0.28s; }
+
+    .brand:hover .lotus-spark:nth-of-type(4),
+    .brand:focus-visible .lotus-spark:nth-of-type(4),
+    .brand.is-active .lotus-spark:nth-of-type(4) { animation-delay: 0.42s; }
+
+    @keyframes lotusSpark {
+      from { opacity: 0.18; transform: scale(0.35) translateY(2px); }
+      to { opacity: 1; transform: scale(1.15) translateY(-3px); }
     }
 
     .nav-links {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: clamp(16px, 2.1vw, 40px);
     }
 
     .nav-links a {
-      padding: 10px 12px;
-      color: rgba(255, 249, 239, 0.88);
-      border-radius: 999px;
+      position: relative;
+      padding: 16px 5px 15px;
+      color: rgba(255, 249, 239, 0.92);
       text-decoration: none;
-      font-size: 0.94rem;
-      font-weight: 700;
+      font-size: clamp(0.95rem, 1.1vw, 1.08rem);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition: color 0.35s ease, text-shadow 0.35s ease;
     }
 
-    .nav-links a:hover {
-      background: rgba(255, 249, 239, 0.11);
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 5px;
+      width: 0;
+      height: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, transparent, #efd17a 28%, #fff0b4 50%, #efd17a 72%, transparent);
+      box-shadow: 0 0 9px rgba(255, 211, 100, 0.82);
+      transition: width 0.35s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: #fff7df;
+      text-shadow: 0 0 12px rgba(255, 222, 137, 0.48);
+      outline: none;
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a:focus-visible::after {
+      width: 100%;
     }
 
     .cart-button,
@@ -161,7 +262,174 @@
     }
 
     .cart-button {
+      gap: 10px;
+      min-width: 142px;
+      height: 50px;
+      padding: 0 15px 0 18px;
+      background: linear-gradient(135deg, #fff9eb, #f1dfae);
+      border: 1px solid rgba(255, 239, 194, 0.8);
+      box-shadow: 0 7px 18px rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.7);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .nav-actions {
+      justify-self: end;
+      display: flex;
+      align-items: center;
       gap: 8px;
+    }
+
+    .nav-icon,
+    .menu-toggle {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      color: var(--cream);
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: color 0.3s ease, background 0.3s ease, filter 0.3s ease;
+    }
+
+    .nav-icon:hover,
+    .nav-icon:focus-visible,
+    .menu-toggle:hover,
+    .menu-toggle:focus-visible {
+      color: #ffe6a1;
+      background: rgba(255, 249, 239, 0.07);
+      filter: drop-shadow(0 0 6px rgba(255, 217, 115, 0.48));
+      outline: none;
+    }
+
+    .search-mark {
+      position: relative;
+      width: 19px;
+      height: 19px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .search-mark::after {
+      content: "";
+      position: absolute;
+      width: 9px;
+      height: 2px;
+      right: -7px;
+      bottom: -4px;
+      border-radius: 2px;
+      background: currentColor;
+      transform: rotate(45deg);
+      transform-origin: left center;
+    }
+
+    .user-mark {
+      position: relative;
+      width: 22px;
+      height: 24px;
+    }
+
+    .user-mark::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 8px;
+      height: 8px;
+      transform: translateX(-50%);
+      border: 2px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .user-mark::after {
+      content: "";
+      position: absolute;
+      left: 1px;
+      bottom: 0;
+      width: 18px;
+      height: 10px;
+      border: 2px solid currentColor;
+      border-bottom: 0;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .cart-symbol {
+      position: relative;
+      width: 20px;
+      height: 15px;
+      border: 2px solid currentColor;
+      border-top: 0;
+      transform: skew(-5deg);
+    }
+
+    .cart-symbol::before {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 2px;
+      top: -4px;
+      left: -6px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .cart-symbol::after {
+      content: "";
+      position: absolute;
+      left: 2px;
+      bottom: -7px;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 11px 0 currentColor;
+    }
+
+    .menu-toggle {
+      display: none;
+    }
+
+    .menu-toggle-lines,
+    .menu-toggle-lines::before,
+    .menu-toggle-lines::after {
+      width: 20px;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .menu-toggle-lines {
+      position: relative;
+    }
+
+    .menu-toggle-lines::before,
+    .menu-toggle-lines::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+
+    .menu-toggle-lines::before { top: -6px; }
+    .menu-toggle-lines::after { top: 6px; }
+
+    .nav.menu-open .menu-toggle-lines { background: transparent; }
+    .nav.menu-open .menu-toggle-lines::before { top: 0; transform: rotate(45deg); }
+    .nav.menu-open .menu-toggle-lines::after { top: 0; transform: rotate(-45deg); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .lotus-logo,
+      .lotus-spark,
+      .nav-links a,
+      .nav-links a::after,
+      .menu-toggle-lines,
+      .menu-toggle-lines::before,
+      .menu-toggle-lines::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     .cart-count {
@@ -988,12 +1256,69 @@
 
     @media (max-width: 900px) {
       .nav {
-        align-items: stretch;
-        border-radius: 18px;
+        top: 10px;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        min-height: 70px;
+        padding: 7px 9px 7px 14px;
+        border-radius: 999px;
       }
 
       .nav-links {
-        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: min(330px, calc(100vw - 20px));
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        padding: 14px;
+        background: linear-gradient(145deg, rgba(8, 39, 28, 0.99), rgba(5, 29, 21, 0.99));
+        border: 1px solid rgba(201, 169, 85, 0.46);
+        border-radius: 24px;
+        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-8px) scale(0.98);
+        transform-origin: top right;
+        transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+      }
+
+      .nav.menu-open .nav-links {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+      }
+
+      .nav-links a {
+        padding: 13px 16px;
+        text-align: center;
+      }
+
+      .nav-links a::after {
+        bottom: 7px;
+      }
+
+      .brand {
+        width: 128px;
+        height: 54px;
+      }
+
+      .lotus-logo::after {
+        top: 7px;
+        right: -9px;
+        height: 40px;
+      }
+
+      .nav-actions {
+        grid-column: 3;
+      }
+
+      .menu-toggle {
+        display: inline-grid;
       }
 
       .hero {
@@ -1052,16 +1377,31 @@
         width: min(100% - 28px, 1120px);
       }
 
-      .brand span {
-        max-width: 178px;
+      .brand {
+        width: 86px;
+        height: 50px;
+      }
+
+      .lotus-logo::after {
+        display: none;
+      }
+
+      .nav-icon {
+        display: none;
       }
 
       .cart-button {
-        padding: 0 12px;
+        min-width: 50px;
+        height: 48px;
+        padding: 0 10px;
       }
 
       .cart-button strong {
         display: none;
+      }
+
+      .cart-symbol {
+        width: 18px;
       }
 
       .hero {
@@ -1118,21 +1458,38 @@
 </head>
 <body>
   <div class="site-shell">
-    <header class="nav" aria-label="Navegación principal">
-      <a class="brand" href="#inicio" aria-label="Jardín Flor de Loto">
-        <img src="/assets/jardin-flor-de-loto-logo.png" alt="" />
-        <span>Jardín Flor de Loto</span>
+    <header class="nav" id="siteNav" aria-label="Navegación principal">
+      <a class="brand" id="lotusHomeLink" href="#inicio" aria-label="Ir al inicio">
+        <span class="lotus-logo" aria-hidden="true">
+          <img class="lotus-logo-image" src="/assets/flor-de-loto-portada.png" alt="" />
+          <i class="lotus-spark"></i>
+          <i class="lotus-spark"></i>
+          <i class="lotus-spark"></i>
+          <i class="lotus-spark"></i>
+        </span>
       </a>
-      <nav class="nav-links" aria-label="Secciones">
+      <nav class="nav-links" id="mainMenu" aria-label="Secciones">
         <a href="#regalos">Regalos</a>
         <a href="#plantas">Plantas</a>
         <a href="#maceteros">Maceteros</a>
         <a href="#contacto">Contacto</a>
       </nav>
-      <button type="button" class="cart-button" id="openCart">
-        <strong>Carrito</strong>
-        <span class="cart-count" id="cartCount">0</span>
-      </button>
+      <div class="nav-actions">
+        <a class="nav-icon" href="#plantas" aria-label="Buscar plantas">
+          <span class="search-mark" aria-hidden="true"></span>
+        </a>
+        <button type="button" class="nav-icon" aria-label="Cuenta de usuario">
+          <span class="user-mark" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="cart-button" id="openCart">
+          <span class="cart-symbol" aria-hidden="true"></span>
+          <strong>Carrito</strong>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-controls="mainMenu" aria-expanded="false">
+          <span class="menu-toggle-lines" aria-hidden="true"></span>
+        </button>
+      </div>
     </header>
 
     <main id="inicio">
@@ -1481,6 +1838,9 @@
     const cartStatus = document.getElementById("cartStatus");
     const checkoutForm = document.getElementById("checkoutForm");
     const payButton = document.getElementById("payButton");
+    const siteNav = document.getElementById("siteNav");
+    const menuToggle = document.getElementById("menuToggle");
+    const lotusHomeLink = document.getElementById("lotusHomeLink");
 
     document.title = BRAND_CONFIG.name.replace("Jardin", "Jardín");
 
@@ -1490,6 +1850,18 @@
     renderCart();
 
     document.getElementById("openCart").addEventListener("click", openCart);
+    menuToggle.addEventListener("click", () => {
+      const isOpen = siteNav.classList.toggle("menu-open");
+      menuToggle.setAttribute("aria-expanded", String(isOpen));
+      menuToggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
+    });
+    document.querySelectorAll(".nav-links a").forEach((link) => {
+      link.addEventListener("click", closeMobileMenu);
+    });
+    lotusHomeLink.addEventListener("pointerdown", () => {
+      lotusHomeLink.classList.add("is-active");
+      window.setTimeout(() => lotusHomeLink.classList.remove("is-active"), 700);
+    });
     document.getElementById("closeCart").addEventListener("click", closeCart);
     document.getElementById("closePackModal").addEventListener("click", closePackModal);
     document.getElementById("addPackToCart").addEventListener("click", addSelectedPackToCart);
@@ -1511,9 +1883,16 @@
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;
+      closeMobileMenu();
       closePackModal();
       closeCart();
     });
+
+    function closeMobileMenu() {
+      siteNav.classList.remove("menu-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.setAttribute("aria-label", "Abrir menú");
+    }
 
     function renderPacks() {
       packsGrid.innerHTML = packs.map((pack) => `
