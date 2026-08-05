@@ -1089,7 +1089,7 @@
           <div class="trust-item">
             <span class="trust-mark">02</span>
             <strong>Regalo completo</strong>
-            <span>Combina planta, macetero y globo en una sola experiencia.</span>
+            <span>Combina planta y macetero en una sola experiencia.</span>
           </div>
           <div class="trust-item">
             <span class="trust-mark">03</span>
@@ -1158,7 +1158,7 @@
             <div class="section-title">
               <span>Regalos</span>
               <h2 id="regalos-title">Packs con intención.</h2>
-              <p>Elige una base y personalízala con planta, macetero y globo.</p>
+              <p>Elige una base y personalízala con planta y macetero.</p>
             </div>
           </div>
           <div class="packs-grid" id="packsGrid"></div>
@@ -1238,10 +1238,6 @@
               <div class="field">
                 <label for="packPot">Macetero</label>
                 <select id="packPot"></select>
-              </div>
-              <div class="field full">
-                <label for="packBalloon">Globo</label>
-                <select id="packBalloon"></select>
               </div>
             </div>
           </div>
@@ -1364,7 +1360,6 @@
       }
     };
 
-    const balloons = ["Globo 1", "Globo 2", "Globo 3", "Sin globo"];
     const pots = [
       { name: "Macetero cerámico", image: "/images/premium-macetero1.png" },
       { name: "Macetero textura suave", image: "/images/premium-macetero2.png" },
@@ -1385,7 +1380,6 @@
     const packModalCopy = document.getElementById("packModalCopy");
     const packPlant = document.getElementById("packPlant");
     const packPot = document.getElementById("packPot");
-    const packBalloon = document.getElementById("packBalloon");
     const packStatus = document.getElementById("packStatus");
     const cartModal = document.getElementById("cartModal");
     const cartItems = document.getElementById("cartItems");
@@ -1509,7 +1503,6 @@
       packModalCopy.textContent = `${pack.description} Valor: ${formatCurrency(pack.price)}.`;
       packPlant.innerHTML = options.plants.map((option) => `<option value="${option.value}">${option.value}</option>`).join("");
       packPot.innerHTML = options.pots.map((option) => `<option value="${option}">${option}</option>`).join("");
-      packBalloon.innerHTML = balloons.map((option) => `<option value="${option}">${option}</option>`).join("");
       packStatus.textContent = "";
       updatePackPreview();
       packModal.classList.add("visible");
@@ -1542,7 +1535,7 @@
         details: {
           planta: packPlant.value,
           macetero: packPot.value,
-          globo: packBalloon.value
+          globo: "No aplica"
         }
       });
       packStatus.textContent = "Agregado al carrito.";
@@ -1572,7 +1565,7 @@
     }
 
     function addCartItem(item) {
-      const key = [item.type, item.name, item.details.planta, item.details.macetero, item.details.globo, item.price].join("|");
+      const key = [item.type, item.name, item.details.planta, item.details.macetero, item.price].join("|");
       const existing = state.cart.find((cartItem) => cartItem.key === key);
       if (existing) {
         existing.quantity += 1;
@@ -1596,7 +1589,7 @@
               <div class="cart-item-top">
                 <div>
                   <strong>${item.name}</strong>
-                  <p>${item.details.planta} · ${item.details.macetero} · ${item.details.globo}</p>
+                  <p>${item.details.planta} · ${item.details.macetero}</p>
                 </div>
                 <strong>${formatCurrency(item.price * item.quantity)}</strong>
               </div>
@@ -1664,14 +1657,14 @@
       const deliveryPrice = delivery.checked ? DELIVERY_PRICE : 0;
       const firstItem = state.cart[0];
 
-      const orderSummary = state.cart.map((item) => `${item.name} x${item.quantity}: ${item.details.planta}, ${item.details.macetero}, ${item.details.globo}`).join(" | ");
+      const orderSummary = state.cart.map((item) => `${item.name} x${item.quantity}: ${item.details.planta}, ${item.details.macetero}`).join(" | ");
       const payload = {
         amount: productsTotal + deliveryPrice,
         order: {
           pack: firstItem.name,
           planta: firstItem.details.planta,
           macetero: firstItem.details.macetero,
-          globo: firstItem.details.globo,
+          globo: "No aplica",
           delivery: delivery.checked,
           deliveryExtra: deliveryPrice,
           total: productsTotal + deliveryPrice,
