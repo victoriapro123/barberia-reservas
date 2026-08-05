@@ -405,6 +405,47 @@
       background-position: right center;
     }
 
+    .editorial-content {
+      position: relative;
+      z-index: 1;
+      min-height: 720px;
+      display: flex;
+      align-items: center;
+    }
+
+    .editorial-statement {
+      width: min(560px, 52vw);
+      margin: 0;
+      text-align: left;
+      text-wrap: balance;
+      text-shadow: 0 18px 48px rgba(0, 0, 0, 0.68);
+    }
+
+    .statement-lead,
+    .statement-accent {
+      display: block;
+    }
+
+    .statement-lead {
+      color: var(--cream);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: clamp(2.7rem, 5vw, 5.6rem);
+      font-weight: 900;
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+    }
+
+    .statement-accent {
+      margin-top: 0.12em;
+      color: var(--gold-soft);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3.1rem, 5.8vw, 6.4rem);
+      font-style: italic;
+      font-weight: 400;
+      line-height: 0.94;
+      letter-spacing: -0.04em;
+    }
+
     .section {
       padding: 86px 0;
     }
@@ -969,6 +1010,10 @@
         opacity: 0.34;
       }
 
+      .editorial-statement {
+        width: min(520px, 72vw);
+      }
+
       .section-head {
         display: grid;
         align-items: start;
@@ -1004,6 +1049,23 @@
 
       h1 {
         font-size: clamp(3rem, 16vw, 4.7rem);
+      }
+
+      .editorial-content {
+        align-items: flex-start;
+        padding-top: 170px;
+      }
+
+      .editorial-statement {
+        width: min(100%, 430px);
+      }
+
+      .statement-lead {
+        font-size: clamp(2.6rem, 12.5vw, 4.3rem);
+      }
+
+      .statement-accent {
+        font-size: clamp(3rem, 13.5vw, 4.8rem);
       }
 
       .hero-actions .button,
@@ -1104,7 +1166,13 @@
         </div>
       </section>
 
-      <section class="editorial-dark" aria-label="Presentación de plantas">
+      <section class="editorial-dark" aria-label="Inspiración para el hogar">
+        <div class="container editorial-content">
+          <h2 class="editorial-statement">
+            <span class="statement-lead">¿Qué esperas para</span>
+            <span class="statement-accent">darle vida a tu hogar?</span>
+          </h2>
+        </div>
       </section>
 
       <section class="section" aria-labelledby="experiencia-title">
