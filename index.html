@@ -502,6 +502,15 @@
       max-width: 680px;
     }
 
+    .experience-title {
+      max-width: 100%;
+    }
+
+    .experience-title h2 {
+      font-size: clamp(2.2rem, 3.5vw, 3.55rem);
+      white-space: nowrap;
+    }
+
     .section-title span {
       color: var(--green);
       font-size: 0.84rem;
@@ -779,6 +788,12 @@
       text-decoration: none;
     }
 
+    .whatsapp-fab img {
+      width: 29px;
+      height: 29px;
+      filter: brightness(0) invert(1);
+    }
+
     .modal,
     .cart-modal {
       position: fixed;
@@ -1019,6 +1034,10 @@
         align-items: start;
       }
 
+      .experience-title h2 {
+        white-space: normal;
+      }
+
       .modal-grid,
       .form-grid {
         grid-template-columns: 1fr;
@@ -1178,7 +1197,7 @@
       <section class="section" aria-labelledby="experiencia-title">
         <div class="container">
           <div class="section-head">
-            <div class="section-title">
+            <div class="section-title experience-title">
               <span>Experiencia</span>
               <h2 id="experiencia-title">Verde bonito, cuidado y memorable.</h2>
               <p>Una vitrina ordenada para elegir rápido, comparar mejor y comprar con confianza.</p>
@@ -1284,7 +1303,7 @@
   </div>
 
   <a class="whatsapp-fab" href="https://wa.me/56998462648?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Jard%C3%ADn%20Flor%20de%20Loto" target="_blank" rel="noopener" aria-label="Hablar por WhatsApp">
-    <span aria-hidden="true">WA</span>
+    <img src="/assets/whatsapp.svg" alt="" aria-hidden="true" />
   </a>
 
   <div class="modal" id="packModal" aria-hidden="true">
