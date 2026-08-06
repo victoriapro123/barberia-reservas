@@ -95,14 +95,12 @@
       min-height: 84px;
       padding: 8px 15px 8px 22px;
       color: var(--cream);
-      background:
-        radial-gradient(circle at 4% 50%, rgba(130, 157, 94, 0.18), transparent 25%),
-        linear-gradient(105deg, rgba(10, 58, 41, 0.72), rgba(8, 69, 49, 0.62) 52%, rgba(8, 48, 35, 0.7));
-      border: 1px solid rgba(218, 191, 112, 0.5);
+      background: transparent;
+      border: 1px solid rgba(255, 249, 239, 0.24);
       border-radius: 999px;
-      box-shadow: 0 12px 30px rgba(1, 12, 8, 0.28), 0 2px 8px rgba(201, 169, 85, 0.12);
-      backdrop-filter: blur(20px) saturate(125%);
-      -webkit-backdrop-filter: blur(20px) saturate(125%);
+      box-shadow: 0 12px 30px rgba(1, 12, 8, 0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .brand {
@@ -1460,15 +1458,7 @@
 <body>
   <div class="site-shell">
     <header class="nav" id="siteNav" aria-label="Navegación principal">
-      <a class="brand" id="lotusHomeLink" href="#inicio" aria-label="Ir al inicio">
-        <span class="lotus-logo" aria-hidden="true">
-          <img class="lotus-logo-image" src="/assets/navbar-lotus.png" alt="" />
-          <i class="lotus-spark"></i>
-          <i class="lotus-spark"></i>
-          <i class="lotus-spark"></i>
-          <i class="lotus-spark"></i>
-        </span>
-      </a>
+      <span class="nav-spacer" aria-hidden="true"></span>
       <nav class="nav-links" id="mainMenu" aria-label="Secciones">
         <a href="#regalos">Regalos</a>
         <a href="#plantas">Plantas</a>
@@ -1841,7 +1831,6 @@
     const payButton = document.getElementById("payButton");
     const siteNav = document.getElementById("siteNav");
     const menuToggle = document.getElementById("menuToggle");
-    const lotusHomeLink = document.getElementById("lotusHomeLink");
 
     document.title = BRAND_CONFIG.name.replace("Jardin", "Jardín");
 
@@ -1858,10 +1847,6 @@
     });
     document.querySelectorAll(".nav-links a").forEach((link) => {
       link.addEventListener("click", closeMobileMenu);
-    });
-    lotusHomeLink.addEventListener("pointerdown", () => {
-      lotusHomeLink.classList.add("is-active");
-      window.setTimeout(() => lotusHomeLink.classList.remove("is-active"), 700);
     });
     document.getElementById("closeCart").addEventListener("click", closeCart);
     document.getElementById("closePackModal").addEventListener("click", closePackModal);
